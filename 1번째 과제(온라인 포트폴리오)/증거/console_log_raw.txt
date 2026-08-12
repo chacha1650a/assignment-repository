@@ -1,0 +1,8 @@
+[5336:3732:0812/165333.877:WARNING:chrome\browser\extensions\activity_log\activity_log_policy.cc:71] Scheduling init
+[5336:3732:0812/165333.877:WARNING:chrome\browser\extensions\activity_log\activity_log_policy.cc:71] Scheduling init
+[5336:3732:0812/165334.033:WARNING:chrome\browser\extensions\external_registry_loader_win.cc:283] Error observing HKLM: 5
+[5336:3732:0812/165334.386:INFO:CONSOLE:4649] "[ProtocolLaunch] handler constructed; wiring port events.", source: chrome-extension://ndcpkimcihhghdcddljkfmmjccdmcmof/background.rollup.js (4649)
+[5336:3732:0812/165334.638:WARNING:chrome\browser\edge_pinned_sites\pinned_sites_cache.cc:238] Cache isn't initialized
+[5336:3732:0812/165334.805:ERROR:chrome\browser\task_manager\providers\fallback_task_provider.cc:126] Every renderer should have at least one task provided by a primary task provider. If a "Renderer" fallback task is shown, it is a bug. If you have repro steps, please file a new bug and tag it as a dependency of crbug.com/40528867.
+[5336:3732:0812/165334.899:WARNING:chrome\browser\edge_pinned_sites\pinned_sites_cache.cc:238] Cache isn't initialized
+[5336:3732:0812/165334.929:WARNING:chrome\browser\edge_pinned_sites\pinned_sites_cache.cc:238] Cache isn't initialized
