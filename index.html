@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>김대훈 | K-뉴딜 과제 모음</title>
+<meta name="description" content="김대훈의 K-뉴딜 국비교육 과제 모음">
+<style>
+  :root {
+    --bg: #0b1120;
+    --bg-elevated: #131c31;
+    --border: #253150;
+    --text: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --accent: #a5b4fc;
+    --accent-strong: #6366f1;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, -apple-system, sans-serif;
+    background:
+      radial-gradient(circle at 15% 0%, rgba(99, 102, 241, 0.18), transparent 45%),
+      var(--bg);
+    color: var(--text);
+  }
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 64px 24px;
+  }
+  .eyebrow {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.02em;
+    margin: 0 0 12px;
+  }
+  h1 {
+    margin: 0 0 8px;
+    font-size: clamp(1.8rem, 4vw, 2.4rem);
+  }
+  p.lead {
+    margin: 0 0 40px;
+    color: var(--text-secondary);
+    max-width: 560px;
+  }
+  ul.assignment-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .assignment-card {
+    display: block;
+    padding: 20px 24px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .assignment-card:hover,
+  .assignment-card:focus-visible {
+    border-color: var(--accent-strong);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px -12px rgba(99, 102, 241, 0.35);
+    outline: none;
+  }
+  .assignment-card:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .assignment-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 1.05rem;
+    margin-bottom: 6px;
+  }
+  .assignment-num {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    font-size: 0.8rem;
+    color: var(--accent);
+    background: rgba(99, 102, 241, 0.12);
+    border: 1px solid var(--border);
+    padding: 2px 8px;
+    border-radius: 999px;
+  }
+  .assignment-desc {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+  }
+  .placeholder {
+    padding: 20px 24px;
+    border: 1px dashed var(--border);
+    border-radius: 12px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+  }
+  footer {
+    margin-top: 48px;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+  }
+  footer a { color: var(--accent); }
+</style>
+</head>
+<body>
+  <div class="container">
+    <p class="eyebrow">K-뉴딜 국비교육 과제 모음</p>
+    <h1>김대훈</h1>
+    <p class="lead">국비교육 과정에서 진행한 과제들을 폴더별로 모아두는 저장소입니다. 아래에서 과제를 선택해 확인하세요.</p>
+
+    <ul class="assignment-list">
+      <li>
+        <a class="assignment-card" href="./1%EB%B2%88%EC%A7%B8%20%EA%B3%BC%EC%A0%9C(%EC%98%A8%EB%9D%BC%EC%9D%B8%20%ED%8F%AC%ED%8A%B8%ED%8F%B4%EB%A6%AC%EC%98%A4)/index.html">
+          <div class="assignment-title">
+            <span class="assignment-num">01</span>
+            온라인 포트폴리오
+          </div>
+          <p class="assignment-desc">강사님께 보여드리는 K-뉴딜 과제용 온라인 포트폴리오 페이지</p>
+        </a>
+      </li>
+
+      <li class="placeholder">다음 과제는 완료 후 여기에 추가될 예정입니다.</li>
+    </ul>
+
+    <footer>
+      <a href="https://github.com/chacha1650a" target="_blank" rel="noopener noreferrer">github.com/chacha1650a</a>
+    </footer>
+  </div>
+</body>
+</html>
