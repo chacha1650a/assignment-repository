@@ -108,14 +108,73 @@ button:focus-visible {
 
 /* Hero */
 .hero {
-  background:
-    radial-gradient(circle at 15% 0%, rgba(99, 102, 241, 0.18), transparent 45%),
-    var(--hero-bg);
+  position: relative;
+  overflow: hidden;
+  background: var(--hero-bg);
   border-bottom: 1px solid var(--hero-border);
   color: var(--hero-text);
 }
 
+/* 오로라 배경 — 흐릿한 색 덩어리가 천천히 움직이는 은은한 효과 */
+.aurora {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.aurora-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.32;
+  will-change: transform;
+}
+
+.aurora-blob-1 {
+  width: 440px;
+  height: 440px;
+  top: -160px;
+  left: -100px;
+  background: #6366f1;
+  animation: aurora-drift-1 24s ease-in-out infinite;
+}
+
+.aurora-blob-2 {
+  width: 380px;
+  height: 380px;
+  top: 30%;
+  right: -140px;
+  background: #22d3ee;
+  animation: aurora-drift-2 28s ease-in-out infinite;
+}
+
+.aurora-blob-3 {
+  width: 360px;
+  height: 360px;
+  bottom: -180px;
+  left: 28%;
+  background: #a855f7;
+  animation: aurora-drift-3 32s ease-in-out infinite;
+}
+
+@keyframes aurora-drift-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(70px, 50px) scale(1.15); }
+}
+@keyframes aurora-drift-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-60px, 40px) scale(0.9); }
+}
+@keyframes aurora-drift-3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(50px, -60px) scale(1.1); }
+}
+
 .hero-grid {
+  position: relative;
+  z-index: 1;
   padding: clamp(40px, 7vh, 76px) 24px;
   display: grid;
   grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
@@ -464,6 +523,10 @@ button:focus-visible {
   }
 
   .code-card-body.is-typing #typed-code::after {
+    animation: none;
+  }
+
+  .aurora-blob {
     animation: none;
   }
 }
