@@ -60,11 +60,22 @@ var prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)")
       if (preEl) preEl.classList.remove("is-typing");
       return;
     }
-    var ch = plainText[i];
-    codeEl.textContent += ch;
-    i++;
-    // 줄바꿈·공백 뒤에는 살짝 더 빠르게, 일반 문자는 타이핑감 있게
-    var delay = ch === "\n" ? 90 : ch === " " ? 8 : 14 + Math.random() * 10;
+    // "타다닥" 느낌을 위해 한 번에 2~4글자씩 묶어서 빠르게 찍음
+    var chunkSize = 2 + Math.floor(Math.random() * 3);
+    var endedWithNewline = false;
+    for (var n = 0; n < chunkSize && i < plainText.length; n++) {
+      var ch = plainText[i];
+      codeEl.textContent += ch;
+      endedWithNewline = ch === "\n";
+      i++;
+      if (endedWithNewline) break; // 줄이 바뀌는 지점에서 묶음을 끊어서 다음 줄은 다시 처음부터 타다닥
+    }
+    if (i >= plainText.length) {
+      codeEl.innerHTML = original;
+      if (preEl) preEl.classList.remove("is-typing");
+      return;
+    }
+    var delay = endedWithNewline ? 55 : 12 + Math.random() * 10;
     setTimeout(typeNext, delay);
   }
 
