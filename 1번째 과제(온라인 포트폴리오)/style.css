@@ -20,6 +20,45 @@
   box-sizing: border-box;
 }
 
+/* 등장 애니메이션 (히어로 순차 등장 / 스크롤 등장 공용) */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reveal-item {
+  opacity: 0;
+  animation: fade-up 0.6s ease forwards;
+}
+.reveal-item:nth-child(1) { animation-delay: 0.05s; }
+.reveal-item:nth-child(2) { animation-delay: 0.15s; }
+.reveal-item:nth-child(3) { animation-delay: 0.25s; }
+.reveal-item:nth-child(4) { animation-delay: 0.35s; }
+.reveal-item:nth-child(5) { animation-delay: 0.45s; }
+.reveal-item:nth-child(6) { animation-delay: 0.55s; }
+
+.hero-code {
+  opacity: 0;
+  animation: fade-up 0.7s ease forwards;
+  animation-delay: 0.3s;
+}
+
+/* 스크롤하면서 나타나는 요소 (JS가 .is-visible을 붙임)
+   카드의 hover translateY와 충돌하지 않도록 opacity만 사용 — 트랜지션 타이밍은
+   .strength-card 쪽 transition 선언에 opacity를 추가해 함께 관리함 */
+.scroll-reveal {
+  opacity: 0;
+}
+.scroll-reveal.is-visible {
+  opacity: 1;
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -243,6 +282,18 @@ button:focus-visible {
 .tok-key { color: #93c5fd; }
 .tok-string { color: #fbbf7d; }
 
+/* 타이핑 애니메이션 중 깜빡이는 커서 */
+@keyframes caret-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.code-card-body.is-typing #typed-code::after {
+  content: "▍";
+  color: var(--hero-accent);
+  animation: caret-blink 0.9s step-start infinite;
+}
+
 /* Evidence section */
 .evidence {
   padding: 56px 0 72px;
@@ -282,7 +333,7 @@ button:focus-visible {
   padding: 22px;
   background: var(--color-bg);
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
-  transition: box-shadow 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
+  transition: box-shadow 0.15s ease, transform 0.15s ease, border-color 0.15s ease, opacity 0.5s ease;
 }
 
 .strength-card:hover {
@@ -397,6 +448,23 @@ button:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   .strength-panel {
     transition: none;
+  }
+
+  .reveal-item,
+  .hero-code {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .scroll-reveal {
+    transition: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .code-card-body.is-typing #typed-code::after {
+    animation: none;
   }
 }
 

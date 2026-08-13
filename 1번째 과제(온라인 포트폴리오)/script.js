@@ -35,3 +35,67 @@ document.querySelectorAll(".strength-toggle").forEach(function (button) {
     button.querySelector(".toggle-icon").textContent = expanded ? "+" : "−";
   });
 });
+
+var prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+// 코드 카드 타이핑 애니메이션
+(function () {
+  var codeEl = document.getElementById("typed-code");
+  if (!codeEl) return;
+
+  if (prefersReducedMotion) return; // 이미 정적 문법 강조 상태로 렌더링되어 있으므로 그대로 둠
+
+  var preEl = codeEl.closest(".code-card-body");
+  var original = codeEl.innerHTML;
+  var plainText = codeEl.textContent;
+
+  codeEl.textContent = "";
+  if (preEl) preEl.classList.add("is-typing");
+
+  var i = 0;
+  function typeNext() {
+    if (i >= plainText.length) {
+      // 다 친 뒤에는 원래의 문법 강조(색상) 버전으로 교체
+      codeEl.innerHTML = original;
+      if (preEl) preEl.classList.remove("is-typing");
+      return;
+    }
+    var ch = plainText[i];
+    codeEl.textContent += ch;
+    i++;
+    // 줄바꿈·공백 뒤에는 살짝 더 빠르게, 일반 문자는 타이핑감 있게
+    var delay = ch === "\n" ? 90 : ch === " " ? 8 : 14 + Math.random() * 10;
+    setTimeout(typeNext, delay);
+  }
+
+  setTimeout(typeNext, 500); // 히어로 등장 애니메이션과 타이밍 맞춤
+})();
+
+// 강점 카드 스크롤 등장
+(function () {
+  var items = document.querySelectorAll(".scroll-reveal");
+  if (!items.length) return;
+
+  if (prefersReducedMotion || !("IntersectionObserver" in window)) {
+    items.forEach(function (el) {
+      el.classList.add("is-visible");
+    });
+    return;
+  }
+
+  var observer = new IntersectionObserver(
+    function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.15, rootMargin: "0px 0px -40px 0px" }
+  );
+
+  items.forEach(function (el) {
+    observer.observe(el);
+  });
+})();
