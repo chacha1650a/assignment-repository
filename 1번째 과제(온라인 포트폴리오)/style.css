@@ -348,12 +348,16 @@ button:focus-visible {
   box-shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.6);
 }
 
+/* 위쪽은 살짝 밝게, 아래쪽은 그림자로 눌러서 바가 실제로 두께를 가진 것처럼 보이게 함 */
 .code-card-bar {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 10px 14px;
+  padding: 12px 14px;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0) 60%);
   border-bottom: 1px solid var(--hero-border);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.09), 0 2px 5px rgba(0, 0, 0, 0.3);
+  position: relative;
 }
 
 .dot {
