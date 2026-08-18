@@ -481,60 +481,88 @@ button:focus-visible {
   color: var(--color-accent);
 }
 
-.gallery-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+.gallery-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
 }
 
-.shot-card {
+/* 사진 · 설명을 좌우로 배치하고, 항목마다 번갈아 뒤집어서 지그재그 리듬을 줌 */
+.shot-row {
   margin: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 0;
   background: #ffffff;
   border: 1px solid var(--color-border);
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 16px 32px -20px rgba(15, 23, 42, 0.3);
-  display: flex;
-  flex-direction: column;
+}
+
+.shot-row .shot-frame {
+  order: 1;
+}
+.shot-row figcaption {
+  order: 2;
+}
+.shot-row-reverse .shot-frame {
+  order: 2;
+}
+.shot-row-reverse figcaption {
+  order: 1;
 }
 
 .shot-frame {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 220px;
+  align-self: stretch;
+  min-height: 260px;
   background: var(--color-bg-alt);
-  border-bottom: 1px solid var(--color-border);
-  padding: 12px;
+  padding: 20px;
 }
 
 .shot-frame img {
   display: block;
   width: 100%;
-  max-height: 320px;
+  max-height: 360px;
   object-fit: contain;
   border-radius: 6px;
 }
 
-.shot-card figcaption {
-  padding: 16px 18px 20px;
+.shot-row figcaption {
+  padding: 24px 32px;
 }
 
-.shot-card h3 {
-  margin: 0 0 6px;
-  font-size: 1rem;
+.shot-row h3 {
+  margin: 0 0 10px;
+  font-size: 1.15rem;
 }
 
-.shot-card p {
+.shot-row p {
   margin: 0;
-  font-size: 0.88rem;
-  line-height: 1.55;
+  font-size: 0.95rem;
+  line-height: 1.65;
   color: var(--color-text-secondary);
 }
 
 @media (max-width: 760px) {
-  .gallery-grid {
+  .shot-row,
+  .shot-row-reverse {
     grid-template-columns: 1fr;
+  }
+  .shot-row .shot-frame,
+  .shot-row-reverse .shot-frame {
+    order: 1;
+  }
+  .shot-row figcaption,
+  .shot-row-reverse figcaption {
+    order: 2;
+  }
+  .shot-frame {
+    min-height: 200px;
   }
 }
 
