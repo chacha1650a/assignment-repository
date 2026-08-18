@@ -290,6 +290,13 @@ button:focus-visible {
   flex-shrink: 0;
 }
 
+.btn-icon-arrow {
+  transition: transform 0.15s ease;
+}
+.btn:hover .btn-icon-arrow {
+  transform: translateX(3px);
+}
+
 .btn:hover {
   transform: translateY(-1px);
 }
@@ -297,9 +304,12 @@ button:focus-visible {
 .btn-primary {
   background: #4f46e5;
   color: #ffffff;
+  box-shadow: 0 10px 24px -10px rgba(79, 70, 229, 0.6);
+  transition: transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
 }
 .btn-primary:hover {
   background: #4338ca;
+  box-shadow: 0 14px 28px -10px rgba(67, 56, 202, 0.65);
 }
 
 .btn-secondary {
@@ -415,13 +425,15 @@ button:focus-visible {
 }
 
 .btn-outline {
-  background: transparent;
+  background: #ffffff;
   color: var(--color-accent);
   border-color: var(--color-accent);
+  transition: transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
 }
 .btn-outline:hover {
   background: var(--color-accent);
   color: #ffffff;
+  box-shadow: 0 10px 22px -10px rgba(67, 56, 202, 0.5);
 }
 
 /* 기술 스택 뱃지 — GitHub README의 shields.io 뱃지 느낌으로 기술별 고유 색상 사용 */
