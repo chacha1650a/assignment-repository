@@ -201,7 +201,9 @@ button:focus-visible {
 
 .hero-grid {
   position: relative;
-  z-index: 1;
+  /* 하단 페이드 그라데이션(::after, z-index:1)보다 항상 위에 그려지도록 더 높은 값을 줌 —
+     안 그러면 버튼·코드 카드가 그라데이션에 씻겨 흐릿해 보임 */
+  z-index: 2;
   padding: clamp(40px, 7vh, 76px) 24px;
   display: grid;
   grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
