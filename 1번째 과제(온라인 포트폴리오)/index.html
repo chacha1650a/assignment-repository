@@ -48,21 +48,31 @@
       </div>
     </div>
 
-    <div class="hero-code" aria-hidden="true">
+    <div class="hero-code">
       <div class="code-card">
         <div class="code-card-bar">
-          <span class="dot dot-red"></span>
-          <span class="dot dot-yellow"></span>
-          <span class="dot dot-green"></span>
+          <span class="dot dot-red" aria-hidden="true"></span>
+          <span class="dot dot-yellow" aria-hidden="true"></span>
+          <span class="dot dot-green" aria-hidden="true"></span>
           <span class="code-card-filename">profile.js</span>
+          <button type="button" class="code-run-btn" aria-label="코드 실행">
+            <svg class="run-icon" viewBox="0 0 16 16" width="11" height="11" aria-hidden="true" focusable="false">
+              <path fill="currentColor" d="M4 2.5a1 1 0 0 1 1.5-.87l8 5a1 1 0 0 1 0 1.74l-8 5A1 1 0 0 1 4 12.5v-10z"/>
+            </svg>
+            실행
+          </button>
         </div>
-        <pre class="code-card-body"><code id="typed-code"><span class="tok-comment">// K-뉴딜 온라인 포트폴리오</span>
+        <pre class="code-card-body" aria-hidden="true"><code id="typed-code"><span class="tok-comment">// K-뉴딜 온라인 포트폴리오</span>
 <span class="tok-keyword">const</span> <span class="tok-var">developer</span> = {
   <span class="tok-key">name</span>: <span class="tok-string">"김대훈"</span>,
   <span class="tok-key">stack</span>: [<span class="tok-string">"React"</span>, <span class="tok-string">"Spring Boot"</span>, <span class="tok-string">"MySQL"</span>],
   <span class="tok-key">project</span>: <span class="tok-string">"Clov."</span>,
   <span class="tok-key">strength</span>: <span class="tok-string">"끝까지 파고드는 근성"</span>,
 };</code></pre>
+        <div class="code-console" id="code-console" role="status">
+          <p><span class="console-prompt" aria-hidden="true">&gt;</span> node profile.js</p>
+          <p class="console-result">✔ developer 객체 실행 완료</p>
+        </div>
       </div>
     </div>
   </div>

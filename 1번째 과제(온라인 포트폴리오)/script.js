@@ -65,75 +65,119 @@
 var prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 // 코드 카드 타이핑 애니메이션 — 원래의 문법 강조 구조(span)는 그대로 두고
-// 그 안의 글자만 하나씩 채워 넣어서, 타이핑되는 순간부터 색이 바로 보이게 함
+// 그 안의 글자만 하나씩 채워 넣어서, 타이핑되는 순간부터 색이 바로 보이게 함.
+// "실행" 버튼을 누르면 같은 애니메이션을 처음부터 다시 재생하고, 끝나면 콘솔 출력을 보여줌
 (function () {
   var codeEl = document.getElementById("typed-code");
   if (!codeEl) return;
 
-  if (prefersReducedMotion) return; // 이미 정적 문법 강조 상태로 렌더링되어 있으므로 그대로 둠
-
   var preEl = codeEl.closest(".code-card-body");
+  var runBtn = document.querySelector(".code-run-btn");
+  var consoleEl = document.getElementById("code-console");
+  var isRunning = false;
 
-  // 원본 구조를 감춰진 곳에 보관해두고, 같은 구조(빈 텍스트)를 실제 자리에 다시 만듦
-  var sourceRoot = document.createElement("div");
-  sourceRoot.innerHTML = codeEl.innerHTML;
+  function runTyping(onDone) {
+    if (isRunning) return;
+    isRunning = true;
+    if (runBtn) runBtn.disabled = true;
 
-  var queue = [];
-  function buildSkeleton(node, parent) {
-    if (node.nodeType === Node.TEXT_NODE) {
-      var text = node.textContent;
-      var liveText = document.createTextNode("");
-      parent.appendChild(liveText);
-      for (var idx = 0; idx < text.length; idx++) {
-        (function (ch) {
-          queue.push(function () {
-            liveText.textContent += ch;
-            return ch;
-          });
-        })(text[idx]);
+    // 현재 코드 내용(항상 완성된 상태)을 원본 삼아, 같은 구조(빈 텍스트)를 다시 만듦
+    var sourceRoot = document.createElement("div");
+    sourceRoot.innerHTML = codeEl.innerHTML;
+
+    var queue = [];
+    function buildSkeleton(node, parent) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        var text = node.textContent;
+        var liveText = document.createTextNode("");
+        parent.appendChild(liveText);
+        for (var idx = 0; idx < text.length; idx++) {
+          (function (ch) {
+            queue.push(function () {
+              liveText.textContent += ch;
+              return ch;
+            });
+          })(text[idx]);
+        }
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        var liveEl = document.createElement(node.tagName);
+        for (var a = 0; a < node.attributes.length; a++) {
+          liveEl.setAttribute(node.attributes[a].name, node.attributes[a].value);
+        }
+        parent.appendChild(liveEl);
+        Array.prototype.forEach.call(node.childNodes, function (child) {
+          buildSkeleton(child, liveEl);
+        });
       }
-    } else if (node.nodeType === Node.ELEMENT_NODE) {
-      var liveEl = document.createElement(node.tagName);
-      for (var a = 0; a < node.attributes.length; a++) {
-        liveEl.setAttribute(node.attributes[a].name, node.attributes[a].value);
+    }
+
+    codeEl.innerHTML = "";
+    Array.prototype.forEach.call(sourceRoot.childNodes, function (child) {
+      buildSkeleton(child, codeEl);
+    });
+
+    if (preEl) preEl.classList.add("is-typing");
+
+    function finish() {
+      if (preEl) preEl.classList.remove("is-typing");
+      isRunning = false;
+      if (runBtn) runBtn.disabled = false;
+      if (onDone) onDone();
+    }
+
+    var i = 0;
+    function typeNext() {
+      if (i >= queue.length) {
+        finish();
+        return;
       }
-      parent.appendChild(liveEl);
-      Array.prototype.forEach.call(node.childNodes, function (child) {
-        buildSkeleton(child, liveEl);
+      // "타다닥" 느낌을 위해 한 번에 2~4글자씩 묶어서 빠르게 찍음
+      var chunkSize = 2 + Math.floor(Math.random() * 3);
+      var lastCh = "";
+      for (var n = 0; n < chunkSize && i < queue.length; n++) {
+        lastCh = queue[i]();
+        i++;
+        if (lastCh === "\n") break; // 줄이 바뀌는 지점에서 묶음을 끊어서 다음 줄은 다시 처음부터 타다닥
+      }
+      if (i >= queue.length) {
+        finish();
+        return;
+      }
+      var delay = lastCh === "\n" ? 55 : 12 + Math.random() * 10;
+      setTimeout(typeNext, delay);
+    }
+
+    typeNext();
+  }
+
+  if (!prefersReducedMotion) {
+    setTimeout(function () {
+      runTyping();
+    }, 500); // 히어로 등장 애니메이션과 타이밍 맞춤
+  }
+
+  if (runBtn) {
+    runBtn.addEventListener("click", function () {
+      if (consoleEl) consoleEl.classList.remove("is-shown");
+
+      if (prefersReducedMotion) {
+        // 모션 감소 환경: 타이핑은 재생하지 않고 콘솔 결과만 즉시 보여줌
+        if (consoleEl) {
+          void consoleEl.offsetWidth; // 강제 리플로우로 재실행 느낌을 줌
+          consoleEl.classList.add("is-shown");
+        }
+        return;
+      }
+
+      runTyping(function () {
+        if (consoleEl) {
+          setTimeout(function () {
+            consoleEl.classList.add("is-shown");
+          }, 150);
+        }
       });
-    }
+    });
   }
-
-  codeEl.innerHTML = "";
-  Array.prototype.forEach.call(sourceRoot.childNodes, function (child) {
-    buildSkeleton(child, codeEl);
-  });
-
-  if (preEl) preEl.classList.add("is-typing");
-
-  var i = 0;
-  function typeNext() {
-    if (i >= queue.length) {
-      if (preEl) preEl.classList.remove("is-typing");
-      return;
-    }
-    // "타다닥" 느낌을 위해 한 번에 2~4글자씩 묶어서 빠르게 찍음
-    var chunkSize = 2 + Math.floor(Math.random() * 3);
-    var lastCh = "";
-    for (var n = 0; n < chunkSize && i < queue.length; n++) {
-      lastCh = queue[i]();
-      i++;
-      if (lastCh === "\n") break; // 줄이 바뀌는 지점에서 묶음을 끊어서 다음 줄은 다시 처음부터 타다닥
-    }
-    if (i >= queue.length) {
-      if (preEl) preEl.classList.remove("is-typing");
-      return;
-    }
-    var delay = lastCh === "\n" ? 55 : 12 + Math.random() * 10;
-    setTimeout(typeNext, delay);
-  }
-
-  setTimeout(typeNext, 500); // 히어로 등장 애니메이션과 타이밍 맞춤
 })();
 
 // 강점 카드 스크롤 등장

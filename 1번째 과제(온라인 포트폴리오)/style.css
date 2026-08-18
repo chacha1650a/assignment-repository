@@ -376,6 +376,40 @@ button:focus-visible {
   color: var(--hero-text-secondary);
 }
 
+/* 실행 버튼 — 바 맨 오른쪽 */
+.code-run-btn {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--hero-border);
+  color: var(--hero-text-secondary);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 4px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+.code-run-btn:hover {
+  background: rgba(165, 180, 252, 0.14);
+  color: var(--hero-accent);
+  border-color: var(--hero-accent);
+}
+.code-run-btn:active {
+  transform: scale(0.95);
+}
+.code-run-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.run-icon {
+  color: #34d399;
+}
+
 .code-card-body {
   margin: 0;
   padding: 18px 20px;
@@ -402,6 +436,38 @@ button:focus-visible {
   content: "▍";
   color: var(--hero-accent);
   animation: caret-blink 0.9s step-start infinite;
+}
+
+/* 실행 버튼을 누르면 나타나는 가짜 콘솔 출력 */
+.code-console {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  margin: 0 20px;
+  border-top: 1px dashed transparent;
+  transition: max-height 0.35s ease, opacity 0.3s ease, margin 0.35s ease, padding 0.35s ease;
+}
+.code-console.is-shown {
+  max-height: 90px;
+  opacity: 1;
+  margin: 0 20px 18px;
+  padding-top: 12px;
+  border-top-color: var(--hero-border);
+}
+.code-console p {
+  margin: 0 0 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: var(--hero-text-secondary);
+}
+.console-prompt {
+  color: var(--hero-accent);
+  font-weight: 700;
+  margin-right: 4px;
+}
+.console-result {
+  color: #34d399;
 }
 
 /* Project intro (Clov.) */
@@ -824,6 +890,10 @@ button:focus-visible {
   }
 
   .code-card {
+    transition: none;
+  }
+
+  .code-console {
     transition: none;
   }
 }
