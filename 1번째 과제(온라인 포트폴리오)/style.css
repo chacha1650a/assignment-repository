@@ -487,64 +487,73 @@ button:focus-visible {
   gap: 28px;
 }
 
-/* 사진 · 설명을 좌우로 배치하고, 항목마다 번갈아 뒤집어서 지그재그 리듬을 줌 */
+/* 사진 · 설명을 좌우로 배치 — 카드 박스 없이, 사진은 폴라로이드처럼 살짝 기울여 그림자로 띄우고
+   항목마다 기울기를 번갈아서 지그재그 리듬을 줌. 텍스트는 제목+본문 느낌으로 크게 */
 .shot-row {
   margin: 0;
   display: grid;
   grid-template-columns: 1fr 1fr;
   align-items: center;
-  gap: 0;
-  background: #ffffff;
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 16px 32px -20px rgba(15, 23, 42, 0.3);
+  gap: 48px;
 }
 
 .shot-row .shot-frame {
   order: 1;
+  justify-self: end;
 }
 .shot-row figcaption {
   order: 2;
+  justify-self: start;
 }
 .shot-row-reverse .shot-frame {
   order: 2;
+  justify-self: start;
 }
 .shot-row-reverse figcaption {
   order: 1;
+  justify-self: end;
 }
 
 .shot-frame {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  align-self: stretch;
-  min-height: 260px;
-  background: var(--color-bg-alt);
-  padding: 20px;
+  width: 100%;
+  max-width: 380px;
+  background: #ffffff;
+  padding: 12px 12px 32px;
+  box-shadow: 0 26px 48px -18px rgba(15, 23, 42, 0.4), 0 6px 16px rgba(15, 23, 42, 0.12);
+  transform: rotate(-4deg);
+  transition: transform 0.35s ease;
+}
+.shot-row-reverse .shot-frame {
+  transform: rotate(4deg);
+}
+.shot-row:hover .shot-frame {
+  transform: rotate(-1deg) scale(1.03);
+}
+.shot-row-reverse:hover .shot-frame {
+  transform: rotate(1deg) scale(1.03);
 }
 
 .shot-frame img {
   display: block;
   width: 100%;
-  max-height: 360px;
+  max-height: 320px;
   object-fit: contain;
-  border-radius: 6px;
 }
 
 .shot-row figcaption {
-  padding: 24px 32px;
+  max-width: 420px;
+  text-align: left;
 }
 
 .shot-row h3 {
-  margin: 0 0 10px;
-  font-size: 1.15rem;
+  margin: 0 0 12px;
+  font-size: clamp(1.3rem, 2.4vw, 1.6rem);
 }
 
 .shot-row p {
   margin: 0;
-  font-size: 0.95rem;
-  line-height: 1.65;
+  font-size: 1.05rem;
+  line-height: 1.75;
   color: var(--color-text-secondary);
 }
 
@@ -552,17 +561,24 @@ button:focus-visible {
   .shot-row,
   .shot-row-reverse {
     grid-template-columns: 1fr;
+    gap: 20px;
   }
   .shot-row .shot-frame,
   .shot-row-reverse .shot-frame {
     order: 1;
+    justify-self: center;
+    max-width: 320px;
+    transform: rotate(-2deg);
+  }
+  .shot-row:hover .shot-frame,
+  .shot-row-reverse:hover .shot-frame {
+    transform: rotate(-2deg);
   }
   .shot-row figcaption,
   .shot-row-reverse figcaption {
     order: 2;
-  }
-  .shot-frame {
-    min-height: 200px;
+    justify-self: center;
+    max-width: 100%;
   }
 }
 
@@ -767,6 +783,10 @@ button:focus-visible {
 
   .aurora-blob {
     animation: none;
+  }
+
+  .shot-frame {
+    transition: none;
   }
 }
 
