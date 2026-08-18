@@ -70,7 +70,7 @@
 
 <main id="main">
   <section class="project-intro" id="project" aria-labelledby="project-heading">
-    <div class="container project-grid">
+    <div class="container">
       <div class="project-text scroll-reveal">
         <p class="eyebrow-light">TEAM PROJECT · 2026.06.26 – 2026.08.14 · 4인</p>
         <h2 id="project-heading">Clov. — 약속이 자라나는 공간</h2>
@@ -83,43 +83,60 @@
           <a class="btn btn-outline" href="https://github.com/Pickeslog/clov-api" target="_blank" rel="noopener noreferrer">GitHub 저장소</a>
         </div>
         <ul class="tech-badges" aria-label="Clov 프로젝트 팀 기술 스택">
-          <li>Java 21</li>
-          <li>Spring Boot 4</li>
-          <li>Spring Security</li>
-          <li>OAuth2</li>
-          <li>JWT</li>
-          <li>MyBatis</li>
-          <li>MySQL 8</li>
-          <li>React 19</li>
-          <li>Vite</li>
-          <li>React Router</li>
-          <li>TanStack Query</li>
-          <li>Zustand</li>
-          <li>Emotion</li>
-          <li>Cloudflare R2</li>
-          <li>Brevo SMTP</li>
-          <li>Google Cloud</li>
-          <li>Nginx</li>
-          <li>Docker</li>
-          <li>GitHub Actions</li>
-          <li>JUnit5</li>
-          <li>Testcontainers</li>
+          <li class="badge-java">Java 21</li>
+          <li class="badge-springboot">Spring Boot 4</li>
+          <li class="badge-springsecurity">Spring Security</li>
+          <li class="badge-oauth2">OAuth2</li>
+          <li class="badge-jwt">JWT</li>
+          <li class="badge-mybatis">MyBatis</li>
+          <li class="badge-mysql">MySQL 8</li>
+          <li class="badge-react">React 19</li>
+          <li class="badge-vite">Vite</li>
+          <li class="badge-reactrouter">React Router</li>
+          <li class="badge-tanstack">TanStack Query</li>
+          <li class="badge-zustand">Zustand</li>
+          <li class="badge-emotion">Emotion</li>
+          <li class="badge-cloudflare">Cloudflare R2</li>
+          <li class="badge-brevo">Brevo SMTP</li>
+          <li class="badge-gcloud">Google Cloud</li>
+          <li class="badge-nginx">Nginx</li>
+          <li class="badge-docker">Docker</li>
+          <li class="badge-ghactions">GitHub Actions</li>
+          <li class="badge-junit">JUnit5</li>
+          <li class="badge-testcontainers">Testcontainers</li>
         </ul>
       </div>
 
-      <div class="project-shots scroll-reveal">
-        <div class="shot-frame">
-          <div class="shot-bar">
-            <span class="dot dot-red"></span>
-            <span class="dot dot-yellow"></span>
-            <span class="dot dot-green"></span>
-            <span class="shot-bar-label">clovlab.store</span>
-          </div>
-          <div class="shot-grid">
-            <img src="assets/clov/clov-dday.png" alt="Clov 약속 D-day 카드 화면" loading="lazy">
-            <img src="assets/clov/clov-feed.png" alt="Clov 추억피드 화면" loading="lazy">
-            <img src="assets/clov/clov-friends.png" alt="Clov 우정공간 화면" loading="lazy">
-          </div>
+      <div class="project-gallery scroll-reveal">
+        <p class="gallery-label">실제 화면 · clovlab.store</p>
+        <div class="gallery-grid">
+          <figure class="shot-card">
+            <div class="shot-frame">
+              <img src="assets/clov/clov-dday.png" alt="Clov 약속 D-day 카드 화면" loading="lazy">
+            </div>
+            <figcaption>
+              <h3>약속을 티켓처럼 담은 D-Day 카드</h3>
+              <p>다가오는 약속을 입장권 같은 감성적인 티켓 디자인으로 보여주고, 남은 날짜를 D-Day로 세어줍니다.</p>
+            </figcaption>
+          </figure>
+          <figure class="shot-card">
+            <div class="shot-frame">
+              <img src="assets/clov/clov-feed.png" alt="Clov 추억피드 화면" loading="lazy">
+            </div>
+            <figcaption>
+              <h3>월별로 모아보는 추억 아카이브</h3>
+              <p>함께 남긴 사진과 기록을 월 단위로 모아, 태그와 날짜로 원하는 순간을 다시 꺼내볼 수 있어요.</p>
+            </figcaption>
+          </figure>
+          <figure class="shot-card">
+            <div class="shot-frame">
+              <img src="assets/clov/clov-friends.png" alt="Clov 우정공간 화면" loading="lazy">
+            </div>
+            <figcaption>
+              <h3>친구별로 관리하는 우정공간</h3>
+              <p>초대 코드로 친구와 공간을 만들고, 다음 약속과 D-Day를 카드 하나로 한눈에 확인할 수 있어요.</p>
+            </figcaption>
+          </figure>
         </div>
       </div>
     </div>

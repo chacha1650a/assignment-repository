@@ -387,13 +387,6 @@ button:focus-visible {
   padding: 64px 0;
 }
 
-.project-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 40px;
-  align-items: center;
-}
-
 .eyebrow-light {
   margin: 0 0 10px;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
@@ -431,6 +424,7 @@ button:focus-visible {
   color: #ffffff;
 }
 
+/* 기술 스택 뱃지 — GitHub README의 shields.io 뱃지 느낌으로 기술별 고유 색상 사용 */
 .tech-badges {
   list-style: none;
   display: flex;
@@ -441,59 +435,106 @@ button:focus-visible {
 }
 
 .tech-badges li {
-  background: #eef2ff;
-  color: #4338ca;
-  font-size: 0.78rem;
-  font-weight: 700;
-  padding: 5px 10px;
-  border-radius: 6px;
+  color: #ffffff;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 7px 12px;
+  border-radius: 4px;
 }
 
-.shot-frame {
+.badge-java { background: #c2410c; }
+.badge-springboot { background: #15803d; }
+.badge-springsecurity { background: #166534; }
+.badge-oauth2 { background: #1d4ed8; }
+.badge-jwt { background: #111827; }
+.badge-mybatis { background: #b91c1c; }
+.badge-mysql { background: #075985; }
+.badge-react { background: #0e7490; }
+.badge-vite { background: #6d28d9; }
+.badge-reactrouter { background: #9d174d; }
+.badge-tanstack { background: #be185d; }
+.badge-zustand { background: #78350f; }
+.badge-emotion { background: #86198f; }
+.badge-cloudflare { background: #9a3412; }
+.badge-brevo { background: #0f766e; }
+.badge-gcloud { background: #1558b0; }
+.badge-nginx { background: #14532d; }
+.badge-docker { background: #0369a1; }
+.badge-ghactions { background: #24292f; }
+.badge-junit { background: #4d7c0f; }
+.badge-testcontainers { background: #155e75; }
+
+/* 실제 화면 갤러리 — 사진이 잘리지 않고 크게 보이도록 강조 */
+.project-gallery {
+  margin-top: 44px;
+}
+
+.gallery-label {
+  margin: 0 0 16px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--color-accent);
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.shot-card {
+  margin: 0;
   background: #ffffff;
   border: 1px solid var(--color-border);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 20px 40px -24px rgba(15, 23, 42, 0.25);
+  box-shadow: 0 16px 32px -20px rgba(15, 23, 42, 0.3);
+  display: flex;
+  flex-direction: column;
 }
 
-.shot-bar {
+.shot-frame {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 10px 14px;
+  justify-content: center;
+  min-height: 220px;
   background: var(--color-bg-alt);
   border-bottom: 1px solid var(--color-border);
+  padding: 12px;
 }
 
-.shot-bar-label {
-  margin-left: 8px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-  font-size: 0.8rem;
+.shot-frame img {
+  display: block;
+  width: 100%;
+  max-height: 320px;
+  object-fit: contain;
+  border-radius: 6px;
+}
+
+.shot-card figcaption {
+  padding: 16px 18px 20px;
+}
+
+.shot-card h3 {
+  margin: 0 0 6px;
+  font-size: 1rem;
+}
+
+.shot-card p {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.55;
   color: var(--color-text-secondary);
 }
 
-.shot-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1px;
-  background: var(--color-border);
-}
-
-.shot-grid img {
-  display: block;
-  width: 100%;
-  aspect-ratio: 3 / 4;
-  object-fit: cover;
-  object-position: top;
-}
-
-@media (max-width: 640px) {
-  .shot-grid {
+@media (max-width: 760px) {
+  .gallery-grid {
     grid-template-columns: 1fr;
-  }
-  .shot-grid img {
-    aspect-ratio: 16 / 10;
   }
 }
 
@@ -711,10 +752,6 @@ button:focus-visible {
   }
   .code-card {
     max-width: 100%;
-  }
-
-  .project-grid {
-    grid-template-columns: 1fr;
   }
 }
 
