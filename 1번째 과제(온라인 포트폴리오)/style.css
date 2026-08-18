@@ -484,11 +484,12 @@ button:focus-visible {
 .gallery-rows {
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 72px;
 }
 
-/* 사진 · 설명을 좌우로 배치 — 카드 박스 없이, 사진은 폴라로이드처럼 살짝 기울여 그림자로 띄우고
-   항목마다 기울기를 번갈아서 지그재그 리듬을 줌. 텍스트는 제목+본문 느낌으로 크게 */
+/* 사진 · 설명을 좌우로 배치 — 카드 박스도, 폴라로이드 흰 여백도 없이 사진 자체를 크게 보여주고
+   그림자와 기울기만으로 띄운 느낌을 줌. 항목마다 기울기를 번갈아서 지그재그 리듬을 줌.
+   텍스트는 제목+본문 느낌으로 크게 */
 .shot-row {
   margin: 0;
   display: grid;
@@ -515,29 +516,31 @@ button:focus-visible {
 }
 
 .shot-frame {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
-  max-width: 380px;
-  background: #ffffff;
-  padding: 12px 12px 32px;
-  box-shadow: 0 26px 48px -18px rgba(15, 23, 42, 0.4), 0 6px 16px rgba(15, 23, 42, 0.12);
-  transform: rotate(-4deg);
-  transition: transform 0.35s ease;
-}
-.shot-row-reverse .shot-frame {
-  transform: rotate(4deg);
-}
-.shot-row:hover .shot-frame {
-  transform: rotate(-1deg) scale(1.03);
-}
-.shot-row-reverse:hover .shot-frame {
-  transform: rotate(1deg) scale(1.03);
+  min-height: 280px;
 }
 
 .shot-frame img {
   display: block;
-  width: 100%;
-  max-height: 320px;
-  object-fit: contain;
+  width: auto;
+  max-width: 100%;
+  max-height: 420px;
+  border-radius: 8px;
+  box-shadow: 0 26px 48px -18px rgba(15, 23, 42, 0.4), 0 6px 16px rgba(15, 23, 42, 0.12);
+  transform: rotate(-4deg);
+  transition: transform 0.35s ease;
+}
+.shot-row-reverse .shot-frame img {
+  transform: rotate(4deg);
+}
+.shot-row:hover .shot-frame img {
+  transform: rotate(-1deg) scale(1.03);
+}
+.shot-row-reverse:hover .shot-frame img {
+  transform: rotate(1deg) scale(1.03);
 }
 
 .shot-row figcaption {
@@ -567,11 +570,16 @@ button:focus-visible {
   .shot-row-reverse .shot-frame {
     order: 1;
     justify-self: center;
-    max-width: 320px;
+    min-height: 0;
+  }
+  .shot-row .shot-frame img,
+  .shot-row-reverse .shot-frame img {
+    max-width: 90%;
+    max-height: 340px;
     transform: rotate(-2deg);
   }
-  .shot-row:hover .shot-frame,
-  .shot-row-reverse:hover .shot-frame {
+  .shot-row:hover .shot-frame img,
+  .shot-row-reverse:hover .shot-frame img {
     transform: rotate(-2deg);
   }
   .shot-row figcaption,
@@ -785,7 +793,7 @@ button:focus-visible {
     animation: none;
   }
 
-  .shot-frame {
+  .shot-frame img {
     transition: none;
   }
 }
