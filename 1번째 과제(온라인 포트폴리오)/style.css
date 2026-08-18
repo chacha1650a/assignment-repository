@@ -518,7 +518,7 @@ button:focus-visible {
   box-shadow: 0 10px 22px -10px rgba(67, 56, 202, 0.5);
 }
 
-/* 기술 스택 뱃지 — GitHub README의 shields.io 뱃지 느낌으로 기술별 고유 색상 사용 */
+/* 기술 스택 뱃지 — GitHub README와 동일한 shields.io 실시간 벡터 뱃지 이미지 사용 */
 .tech-badges {
   list-style: none;
   display: flex;
@@ -528,38 +528,11 @@ button:focus-visible {
   padding: 0;
 }
 
-.tech-badges li {
-  color: #ffffff;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  padding: 7px 12px;
-  border-radius: 4px;
+.tech-badges img {
+  display: block;
+  height: 26px;
+  width: auto;
 }
-
-.badge-java { background: #c2410c; }
-.badge-springboot { background: #15803d; }
-.badge-springsecurity { background: #166534; }
-.badge-oauth2 { background: #1d4ed8; }
-.badge-jwt { background: #111827; }
-.badge-mybatis { background: #b91c1c; }
-.badge-mysql { background: #075985; }
-.badge-react { background: #0e7490; }
-.badge-vite { background: #6d28d9; }
-.badge-reactrouter { background: #9d174d; }
-.badge-tanstack { background: #be185d; }
-.badge-zustand { background: #78350f; }
-.badge-emotion { background: #86198f; }
-.badge-cloudflare { background: #9a3412; }
-.badge-brevo { background: #0f766e; }
-.badge-gcloud { background: #1558b0; }
-.badge-nginx { background: #14532d; }
-.badge-docker { background: #0369a1; }
-.badge-ghactions { background: #24292f; }
-.badge-junit { background: #4d7c0f; }
-.badge-testcontainers { background: #155e75; }
 
 /* 실제 화면 갤러리 — 사진이 잘리지 않고 크게 보이도록 강조 */
 .project-gallery {
