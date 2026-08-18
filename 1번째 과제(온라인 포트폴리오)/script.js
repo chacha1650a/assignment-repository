@@ -1,40 +1,66 @@
-document.querySelectorAll(".strength-toggle").forEach(function (button) {
-  var panel = document.getElementById(button.getAttribute("aria-controls"));
-  var card = button.closest(".strength-card");
-
-  panel.addEventListener("transitionend", function (event) {
-    if (event.propertyName !== "max-height") return;
-    if (panel.classList.contains("is-open")) {
-      // 펼쳐진 뒤에는 높이 제한을 풀어서, 내용이 바뀌거나 창 크기가 변해도 잘리지 않게 함
-      panel.style.maxHeight = "none";
-    }
+// 강점 카드는 아코디언 방식: 하나를 펼치면 다른 카드는 자동으로 닫힘
+(function () {
+  var toggles = Array.prototype.map.call(document.querySelectorAll(".strength-toggle"), function (button) {
+    return {
+      button: button,
+      panel: document.getElementById(button.getAttribute("aria-controls")),
+      card: button.closest(".strength-card"),
+    };
   });
 
-  button.addEventListener("click", function () {
-    var expanded = button.getAttribute("aria-expanded") === "true";
+  function closeToggle(t) {
+    if (t.button.getAttribute("aria-expanded") !== "true") return;
 
-    if (expanded) {
-      // 접기: 먼저 현재 실제 높이로 고정한 뒤, 다음 프레임에 0으로 줄여 애니메이션 발생
-      panel.style.maxHeight = panel.scrollHeight + "px";
-      panel.getBoundingClientRect(); // 강제 리플로우
-      requestAnimationFrame(function () {
-        panel.classList.remove("is-open");
-        panel.style.maxHeight = "0px";
-      });
-    } else {
-      // 펼치기: 0에서 실제 콘텐츠 높이까지 애니메이션
-      panel.classList.add("is-open");
-      panel.style.maxHeight = panel.scrollHeight + "px";
-    }
+    // 접기: 먼저 현재 실제 높이로 고정한 뒤, 다음 프레임에 0으로 줄여 애니메이션 발생
+    t.panel.style.maxHeight = t.panel.scrollHeight + "px";
+    t.panel.getBoundingClientRect(); // 강제 리플로우
+    requestAnimationFrame(function () {
+      t.panel.classList.remove("is-open");
+      t.panel.style.maxHeight = "0px";
+    });
 
-    button.setAttribute("aria-expanded", String(!expanded));
-    panel.setAttribute("aria-hidden", String(expanded));
-    card.classList.toggle("is-active", !expanded);
+    t.button.setAttribute("aria-expanded", "false");
+    t.panel.setAttribute("aria-hidden", "true");
+    t.card.classList.remove("is-active");
+    t.button.querySelector(".toggle-label").textContent = "자세히 보기";
+    t.button.querySelector(".toggle-icon").textContent = "+";
+  }
 
-    button.querySelector(".toggle-label").textContent = expanded ? "자세히 보기" : "접기";
-    button.querySelector(".toggle-icon").textContent = expanded ? "+" : "−";
+  function openToggle(t) {
+    // 펼치기: 0에서 실제 콘텐츠 높이까지 애니메이션
+    t.panel.classList.add("is-open");
+    t.panel.style.maxHeight = t.panel.scrollHeight + "px";
+
+    t.button.setAttribute("aria-expanded", "true");
+    t.panel.setAttribute("aria-hidden", "false");
+    t.card.classList.add("is-active");
+    t.button.querySelector(".toggle-label").textContent = "접기";
+    t.button.querySelector(".toggle-icon").textContent = "−";
+  }
+
+  toggles.forEach(function (t) {
+    t.panel.addEventListener("transitionend", function (event) {
+      if (event.propertyName !== "max-height") return;
+      if (t.panel.classList.contains("is-open")) {
+        // 펼쳐진 뒤에는 높이 제한을 풀어서, 내용이 바뀌거나 창 크기가 변해도 잘리지 않게 함
+        t.panel.style.maxHeight = "none";
+      }
+    });
+
+    t.button.addEventListener("click", function () {
+      var expanded = t.button.getAttribute("aria-expanded") === "true";
+
+      if (expanded) {
+        closeToggle(t);
+      } else {
+        toggles.forEach(function (other) {
+          if (other !== t) closeToggle(other);
+        });
+        openToggle(t);
+      }
+    });
   });
-});
+})();
 
 var prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 

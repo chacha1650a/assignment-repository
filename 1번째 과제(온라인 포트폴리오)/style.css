@@ -111,8 +111,20 @@ button:focus-visible {
   position: relative;
   overflow: hidden;
   background: var(--hero-bg);
-  border-bottom: 1px solid var(--hero-border);
   color: var(--hero-text);
+}
+
+/* 히어로 하단을 본문 배경색으로 서서히 녹여서 어두운 배경 → 흰 배경 전환을 부드럽게 함 */
+.hero::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 120px;
+  background: linear-gradient(to bottom, transparent, var(--color-bg));
+  pointer-events: none;
+  z-index: 1;
 }
 
 /* 오로라 배경 — 흐릿한 색 덩어리가 천천히 움직이는 은은한 효과 */
@@ -200,7 +212,7 @@ button:focus-visible {
 
 .tagline {
   margin: 0 0 16px;
-  font-size: clamp(1.05rem, 2vw, 1.25rem);
+  font-size: clamp(1.15rem, 2.4vw, 1.4rem);
   color: #cbd5e1;
   font-weight: 600;
 }
@@ -490,18 +502,43 @@ button:focus-visible {
 
 /* Footer */
 .site-footer {
-  border-top: 1px solid var(--color-border);
-  padding: 28px 0 40px;
+  position: relative;
+  border-top: none;
+  padding: 32px 0 40px;
   color: var(--color-text-secondary);
   font-size: 0.9rem;
 }
 
-.site-footer a {
-  color: var(--color-accent);
+/* 히어로 오로라 색상을 이어받은 얇은 그라데이션 바로 톤을 맞춤 */
+.site-footer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #6366f1, #22d3ee, #a855f7);
 }
 
 .site-footer p {
   margin: 4px 0;
+}
+
+.footer-github {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.footer-github:hover {
+  text-decoration: underline;
+}
+
+.footer-github svg {
+  flex-shrink: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -541,5 +578,12 @@ button:focus-visible {
   }
   .code-card {
     max-width: 100%;
+  }
+}
+
+/* 강점 카드가 2열로 걸치는 중간 너비에서는 3번째 카드가 혼자 남지 않도록 전체 폭으로 확장 */
+@media (min-width: 620px) and (max-width: 930px) {
+  .strength-card:last-child {
+    grid-column: 1 / -1;
   }
 }
