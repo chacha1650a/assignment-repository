@@ -326,8 +326,11 @@ button:focus-visible {
 .hero-code {
   display: flex;
   justify-content: center;
+  perspective: 1400px;
 }
 
+/* 살짝 회전된 채로 떠 있다가, 마우스를 올리면 정면으로 펴지는 입체 카드 —
+   갤러리 사진의 기울임과 같은 모션 언어(평소엔 기울고, 호버하면 펴짐) */
 .code-card {
   width: 100%;
   max-width: 420px;
@@ -335,6 +338,13 @@ button:focus-visible {
   border: 1px solid var(--hero-border);
   border-radius: 12px;
   overflow: hidden;
+  box-shadow: 30px 45px 60px -25px rgba(0, 0, 0, 0.7), 0 20px 50px -20px rgba(0, 0, 0, 0.5);
+  transform: rotateY(-10deg) rotateX(5deg) rotateZ(-1deg);
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.code-card:hover {
+  transform: rotateY(0deg) rotateX(0deg) rotateZ(0deg);
   box-shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.6);
 }
 
@@ -806,6 +816,10 @@ button:focus-visible {
   }
 
   .shot-frame img {
+    transition: none;
+  }
+
+  .code-card {
     transition: none;
   }
 }
