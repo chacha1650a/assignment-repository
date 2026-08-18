@@ -50,14 +50,29 @@
 }
 
 /* 스크롤하면서 나타나는 요소 (JS가 .is-visible을 붙임)
-   카드의 hover translateY와 충돌하지 않도록 opacity만 사용 — 트랜지션 타이밍은
-   .strength-card 쪽 transition 선언에 opacity를 추가해 함께 관리함 */
+   transition 대신 animation을 써서 카드의 hover transition(transform 등)과
+   충돌하지 않게 함 — 아래에서 떠오르며 살짝 확대되고, 카드 순서대로 딜레이를 줘서
+   왼쪽부터 리듬감 있게 나타나도록 함 */
+@keyframes fade-up-scale {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 .scroll-reveal {
   opacity: 0;
 }
 .scroll-reveal.is-visible {
-  opacity: 1;
+  animation: fade-up-scale 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+.scroll-reveal:nth-child(2).is-visible { animation-delay: 0.08s; }
+.scroll-reveal:nth-child(3).is-visible { animation-delay: 0.16s; }
+.scroll-reveal:nth-child(4).is-visible { animation-delay: 0.24s; }
 
 html {
   scroll-behavior: smooth;
@@ -404,7 +419,7 @@ button:focus-visible {
   padding: 22px;
   background: var(--color-bg);
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
-  transition: box-shadow 0.15s ease, transform 0.15s ease, border-color 0.15s ease, opacity 0.5s ease;
+  transition: box-shadow 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
 }
 
 .strength-card:hover {
@@ -553,8 +568,9 @@ button:focus-visible {
     transform: none;
   }
 
-  .scroll-reveal {
-    transition: none;
+  .scroll-reveal,
+  .scroll-reveal.is-visible {
+    animation: none;
     opacity: 1;
     transform: none;
   }
