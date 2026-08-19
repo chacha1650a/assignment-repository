@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PROTOCOL ZERO — 네트워크 보안 폭탄 해체</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- 밀실 : 벽 → 천장등 → 먼지 → 비네트 -->
+<div class="room-wall" aria-hidden="true"></div>
+<div class="room-lamp" aria-hidden="true">
+  <span class="room-lamp__cord"></span>
+  <span class="room-lamp__shade"></span>
+  <span class="room-lamp__bulb"></span>
+</div>
+<div class="room-dust" aria-hidden="true"></div>
+<div class="room-vignette" aria-hidden="true"></div>
+<div class="danger-vignette" id="dangerVignette" aria-hidden="true"></div>
+
+<!-- ============ 1. 브리핑 ============ -->
+<section class="screen screen--brief is-active" id="screenBrief">
+  <div class="brief">
+    <div class="brief__mark">
+      <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+        <path d="M32 5 55 14v18c0 13-9.6 23.6-23 27C18.6 55.6 9 45 9 32V14L32 5Z" stroke="url(#gs)" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M22 32.5 29.2 40 43 25.5" stroke="url(#gs)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        <defs><linearGradient id="gs" x1="9" y1="5" x2="55" y2="59"><stop stop-color="#f0c078"/><stop offset="1" stop-color="#b3814a"/></linearGradient></defs>
+      </svg>
+    </div>
+    <p class="brief__eyebrow">CLASSIFIED / FIELD OPERATION</p>
+    <h1 class="brief__title">PROTOCOL <span>ZERO</span></h1>
+    <p class="brief__sub">네트워크 보안 기초 지식으로 기폭 장치를 해체하라</p>
+
+    <ul class="brief__rules">
+      <li>
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5.4l3.4 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <div><strong>30초</strong><span>타이머가 0에 닿으면 기폭</span></div>
+      </li>
+      <li>
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.5 20 7.4v6.1c0 4.6-3.3 8.2-8 9.2-4.7-1-8-4.6-8-9.2V7.4l8-3.9Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m9.4 9.4 5.2 5.2m0-5.2-5.2 5.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <div><strong>오답 3회</strong><span>세 번째 실수에 즉시 기폭</span></div>
+      </li>
+      <li>
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h10.5a3.5 3.5 0 0 1 0 7H8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M20 18H9.5a3.5 3.5 0 0 1 0-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="4" cy="6" r="1.8" fill="currentColor"/><circle cx="20" cy="18" r="1.8" fill="currentColor"/></svg>
+        <div><strong>모듈 5개</strong><span>정답마다 +5초 회복 (상한 30초)</span></div>
+      </li>
+      <li>
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H10a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H5.5A1.5 1.5 0 0 1 4 15.5v-10Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H14a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h4.5a1.5 1.5 0 0 0 1.5-1.5v-10Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+        <div><strong>필드 매뉴얼</strong><span>책장을 넘겨 규칙을 찾아라</span></div>
+      </li>
+    </ul>
+
+    <button class="btn btn--primary" id="btnStart" type="button">
+      <span>해체 작전 개시</span>
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h13m0 0-5-5m5 5-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <p class="brief__hint">모듈은 매판 무작위로 재구성된다. 외우지 말고 규칙을 읽어라.</p>
+  </div>
+</section>
+
+<!-- ============ 2. 게임 ============ -->
+<section class="screen screen--game" id="screenGame">
+
+  <header class="hud">
+    <div class="hud__side">
+      <p class="hud__label">MODULES</p>
+      <div class="pips" id="pips"></div>
+    </div>
+
+    <div class="hud__timer">
+      <svg class="ring" viewBox="0 0 120 120" aria-hidden="true">
+        <circle class="ring__track" cx="60" cy="60" r="52"/>
+        <circle class="ring__bar" id="ringBar" cx="60" cy="60" r="52"/>
+      </svg>
+      <div class="hud__readout">
+        <span class="hud__digits" id="timerDigits">30.0</span>
+        <span class="hud__unit">SEC</span>
+      </div>
+      <span class="hud__bonus" id="bonusFx"></span>
+    </div>
+
+    <div class="hud__side hud__side--right">
+      <p class="hud__label">STRIKES</p>
+      <div class="strikes" id="strikes"></div>
+    </div>
+  </header>
+
+  <main class="stage">
+
+    <!-- ---------- 폭탄 (순수 CSS) ---------- -->
+    <section class="panel panel--device" id="devicePanel">
+      <div class="panel__head">
+        <span class="panel__dot"></span>
+        <h2 class="panel__title" id="deviceTitle">DEVICE</h2>
+        <span class="panel__serial" id="deviceSerial">MOD 1/5</span>
+      </div>
+
+      <p class="prompt" id="modulePrompt">모듈 로딩 중…</p>
+
+      <div class="bomb">
+        <div class="bomb__wear" aria-hidden="true"></div>
+        <div class="bomb__tape" aria-hidden="true"></div>
+
+        <div class="bomb__stencil" aria-hidden="true">
+          <span class="bomb__code">M-112 · COMP-4 · LOT 07</span>
+          <span class="bomb__warn">DO NOT TILT</span>
+        </div>
+
+        <div class="bomb__bay">
+          <div class="device" id="deviceBody"></div>
+        </div>
+
+        <div class="bomb__rail" aria-hidden="true">
+          <div class="bomb__charge"><i></i><i></i><i></i></div>
+          <div class="bomb__battery"></div>
+          <div class="bomb__leds">
+            <span class="led led--g"></span>
+            <span class="led led--a"></span>
+            <span class="led led--r"></span>
+          </div>
+          <div class="bomb__vent"></div>
+        </div>
+      </div>
+
+      <div class="feedback" id="feedback"></div>
+    </section>
+
+    <!-- ---------- 필드 매뉴얼 (펼침 책) ---------- -->
+    <aside class="panel panel--manual">
+      <div class="panel__head">
+        <span class="panel__dot panel__dot--lamp"></span>
+        <h2 class="panel__title">FIELD MANUAL</h2>
+        <span class="panel__serial" id="bookPageNo">1–2 / 6</span>
+      </div>
+
+      <div class="book" id="book">
+        <div class="book__stage" id="bookStage">
+          <div class="book__shadow" aria-hidden="true"></div>
+          <div class="book__cover" aria-hidden="true"></div>
+          <div class="book__edge book__edge--l" aria-hidden="true"></div>
+          <div class="book__edge book__edge--r" aria-hidden="true"></div>
+          <div class="page page--l" id="pageL"></div>
+          <div class="page page--r" id="pageR"></div>
+          <div class="book__spine" aria-hidden="true"></div>
+          <div class="leaf" id="leaf" aria-hidden="true">
+            <div class="leaf__face leaf__face--front" id="leafFront"></div>
+            <div class="leaf__face leaf__face--back" id="leafBack"></div>
+          </div>
+        </div>
+
+        <div class="book__nav">
+          <button class="book__btn" id="bookPrev" type="button" aria-label="이전 장">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M15 5 8 12l7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="book__tabs" id="bookTabs"></div>
+          <button class="book__btn" id="bookNext" type="button" aria-label="다음 장">
+            <svg viewBox="0 0 24 24" fill="none"><path d="m9 5 7 7-7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </div>
+    </aside>
+  </main>
+</section>
+
+<!-- ============ 3. 결과 ============ -->
+<section class="screen screen--end" id="screenEnd">
+  <div class="result" id="resultCard">
+    <div class="result__mark" id="resultMark"></div>
+    <p class="result__eyebrow">MISSION REPORT</p>
+    <h2 class="result__title" id="resultTitle">DETONATED</h2>
+    <p class="result__desc" id="resultDesc"></p>
+    <div class="result__stats">
+      <div><span id="statModules">0 / 5</span><small>해체한 모듈</small></div>
+      <div><span id="statStrikes">0</span><small>오답</small></div>
+      <div><span id="statTime">0.0s</span><small>잔여 시간</small></div>
+    </div>
+    <div class="result__log" id="resultLog"></div>
+    <button class="btn btn--primary" id="btnRetry" type="button">
+      <span>재시도</span>
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.6-5.9M20 4v4.5h-4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+</section>
+
+<!-- ============ 매뉴얼 원문 (책 페이지로 주입됨) ============ -->
+<template id="manualSource">
+
+  <article class="man" data-man="wire">
+    <h3><i>§1</i> 배선 절단</h3>
+    <p class="man__lead">대상 호스트의 IP 대역을 판별해 절단할 케이블을 정한다.</p>
+    <table>
+      <thead><tr><th>대역</th><th>분류</th><th>절단</th></tr></thead>
+      <tbody>
+        <tr><td>10.0.0.0/8</td><td>사설</td><td class="c-blue">파랑</td></tr>
+        <tr><td>172.16 ~ 172.31</td><td>사설</td><td class="c-blue">파랑</td></tr>
+        <tr><td>192.168.0.0/16</td><td>사설</td><td class="c-blue">파랑</td></tr>
+        <tr><td>127.0.0.0/8</td><td>루프백</td><td class="c-yellow">노랑</td></tr>
+        <tr><td>그 외 전부</td><td>공인</td><td class="c-red">빨강</td></tr>
+      </tbody>
+    </table>
+    <p class="man__warn">초록 선은 접지선이다. 어떤 경우에도 자르지 않는다.</p>
+    <p class="man__note">172 대역은 <b>16~31</b> 구간만 사설이다. 192 대역은 <b>168</b>일 때만 사설이다.</p>
+  </article>
+
+  <article class="man" data-man="port">
+    <h3><i>§2</i> 포트 키패드</h3>
+    <p class="man__lead">지시된 서비스의 표준 포트를 눌러 차단한다.</p>
+    <table>
+      <thead><tr><th>포트</th><th>서비스</th><th>포트</th><th>서비스</th></tr></thead>
+      <tbody>
+        <tr><td>21</td><td>FTP</td><td>53</td><td>DNS</td></tr>
+        <tr><td>22</td><td>SSH</td><td>80</td><td>HTTP</td></tr>
+        <tr><td>23</td><td>Telnet</td><td>443</td><td>HTTPS</td></tr>
+        <tr><td>25</td><td>SMTP</td><td>3389</td><td>RDP</td></tr>
+      </tbody>
+    </table>
+    <p class="man__note">21·23·25 는 평문 계열, 22·443 은 암호화 계열로 함께 외워두면 §4 에서도 쓴다.</p>
+  </article>
+
+  <article class="man" data-man="phish">
+    <h3><i>§3</i> URL 검증</h3>
+    <p class="man__lead">주소는 왼쪽이 아니라 <b>맨 끝 도메인</b>부터 읽는다.</p>
+    <ul class="man__list">
+      <li><b>정상</b> — <code>https://</code> 로 시작하고 도메인 철자가 원본과 완전히 같다.</li>
+      <li><b>철자 변조</b> — <code>nave-r.com</code>, <code>kakaoo.com</code>, <code>g00gle.com</code></li>
+      <li><b>서브도메인 위장</b> — <code>naver.com.login-kr.net</code> 의 주인은 <b>login-kr.net</b> 이다.</li>
+      <li><b>IP 직접 접속</b> — <code>http://203.0.113.9/login</code></li>
+      <li><b>평문 로그인</b> — <code>http://</code> 로그인 페이지는 무조건 위험.</li>
+    </ul>
+  </article>
+
+  <article class="man" data-man="protocol">
+    <h3><i>§4</i> 프로토콜 스위치</h3>
+    <p class="man__lead">평문 프로토콜은 가로채면 내용이 그대로 읽힌다.</p>
+    <table>
+      <thead><tr><th>암호화 됨</th><th>평문(위험)</th></tr></thead>
+      <tbody>
+        <tr><td class="c-green">HTTPS</td><td class="c-red">HTTP</td></tr>
+        <tr><td class="c-green">SSH</td><td class="c-red">Telnet</td></tr>
+        <tr><td class="c-green">SFTP</td><td class="c-red">FTP</td></tr>
+        <tr><td class="c-green">TLS / SSL</td><td class="c-red">POP3</td></tr>
+      </tbody>
+    </table>
+    <p class="man__note">이름 끝에 <b>S</b> 가 붙으면(HTTPS·SFTP) 대개 보안 계층이 얹힌 것이다. Telnet 은 예외적으로 이름에 단서가 없다.</p>
+  </article>
+
+  <article class="man" data-man="auth">
+    <h3><i>§5</i> 인증 다이얼</h3>
+    <p class="man__lead">길이와 문자 조합을 <b>동시에</b> 만족해야 안전하다.</p>
+    <ul class="man__list">
+      <li><b>안전</b> — 12자 이상 + 대문자·소문자·숫자·특수문자.</li>
+      <li><b>위험</b> — 사전 단어(<code>password</code>, <code>admin</code>) 그대로 사용.</li>
+      <li><b>위험</b> — 생년월일·전화번호·연속키(<code>1234</code>, <code>qwerty</code>).</li>
+      <li><b>위험</b> — 8자 미만은 조합이 좋아도 취약으로 본다.</li>
+    </ul>
+  </article>
+
+  <article class="man" data-man="firewall">
+    <h3><i>§6</i> 방화벽 정책표</h3>
+    <p class="man__lead">방향 · 목적지 포트 · 출발지 IP 세 가지를 모두 대조한다.</p>
+    <table>
+      <thead><tr><th>방향</th><th>포트</th><th>정책</th></tr></thead>
+      <tbody>
+        <tr><td>외부 → 내부</td><td>22 / 23 / 3389</td><td class="c-red">DENY</td></tr>
+        <tr><td>외부 → 내부</td><td>80 / 443</td><td class="c-green">ALLOW</td></tr>
+        <tr><td>내부 → 외부</td><td>전체</td><td class="c-green">ALLOW</td></tr>
+      </tbody>
+    </table>
+    <p class="man__warn">외부에서 들어온 패킷의 출발지가 사설 IP면 <b>IP 스푸핑</b>이다. 포트와 무관하게 DENY.</p>
+  </article>
+
+</template>
+
+<script src="script.js"></script>
+</body>
+</html>
