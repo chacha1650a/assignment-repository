@@ -1074,3 +1074,65 @@ body.is-danger .led { animation-duration: .5s !important; }
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
+
+/* =========================================================
+   13. 효과 설정 — 소리 / 움직임 줄이기
+   ========================================================= */
+.opts {
+  position: fixed; top: 14px; right: 16px; z-index: 40;
+  display: flex; gap: 8px;
+}
+.opts__btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 7px 12px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--line);
+  background: rgba(14, 11, 8, .72);
+  color: var(--text-3);
+  font-family: var(--sans); font-size: 11.5px; font-weight: 600; letter-spacing: .01em;
+  transition: color .25s ease, border-color .25s ease, background .25s ease;
+}
+.opts__btn svg { width: 15px; height: 15px; flex: none; }
+.opts__btn:hover { color: var(--text); border-color: var(--line-2); }
+.opts__btn .opts__slash { opacity: 0; transition: opacity .2s ease; }
+/* 소리 : 기본은 켜짐. 끄면 물결이 사라지고 사선이 그어진다 */
+.opts__btn#tgSound:not(.is-off) { color: var(--lamp); border-color: rgba(234, 173, 99, .42); }
+.opts__btn#tgSound.is-off .opts__wave { opacity: 0; }
+.opts__btn#tgSound.is-off .opts__slash { opacity: 1; }
+/* 움직임 줄이기 : 켜면 강조된다 */
+.opts__btn#tgCalm.is-on {
+  color: var(--lamp); border-color: rgba(234, 173, 99, .42);
+  background: rgba(234, 173, 99, .1);
+}
+
+/* 움직임 줄이기가 켜졌을 때 — 분위기 연출만 멈춘다. 판정과 상태 표시는 그대로 */
+body.is-calm .room-lamp,
+body.is-calm .room-lamp::before,
+body.is-calm .room-lamp__shade::after,
+body.is-calm .room-lamp__bulb,
+body.is-calm .room-dust,
+body.is-calm .bomb__charge i,
+body.is-calm .led { animation: none !important; }
+body.is-calm .boom { animation-duration: .25s !important; }
+body.is-calm .screen.is-active { animation: none !important; }
+body.is-calm .bomb.is-wrong { animation: none !important; }
+body.is-calm .leaf { transition: none !important; }
+
+/* 일시정지 — 탭이 가려진 동안 */
+.pause-veil {
+  position: fixed; inset: 0; z-index: 45; display: none;
+  place-items: center; background: rgba(6, 5, 4, .82);
+}
+body.is-paused .pause-veil { display: grid; }
+.pause-veil span {
+  padding: 14px 26px; border-radius: 4px;
+  border: 1px solid var(--line-2); background: rgba(20, 16, 12, .95);
+  color: var(--text-2); font-size: 13.5px; letter-spacing: .01em;
+}
+
+.tally__best { font-size: 12.5px !important; color: var(--text-2) !important; }
+
+@media (max-width: 560px) {
+  .opts { top: 10px; right: 10px; gap: 6px; }
+  .opts__btn { padding: 6px 9px; font-size: 0; gap: 0; }   /* 좁은 화면에서는 아이콘만 */
+  .opts__btn svg { width: 16px; height: 16px; }
+}

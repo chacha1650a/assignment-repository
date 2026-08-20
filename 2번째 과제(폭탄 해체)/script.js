@@ -1,16 +1,83 @@
 /* =========================================================
-   PROTOCOL ZERO — script.js
-   30초 / 오답 3회 / 모듈 5개 / 매판 랜덤 출제
+   차단선 — script.js
+   30초 / 오조작 3회 / 회로 5개 / 매판 랜덤 출제
    ========================================================= */
 'use strict';
 
 /* ---------- 0. 설정 ---------- */
 const CONFIG = {
   TIME_MAX: 30,      // 상한이자 시작값 (초)
-  TIME_BONUS: 5,     // 정답 시 회복량 (초)
+  // 정답 시 회복량 (초). 20회 기록에서 5 → 잔여 중앙 15.9초(절반 이상 남아 압박이 없고),
+  // 3 → 잔여 범위 바닥이 0에 닿았다. 4가 중앙 10.7 / 최저 3.7 로 긴장은 생기되 시간 초과 0건.
+  TIME_BONUS: 4,
   MAX_STRIKES: 3,
-  MODULE_COUNT: 5
+  MODULE_COUNT: 5,
+  MAX_DT: 0.25       // 한 프레임에 깎을 수 있는 최대 시간 (탭 복귀 시 몰아치기 방지)
 };
+
+/* =========================================================
+   0-1. 저장값 — 비어 있거나 형식이 깨져도 기본값으로 시작한다
+   ========================================================= */
+const STORE = {
+  settings: 'chadanseon.settings.v1',   // 보존 : 효과 설정
+  record:   'chadanseon.record.v1'      // 보존 : 누적 전적
+};
+
+const DEFAULT_SETTINGS = { muted: false, calm: false };
+const DEFAULT_RECORD   = { plays: 0, clears: 0, bestLeft: null };
+
+const isBool  = (v) => typeof v === 'boolean';
+const isCount = (v) => typeof v === 'number' && Number.isFinite(v) && v >= 0 && v < 1e7;
+const isLeft  = (v) => v === null || (typeof v === 'number' && Number.isFinite(v) && v >= 0 && v <= 600);
+
+/** 키 단위가 아니라 항목 단위로 검사한다 — 한 값만 깨져도 나머지는 살린다 */
+function loadJSON(key, fallback, shape) {
+  const out = Object.assign({}, fallback);
+  let raw = null;
+  try { raw = localStorage.getItem(key); } catch (e) { return out; }   // 저장소 접근 자체가 막힌 경우
+  if (raw === null) return out;
+  let parsed;
+  try { parsed = JSON.parse(raw); } catch (e) { return out; }          // 형식이 깨진 경우
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return out;
+  Object.keys(fallback).forEach((k) => { if (shape[k](parsed[k])) out[k] = parsed[k]; });
+  return out;
+}
+
+function saveJSON(key, val) {
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) { /* 저장 못 해도 게임은 계속된다 */ }
+}
+
+const settings = loadJSON(STORE.settings, DEFAULT_SETTINGS, { muted: isBool, calm: isBool });
+const record   = loadJSON(STORE.record,   DEFAULT_RECORD,   { plays: isCount, clears: isCount, bestLeft: isLeft });
+
+/* =========================================================
+   0-2. 효과 — 정해진 사건에서만 울린다. 음소거면 아무것도 만들지 않는다
+   ========================================================= */
+const sfx = (() => {
+  let ctx = null;
+  function tone(freq, dur, type, vol) {
+    if (settings.muted) return;                       // 즉시 멈춘다
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      ctx = ctx || new AC();
+      if (ctx.state === 'suspended') ctx.resume();
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = type; o.frequency.value = freq;
+      g.gain.setValueAtTime(0.0001, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(vol, ctx.currentTime + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + dur);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(); o.stop(ctx.currentTime + dur + 0.02);
+    } catch (e) { /* 소리를 못 내도 판정에는 영향이 없다 */ }
+  }
+  return {
+    cut:   () => tone(880,  0.15, 'triangle', 0.13),   // 회로를 끊었을 때
+    wrong: () => tone(150,  0.26, 'sawtooth', 0.11),   // 오조작
+    boom:  () => tone(70,   0.65, 'sawtooth', 0.18),   // 기폭
+    clear: () => tone(1320, 0.38, 'triangle', 0.13)    // 해제 완료
+  };
+})();
 
 /* ---------- 1. 유틸 ---------- */
 const $ = (id) => document.getElementById(id);
@@ -778,6 +845,7 @@ const state = {
   strikes: 0,
   running: false,
   locked: false,
+  paused: false,
   lastTs: 0,
   raf: 0,
   log: []
@@ -787,9 +855,10 @@ const el = {};
 ['screenBrief', 'screenGame', 'screenEnd', 'btnStart', 'btnRetry', 'pips', 'strikes',
  'fuseBar', 'timerDigits', 'bonusFx', 'deviceTitle', 'deviceSerial', 'modulePrompt',
  'deviceBody', 'feedback', 'bombBody', 'resultTitle', 'resultDesc',
- 'resultMark', 'resultLog', 'statModules', 'statStrikes', 'statTime',
+ 'resultMark', 'resultLog', 'statModules', 'statStrikes', 'statTime', 'statBest',
  'book', 'bookStage', 'pageL', 'pageR', 'leaf', 'leafFront', 'leafBack',
- 'bookPrev', 'bookNext', 'bookTabs', 'bookPageNo']
+ 'bookPrev', 'bookNext', 'bookTabs', 'bookPageNo',
+ 'tgSound', 'tgCalm', 'pauseVeil']
   .forEach((k) => { el[k] = $(k); });
 
 function showScreen(name) {
@@ -823,10 +892,15 @@ function drawTimer() {
 
 /* ---- 타이머 루프 ---- */
 function loop(ts) {
-  if (!state.running) return;
+  if (!state.running || state.paused) return;
   if (!state.lastTs) state.lastTs = ts;
-  const dt = (ts - state.lastTs) / 1000;
+
+  let dt = (ts - state.lastTs) / 1000;
   state.lastTs = ts;
+  // 탭이 뒤로 갔다 오면 rAF 가 멈춰 있던 시간이 한 프레임에 몰려 들어온다.
+  // 그대로 깎으면 돌아오자마자 시간 초과가 되므로 한 프레임 몫으로 잘라낸다.
+  if (!(dt > 0)) dt = 0;
+  if (dt > CONFIG.MAX_DT) dt = CONFIG.MAX_DT;
 
   state.time -= dt;
   if (state.time <= 0) {
@@ -837,6 +911,27 @@ function loop(ts) {
   drawTimer();
   state.raf = requestAnimationFrame(loop);
 }
+
+/* ---- 일시정지 — 탭이 가려지면 시계를 세운다 ---- */
+function pauseGame() {
+  if (!state.running || state.paused) return;
+  state.paused = true;
+  cancelAnimationFrame(state.raf);
+  document.body.classList.add('is-paused');
+}
+
+function resumeGame() {
+  if (!state.running || !state.paused) return;
+  state.paused = false;
+  state.lastTs = 0;            // 기준 시각을 다시 잡아 공백을 건너뛰지 않는다
+  document.body.classList.remove('is-paused');
+  cancelAnimationFrame(state.raf);
+  state.raf = requestAnimationFrame(loop);
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) pauseGame(); else resumeGame();
+});
 
 /* ---- 모듈 출력 ---- */
 function loadModule() {
@@ -887,6 +982,7 @@ function scoreCorrect(mod) {
   const before = state.time;
   state.time = Math.min(CONFIG.TIME_MAX, state.time + CONFIG.TIME_BONUS);
   flashBonus(state.time - before);
+  sfx.cut();                       // 사건 : 회로를 끊었다
   el.feedback.className = 'feedback is-ok';
   el.feedback.textContent = `끊었습니다 — ${mod.why}`;
   drawTimer();
@@ -908,6 +1004,7 @@ function scoreWrong(mod, onRetry) {
 
   state.strikes++;
   drawStrikes();
+  sfx.wrong();                     // 사건 : 오조작
   el.bombBody.classList.add('is-wrong');
   setTimeout(() => el.bombBody.classList.remove('is-wrong'), 460);
 
@@ -1091,6 +1188,14 @@ function bindMatch(mod) {
   });
 }
 
+/** 보존된 전적을 결과 화면에 적는다 */
+function drawBest() {
+  if (!el.statBest) return;
+  el.statBest.textContent = record.bestLeft === null
+    ? `기록 없음 · ${record.plays}판`
+    : `${record.bestLeft.toFixed(1)}s 남기고 해제 · ${record.clears}/${record.plays}판`;
+}
+
 function flashBonus(sec) {
   if (sec <= 0) {
     el.bonusFx.textContent = '최대';
@@ -1105,14 +1210,26 @@ function flashBonus(sec) {
 /* ---- 종료 ---- */
 function endGame(win, reason) {
   state.running = false;
+  state.paused = false;
   cancelAnimationFrame(state.raf);
-  document.body.classList.remove('is-danger');
+  document.body.classList.remove('is-danger', 'is-paused');
 
-  if (!win) boom();
+  if (win) sfx.clear(); else boom();
+
+  const left = Math.max(0, state.time);
+
+  // 보존 대상 — 누적 전적만 남긴다. 현재 판의 값은 저장하지 않는다
+  record.plays++;
+  if (win) {
+    record.clears++;
+    if (record.bestLeft === null || left > record.bestLeft) record.bestLeft = left;
+  }
+  saveJSON(STORE.record, record);
 
   el.statModules.textContent = `${state.idx} / ${CONFIG.MODULE_COUNT}`;
   el.statStrikes.textContent = String(state.strikes);
-  el.statTime.textContent = `${Math.max(0, state.time).toFixed(1)}s`;
+  el.statTime.textContent = `${left.toFixed(1)}s`;
+  drawBest();
 
   const card = $('resultCard');
   card.classList.toggle('is-win', win);
@@ -1131,10 +1248,12 @@ function endGame(win, reason) {
       <span>${l.ok ? '해제' : '실패'}</span>
     </div>`).join('') || '<div class="logrow"><i></i>기록 없음</div>';
 
-  setTimeout(() => showScreen('end'), win ? 700 : 900);
+  // 결과 화면으로 넘어가기 전에 새 판이 시작됐다면 덮어쓰지 않는다
+  setTimeout(() => { if (!state.running) showScreen('end'); }, win ? 700 : 900);
 }
 
 function boom() {
+  sfx.boom();                                // 사건 : 기폭
   document.body.classList.add('is-blown');   // 등이 나간다
   const f = document.createElement('div');
   f.className = 'boom';
@@ -1200,7 +1319,8 @@ const book = (() => {
     if (flipping) return;
     if (target === spread) { renderNow(); return; }
     // 모션을 줄여달라고 한 사용자에겐 넘김 연출 없이 즉시 바꿔준다
-    if (!animate || REDUCED.matches) { spread = target; renderNow(); return; }
+    // 움직임을 줄여달라고 했으면 넘김 연출 없이 즉시 바꿔준다 (페이지는 그대로 넘어간다)
+    if (!animate || settings.calm || REDUCED.matches) { spread = target; renderNow(); return; }
 
     const forward = target > spread;
     flipping = true;
@@ -1287,7 +1407,7 @@ const book = (() => {
   return { openTo, goto, prev: () => goto(spread - 1), next: () => goto(spread + 1) };
 })();
 
-/* ---- 시작 ---- */
+/* ---- 시작 — 현재 판의 값만 초기화한다. 누적 전적은 건드리지 않는다 ---- */
 function startGame() {
   state.round = buildRound();
   state.idx = 0;
@@ -1297,8 +1417,9 @@ function startGame() {
   state.lastTs = 0;
   state.running = true;
   state.locked = false;
+  state.paused = false;
 
-  document.body.classList.remove('is-blown');   // 등을 다시 켠다
+  document.body.classList.remove('is-blown', 'is-paused');   // 등을 다시 켠다
   drawStrikes();
   drawTimer();
   showScreen('game');
@@ -1311,11 +1432,43 @@ function startGame() {
 el.btnStart.addEventListener('click', startGame);
 el.btnRetry.addEventListener('click', startGame);
 
+/* =========================================================
+   7. 효과 설정 — 즉시 반영되고 다시 접속해도 유지된다
+   ========================================================= */
+function applySettings() {
+  document.body.classList.toggle('is-calm', settings.calm);
+  if (el.tgSound) {
+    el.tgSound.setAttribute('aria-pressed', String(!settings.muted));
+    el.tgSound.classList.toggle('is-off', settings.muted);
+  }
+  if (el.tgCalm) {
+    el.tgCalm.setAttribute('aria-pressed', String(settings.calm));
+    el.tgCalm.classList.toggle('is-on', settings.calm);
+  }
+}
+
+if (el.tgSound) {
+  el.tgSound.addEventListener('click', () => {
+    settings.muted = !settings.muted;
+    saveJSON(STORE.settings, settings);
+    applySettings();
+    if (!settings.muted) sfx.cut();      // 켠 순간 한 번 들려준다
+  });
+}
+if (el.tgCalm) {
+  el.tgCalm.addEventListener('click', () => {
+    settings.calm = !settings.calm;
+    saveJSON(STORE.settings, settings);
+    applySettings();
+  });
+}
+
 /* 숫자키 1~4 = 선택, 좌우 화살표 = 책장 넘기기 */
 document.addEventListener('keydown', (e) => {
+  if (e.repeat) return;        // 키를 누르고 있어도 한 번만 판정한다
   if (e.key === 'ArrowLeft')  { book.prev(); return; }
   if (e.key === 'ArrowRight') { book.next(); return; }
-  if (!state.running || state.locked) return;
+  if (!state.running || state.locked || state.paused) return;
   // 숫자키는 '하나 고르기' 회로에서만 통한다 (순서·다중·다이얼은 손으로 조작한다)
   const mod = state.round[state.idx];
   if (!mod || ['seq', 'multi', 'dial', 'match'].includes(mod.render)) return;
@@ -1326,4 +1479,6 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
+applySettings();
+drawBest();
 drawTimer();

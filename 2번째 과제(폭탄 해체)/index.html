@@ -22,6 +22,27 @@
 <div class="room-vignette" aria-hidden="true"></div>
 <div class="danger-vignette" id="dangerVignette" aria-hidden="true"></div>
 
+<!-- 효과 설정 — 어느 화면에서나 끄고 켤 수 있다 -->
+<div class="opts" role="group" aria-label="효과 설정">
+  <button class="opts__btn" id="tgSound" type="button" aria-pressed="true">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M4 9.5h3.5L12 5.5v13L7.5 14.5H4z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+      <path class="opts__wave" d="M15.5 9.2a4 4 0 0 1 0 5.6M18 6.7a7.5 7.5 0 0 1 0 10.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      <path class="opts__slash" d="M4 20 20 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+    </svg>
+    <span>소리</span>
+  </button>
+  <button class="opts__btn" id="tgCalm" type="button" aria-pressed="false">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M12 4.5v15M7 8.5v7M17 8.5v7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+    </svg>
+    <span>움직임 줄이기</span>
+  </button>
+</div>
+
+<!-- 탭이 가려지면 시계를 세운다 -->
+<div class="pause-veil" id="pauseVeil" aria-hidden="true"><span>일시정지 — 창으로 돌아오면 이어집니다</span></div>
+
 <!-- ============ 1. 브리핑 ============ -->
 <section class="screen screen--brief is-active" id="screenBrief">
   <div class="brief">
@@ -51,7 +72,7 @@
       </div>
       <div>
         <dt>여유</dt>
-        <dd>하나를 끊을 때마다 <b>5초</b>를 돌려받습니다. 다만 아무리 잘 풀어도 30초를 넘지는 못합니다.</dd>
+        <dd>하나를 끊을 때마다 <b>4초</b>를 돌려받습니다. 다만 아무리 잘 풀어도 30초를 넘지는 못합니다.</dd>
       </div>
       <div>
         <dt>한계</dt>
@@ -169,6 +190,7 @@
       <div><dt>해제한 회로</dt><dd id="statModules">0 / 5</dd></div>
       <div><dt>오답</dt><dd id="statStrikes">0</dd></div>
       <div><dt>잔여 시간</dt><dd id="statTime">0.0s</dd></div>
+      <div><dt>최고 기록</dt><dd id="statBest" class="tally__best">기록 없음</dd></div>
     </dl>
 
     <div class="result__log" id="resultLog"></div>
