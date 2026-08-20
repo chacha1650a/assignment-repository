@@ -109,6 +109,36 @@
     color: var(--text-secondary);
     font-size: 0.9rem;
   }
+  .assignment-extra {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+    padding-left: 24px;
+  }
+  .doc-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.82rem;
+    transition: border-color 0.15s ease, color 0.15s ease;
+  }
+  .doc-link:hover,
+  .doc-link:focus-visible {
+    border-color: var(--accent-strong);
+    color: var(--text);
+  }
+  .doc-link:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .doc-link svg { width: 14px; height: 14px; flex: none; }
   footer {
     margin-top: 48px;
     color: var(--text-secondary);
@@ -142,6 +172,16 @@
           </div>
           <p class="assignment-desc">네트워크 보안 기초를 다루는 폭탄 해체 웹 게임</p>
         </a>
+        <div class="assignment-extra">
+          <a class="doc-link" href="./2%EB%B2%88%EC%A7%B8%20%EA%B3%BC%EC%A0%9C(%ED%8F%AD%ED%83%84%20%ED%95%B4%EC%B2%B4)/%EA%B3%BC%EC%A0%9C%20%EC%A0%9C%EC%B6%9C%20%EB%B3%B4%EA%B3%A0%EC%84%9C(%EA%B9%80%EB%8C%80%ED%9B%88).pdf" download>
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 4v11m0 0 4-4m-4 4-4-4M5 19h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            보고서 PDF 내려받기
+          </a>
+          <a class="doc-link" href="./2%EB%B2%88%EC%A7%B8%20%EA%B3%BC%EC%A0%9C(%ED%8F%AD%ED%83%84%20%ED%95%B4%EC%B2%B4)/%EA%B2%80%EC%A6%9D%20%EC%95%88%EB%82%B4%EC%84%9C.md">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 3h8l5 5v13H6z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M13 3v6h6" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+            검증 안내서
+          </a>
+        </div>
       </li>
 
       <li class="placeholder">다음 과제는 완료 후 여기에 추가될 예정입니다.</li>
