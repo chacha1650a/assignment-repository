@@ -43,6 +43,21 @@
   const $sky = document.getElementById("sky");
   const $skyEmoji = document.getElementById("skyEmoji");
   const $skyEmoji2 = document.getElementById("skyEmoji2");
+  const $pageFlash = document.getElementById("pageFlash");
+  const $boardRoot = document.getElementById("boardRoot");
+
+  // ---- 조회 결과에 따라 화면 전체가 반응하는 연출 ----
+  function pageReact(kind) {
+    // kind: "ok" | "stale" | "error"
+    $pageFlash.className = "page-flash";
+    void $pageFlash.offsetWidth; // 리플로우 강제 → 재생 보장
+    $pageFlash.classList.add("flash-" + kind);
+    if (kind === "error") {
+      $boardRoot.classList.remove("shake");
+      void $boardRoot.offsetWidth;
+      $boardRoot.classList.add("shake");
+    }
+  }
 
   function applySky(code, isDay) {
     const s = weatherToSky(code, isDay);
@@ -235,6 +250,7 @@
       saveRecordIfNew(record);
       renderRecords();
       renderCompare();
+      pageReact("ok");
     } catch (err) {
       const kind = err && err.type ? err.type : "offline";
       setStatus("error", ERROR_LABEL[kind] || "오류");
@@ -243,9 +259,11 @@
         renderValue(lastGood, true);
         $lastGoodAt.textContent = lastGood.time;
         setStatus("stale", (ERROR_LABEL[kind] || "오류") + " · 오래된 데이터 표시 중");
+        pageReact("stale");
       } else {
         renderEmpty("정상값 없음 — 다시 시도해 주세요.");
         $lastGoodAt.textContent = "—";
+        pageReact("error");
       }
     } finally {
       $retryBtn.disabled = false;

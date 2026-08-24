@@ -93,6 +93,42 @@ body{
   flex-direction:column;
   gap:20px;
 }
+.board.shake{animation:board-shake .5s ease;}
+@keyframes board-shake{
+  10%,90%{transform:translateX(-1px);}
+  20%,80%{transform:translateX(2px);}
+  30%,50%,70%{transform:translateX(-4px);}
+  40%,60%{transform:translateX(4px);}
+}
+
+/* ---- 상태별 전면 화면 애니메이션(조회 결과가 화면 전체에 반응) ---- */
+.page-flash{
+  position:fixed;
+  inset:0;
+  z-index:4;
+  pointer-events:none;
+  opacity:0;
+}
+.page-flash.flash-ok{animation:flash-ok 1s ease;}
+.page-flash.flash-stale{animation:flash-stale 1s ease;}
+.page-flash.flash-error{animation:flash-error .8s ease;}
+@keyframes flash-ok{
+  0%{opacity:0;}
+  12%{opacity:1;background:radial-gradient(ellipse at 50% -10%, rgba(52,211,153,.32), transparent 60%);}
+  100%{opacity:0;}
+}
+@keyframes flash-stale{
+  0%{opacity:0;}
+  12%{opacity:1;background:radial-gradient(ellipse at 50% -10%, rgba(245,158,11,.30), transparent 60%);}
+  100%{opacity:0;}
+}
+@keyframes flash-error{
+  0%{opacity:0;}
+  10%{opacity:1;background:radial-gradient(ellipse at 50% -10%, rgba(248,113,113,.38), transparent 60%);}
+  40%{opacity:.6;}
+  55%{opacity:1;}
+  100%{opacity:0;}
+}
 .header-top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;}
 .board-header h1{margin:0 0 4px;font-size:1.6rem;}
 .live-clock{
