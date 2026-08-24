@@ -113,8 +113,23 @@
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin-top: 10px;
+    margin-top: 0;
     padding-left: 24px;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    pointer-events: none;
+    transition: max-height 0.25s ease, opacity 0.2s ease, margin-top 0.25s ease;
+  }
+  ul.assignment-list > li:hover .assignment-extra,
+  ul.assignment-list > li:focus-within .assignment-extra {
+    max-height: 60px;
+    opacity: 1;
+    margin-top: 10px;
+    pointer-events: auto;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .assignment-extra { transition: none; }
   }
   .doc-link {
     display: inline-flex;
