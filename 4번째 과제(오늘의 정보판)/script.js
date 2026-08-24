@@ -6,7 +6,21 @@
   const TIMEZONE = "Asia/Seoul";
   const API_URL =
     `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}` +
-    `&current=temperature_2m,wind_speed_10m&timezone=${encodeURIComponent(TIMEZONE)}`;
+    `&current=temperature_2m,wind_speed_10m,weathercode,is_day&timezone=${encodeURIComponent(TIMEZONE)}`;
+
+  // WMO weathercode -> 표시용 상태 (실제 날씨에 맞춰 하늘 배경·이모지가 바뀜)
+  function weatherToSky(code, isDay) {
+    const day = isDay !== 0;
+    if (code === 0) return day ? { tone: "day-clear", emoji: "☀️", mode: "" } : { tone: "night-clear", emoji: "🌕", mode: "" };
+    if ([1, 2].includes(code)) return day ? { tone: "day-clear", emoji: "🌤️", mode: "" } : { tone: "night-cloud", emoji: "🌥️", mode: "cloud" };
+    if (code === 3) return { tone: day ? "day-cloud" : "night-cloud", emoji: "☁️", mode: "cloud" };
+    if ([45, 48].includes(code)) return { tone: day ? "day-cloud" : "night-cloud", emoji: "🌫️", mode: "cloud" };
+    if ([51, 53, 55, 56, 57, 80, 81, 82].includes(code)) return { tone: day ? "day-rain" : "night-rain", emoji: "🌦️", mode: "rain" };
+    if ([61, 63, 65, 66, 67].includes(code)) return { tone: day ? "day-rain" : "night-rain", emoji: "🌧️", mode: "rain" };
+    if ([71, 73, 75, 77, 85, 86].includes(code)) return { tone: "day-snow", emoji: "❄️", mode: "snow" };
+    if ([95, 96, 99].includes(code)) return { tone: "day-storm", emoji: "⛈️", mode: "storm" };
+    return { tone: day ? "day-cloud" : "night-cloud", emoji: "🌤️", mode: "" };
+  }
 
   const RECORDS_KEY = "today-info-board-records-v1";
   const LASTGOOD_KEY = "today-info-board-lastgood-v1";
@@ -26,6 +40,17 @@
   const $testButtons = document.querySelectorAll(".test-buttons button");
   const $currentCard = document.getElementById("currentCard");
   const $liveClock = document.getElementById("liveClock");
+  const $sky = document.getElementById("sky");
+  const $skyEmoji = document.getElementById("skyEmoji");
+  const $skyEmoji2 = document.getElementById("skyEmoji2");
+
+  function applySky(code, isDay) {
+    const s = weatherToSky(code, isDay);
+    $sky.className = "sky tone-" + s.tone;
+    $skyEmoji.textContent = s.emoji;
+    $skyEmoji.className = "sky-emoji" + (s.mode ? " mode-" + s.mode : "");
+    $skyEmoji2.hidden = s.mode !== "cloud";
+  }
 
   $sourceLink.href = API_URL;
   $sourceLink.textContent = "Open-Meteo 원자료 (JSON) 열기";
@@ -173,6 +198,8 @@
         unit: data.current_units?.temperature_2m || "°C",
         time: data.current.time, // 이미 Asia/Seoul 기준 (요청 시 timezone 파라미터 지정)
         source: API_URL,
+        weathercode: data.current.weathercode,
+        isDay: data.current.is_day,
       };
     } catch (e) {
       if (e.name === "AbortError") throw { type: "timeout" };
@@ -202,6 +229,7 @@
       };
       setStatus("ok", "정상");
       renderValue({ value: result.value, unit: result.unit, time: now, source: result.source }, false);
+      if (result.weathercode !== undefined) applySky(result.weathercode, result.isDay);
       $lastGoodAt.textContent = now;
       setLastGood({ ...result, time: now });
       saveRecordIfNew(record);

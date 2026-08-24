@@ -15,24 +15,78 @@
   font-family:-apple-system,"Malgun Gothic","Apple SD Gothic Neo",sans-serif;
 }
 *{box-sizing:border-box;}
-@keyframes drift{
-  0%{background-position:0% 0%, 100% 100%;}
-  50%{background-position:100% 50%, 0% 50%;}
-  100%{background-position:0% 0%, 100% 100%;}
-}
 body{
   margin:0;
   color:var(--text);
   min-height:100vh;
   padding:24px 16px 64px;
-  background-color:var(--bg);
-  background-image:
-    radial-gradient(circle at 15% 20%, rgba(56,189,248,.16), transparent 45%),
-    radial-gradient(circle at 85% 80%, rgba(167,139,250,.14), transparent 50%);
-  background-size:180% 180%, 180% 180%;
-  animation:drift 22s ease-in-out infinite;
+  background:var(--bg);
+  position:relative;
 }
+
+/* ---- 실제 날씨(weathercode)·시간대에 반응하는 하늘 배경 ---- */
+.sky{
+  position:fixed;
+  inset:0;
+  z-index:0;
+  overflow:hidden;
+  transition:background 1.2s ease;
+  background:linear-gradient(160deg,#0a0f1e,#131c31 55%,#0a0f1e);
+}
+.sky::before{ /* 은은하게 흘러다니는 빛 덩어리 */
+  content:"";
+  position:absolute;
+  inset:-20%;
+  background:
+    radial-gradient(circle at 20% 25%, rgba(255,255,255,.10), transparent 45%),
+    radial-gradient(circle at 80% 75%, rgba(255,255,255,.08), transparent 50%);
+  background-size:180% 180%, 180% 180%;
+  animation:drift 24s ease-in-out infinite;
+}
+@keyframes drift{
+  0%{background-position:0% 0%, 100% 100%;}
+  50%{background-position:100% 50%, 0% 50%;}
+  100%{background-position:0% 0%, 100% 100%;}
+}
+/* 시간대·날씨별 하늘 톤 */
+.sky.tone-day-clear{background:linear-gradient(160deg,#1a5fb4,#4a9be0 55%,#8fd0ee);}
+.sky.tone-day-cloud{background:linear-gradient(160deg,#3a4a63,#6b7d99 55%,#9aa9c0);}
+.sky.tone-day-rain{background:linear-gradient(160deg,#22303f,#3d5164 55%,#5b7086);}
+.sky.tone-day-snow{background:linear-gradient(160deg,#3c4a5c,#7c93a8 55%,#c7d6e2);}
+.sky.tone-day-storm{background:linear-gradient(160deg,#181e2b,#2c3547 55%,#40495c);}
+.sky.tone-night-clear{background:linear-gradient(160deg,#050a18,#0e1830 55%,#182648);}
+.sky.tone-night-cloud{background:linear-gradient(160deg,#0a0f1c,#182236 55%,#26324a);}
+.sky.tone-night-rain{background:linear-gradient(160deg,#060a14,#101a29 55%,#1c2a3c);}
+
+.sky-emoji{
+  position:absolute;
+  top:8%;
+  right:10%;
+  font-size:min(18vw, 110px);
+  filter:drop-shadow(0 8px 24px rgba(0,0,0,.35));
+  animation:sun-spin 18s linear infinite, sun-bob 6s ease-in-out infinite;
+  line-height:1;
+}
+.sky-emoji--2{
+  top:16%;
+  right:28%;
+  font-size:min(10vw, 60px);
+  animation:cloud-drift 14s ease-in-out infinite;
+  opacity:.85;
+}
+@keyframes sun-spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+@keyframes sun-bob{0%,100%{transform:translateY(0);}50%{transform:translateY(10px);}}
+@keyframes cloud-drift{0%,100%{transform:translateX(0);}50%{transform:translateX(-18px);}}
+@keyframes rain-shiver{0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(4px) rotate(-4deg);}}
+@keyframes storm-flash{0%,90%,100%{filter:brightness(1);}93%,96%{filter:brightness(1.8);}}
+.sky-emoji.mode-rain{animation:rain-shiver 2.2s ease-in-out infinite;}
+.sky-emoji.mode-storm{animation:storm-flash 3.5s ease-in-out infinite, sun-bob 6s ease-in-out infinite;}
+.sky-emoji.mode-cloud{animation:cloud-drift 10s ease-in-out infinite;}
+.sky-emoji.mode-snow{animation:sun-bob 5s ease-in-out infinite;}
+
 .board{
+  position:relative;
+  z-index:1;
   max-width:640px;
   margin:0 auto;
   display:flex;
