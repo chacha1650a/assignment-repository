@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>짤·카드 스튜디오</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;800&family=Noto+Sans+KR:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <h1>짤·카드 스튜디오</h1>
+    <div class="ratio-group" id="ratioGroup" role="group" aria-label="화면비 선택">
+      <button type="button" class="ratio-btn active" data-ratio="1:1">1:1</button>
+      <button type="button" class="ratio-btn" data-ratio="4:5">4:5</button>
+      <button type="button" class="ratio-btn" data-ratio="9:16">9:16</button>
+    </div>
+    <button type="button" id="downloadBtn" class="primary-btn">이미지 내려받기</button>
+  </header>
+
+  <main class="workspace">
+    <aside class="panel panel-left">
+      <section class="panel-section">
+        <h2>1. 이미지</h2>
+        <label class="file-drop" for="imageInput" id="fileDrop">
+          <input type="file" id="imageInput" accept="image/png,image/jpeg" hidden>
+          <div class="file-drop-glass">
+            <span class="file-drop-icon" aria-hidden="true">🖼️</span>
+            <span id="imageFileName">PNG · JPEG 이미지 선택</span>
+            <span class="file-drop-sub">클릭하거나 파일을 끌어다 놓으세요</span>
+          </div>
+        </label>
+        <p class="file-error" id="imageStatus" role="status" aria-live="polite" hidden></p>
+        <label class="field-row">
+          <span>맞춤 방식</span>
+          <select id="imageFit">
+            <option value="cover">채우기 (cover)</option>
+            <option value="contain">전체 보기 (contain)</option>
+          </select>
+        </label>
+        <label class="field-row">
+          <span>확대/축소</span>
+          <input type="range" id="imageScale" min="50" max="300" value="100">
+        </label>
+        <p class="hint">캔버스 위에서 이미지를 드래그하면 위치를 옮길 수 있어요. 업로드한 이미지는 다시 그려지며 위치정보(EXIF) 등 메타데이터가 제거됩니다.</p>
+      </section>
+
+      <section class="panel-section">
+        <h2>2. 문구</h2>
+        <button type="button" id="addTextBtn" class="ghost-btn">+ 문구 추가</button>
+        <div id="textList" class="text-list"></div>
+      </section>
+    </aside>
+
+    <section class="canvas-area">
+      <div class="canvas-frame" id="canvasFrame">
+        <div class="canvas-inner">
+          <canvas id="mainCanvas"></canvas>
+          <div class="spinner-overlay" id="canvasSpinner" aria-live="polite">
+            <span class="spinner-ring"></span>
+            <span class="spinner-label" id="spinnerLabel">이미지를 만드는 중…</span>
+          </div>
+        </div>
+      </div>
+      <p class="canvas-caption">미리보기 캔버스를 그대로 파일로 저장합니다 — 화면과 내려받은 파일의 배치가 항상 같습니다.</p>
+    </section>
+
+    <aside class="panel panel-right">
+      <section class="panel-section">
+        <h2>3. 템플릿</h2>
+        <div class="template-save">
+          <input type="text" id="templateName" placeholder="템플릿 이름">
+          <button type="button" id="saveTemplateBtn" class="primary-btn small">저장</button>
+        </div>
+        <p class="hint" id="templateHint">이름이 같은 템플릿이 있으면 수정, 없으면 새로 만들어요.</p>
+        <ul id="templateList" class="template-list"></ul>
+      </section>
+
+      <section class="panel-section">
+        <h2>4. 가져오기 / 내보내기</h2>
+        <div class="io-row">
+          <button type="button" id="exportBtn" class="ghost-btn">JSON 내보내기</button>
+          <label class="ghost-btn file-btn" for="importInput">
+            <span aria-hidden="true">📎</span> JSON 가져오기
+            <input type="file" id="importInput" accept="application/json" hidden>
+          </label>
+        </div>
+        <p id="ioStatus" class="hint"></p>
+      </section>
+
+      <section class="panel-section notice">
+        <h2>공개 정보 안내</h2>
+        <p>이미지·템플릿은 이 브라우저(localStorage)에만 저장되며 서버로 전송되지 않습니다. 저작권·초상권 사용이 허가된 이미지만 사용해 주세요.</p>
+      </section>
+    </aside>
+  </main>
+</div>
+<script src="script.js"></script>
+</body>
+</html>
