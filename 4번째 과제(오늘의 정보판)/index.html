@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>오늘의 정보판 — 서울 현재 기온</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="board">
+
+  <header class="board-header">
+    <div class="header-top">
+      <h1>오늘의 정보판</h1>
+      <span class="live-clock" id="liveClock" title="브라우저 현재 시각(API 조회시각과 다름)">--:--:--</span>
+    </div>
+    <p class="purpose">이 정보판은 <strong>서울의 현재 기온</strong>을 확인하기 위한 것이다.</p>
+  </header>
+
+  <section class="current-card" id="currentCard">
+    <div class="status-row">
+      <span class="status-badge" id="statusBadge">조회 중…</span>
+      <span class="stale-note" id="staleNote" hidden>오래된 데이터</span>
+    </div>
+
+    <div class="value-row">
+      <span class="value" id="valueEl">—</span>
+      <span class="unit" id="unitEl"></span>
+    </div>
+
+    <dl class="meta-list">
+      <div><dt>출처</dt><dd><a id="sourceLink" href="#" target="_blank" rel="noopener">불러오는 중…</a></dd></div>
+      <div><dt>마지막 조회 시각 (KST)</dt><dd id="checkedAtEl">—</dd></div>
+      <div><dt>정상값 마지막 확인 (KST)</dt><dd id="lastGoodAtEl">—</dd></div>
+    </dl>
+
+    <button class="retry-btn" id="retryBtn">다시 시도</button>
+  </section>
+
+  <section class="compare-card">
+    <h2>어제와 비교</h2>
+    <div id="compareEl" class="compare-body">비교 자료를 계산하는 중…</div>
+  </section>
+
+  <section class="records-card">
+    <h2>날짜별 기록</h2>
+    <p class="hint">기준 시간대: KST(Asia/Seoul). 같은 날짜는 한 건만 저장됩니다.</p>
+    <ul id="recordsList" class="records-list"><li class="empty">아직 기록이 없습니다.</li></ul>
+  </section>
+
+  <section class="test-card">
+    <h2>장애 모의실험 (검증용)</h2>
+    <p class="hint">아래 버튼으로 5가지 장애 상태를 각각 재현해 화면 반응을 확인할 수 있습니다.</p>
+    <div class="test-buttons">
+      <button data-sim="none">정상 조회</button>
+      <button data-sim="timeout">timeout</button>
+      <button data-sim="auth">인증 실패</button>
+      <button data-sim="ratelimit">호출 제한</button>
+      <button data-sim="offline">오프라인</button>
+      <button data-sim="format">응답 형식 변경</button>
+    </div>
+  </section>
+
+</div>
+<script src="script.js"></script>
+</body>
+</html>
