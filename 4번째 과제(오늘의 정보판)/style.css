@@ -124,10 +124,19 @@ body{
   12%{opacity:1;background:radial-gradient(ellipse at 50% -10%, rgba(245,158,11,.30), transparent 60%);}
   100%{opacity:0;}
 }
+/* 진짜 오류(정상값 없음)만 화면 전체를 덮는 강한 비네트 — 드문 상황일수록 크게 반응 */
 @keyframes flash-error{
   0%{opacity:0;}
-  10%{opacity:1;background:radial-gradient(ellipse at 50% -10%, rgba(248,113,113,.38), transparent 60%);}
-  40%{opacity:.6;}
+  10%{
+    opacity:1;
+    background:
+      radial-gradient(circle at 50% 50%, rgba(248,113,113,.16), transparent 65%),
+      radial-gradient(ellipse at 50% 0%, rgba(248,113,113,.45), transparent 55%),
+      radial-gradient(ellipse at 50% 100%, rgba(248,113,113,.45), transparent 55%),
+      radial-gradient(ellipse at 0% 50%, rgba(248,113,113,.35), transparent 55%),
+      radial-gradient(ellipse at 100% 50%, rgba(248,113,113,.35), transparent 55%);
+  }
+  40%{opacity:.65;}
   55%{opacity:1;}
   100%{opacity:0;}
 }
@@ -230,7 +239,7 @@ body{
 }
 .delta-inline.up{color:var(--up);background:rgba(248,113,113,.12);}
 .delta-inline.down{color:var(--down);background:rgba(96,165,250,.12);}
-.compare-line{margin:0 0 16px;color:var(--muted);font-size:0.85rem;}
+.compare-line{margin:10px 0 16px;color:var(--muted);font-size:0.85rem;}
 
 .current-card.is-loading .value-row,
 .current-card.is-loading .meta-list{
