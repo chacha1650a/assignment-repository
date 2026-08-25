@@ -7,13 +7,15 @@
 <meta name="description" content="김대훈의 K-뉴딜 국비교육 과제 모음">
 <style>
   :root {
-    --bg: #0b1120;
-    --bg-elevated: #131c31;
-    --border: #253150;
-    --text: #f1f5f9;
-    --text-secondary: #94a3b8;
-    --accent: #a5b4fc;
-    --accent-strong: #6366f1;
+    --bg: #f6f7fb;
+    --bg-card: #ffffff;
+    --bg-soft: #eef1fb;
+    --border: #e2e5f0;
+    --text: #1c2333;
+    --text-secondary: #64708a;
+    --accent: #4338ca;
+    --accent-soft: #eef0fe;
+    --accent-strong: #312e9e;
   }
   * { box-sizing: border-box; }
   body {
@@ -22,32 +24,39 @@
     font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, -apple-system, sans-serif;
     word-break: keep-all;
     overflow-wrap: break-word;
-    background:
-      radial-gradient(circle at 15% 0%, rgba(99, 102, 241, 0.18), transparent 45%),
-      var(--bg);
+    background: var(--bg);
     color: var(--text);
   }
   .container {
     max-width: 800px;
     margin: 0 auto;
-    padding: 64px 24px;
+    padding: 56px 24px 64px;
   }
   .eyebrow {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-    font-size: 0.85rem;
-    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    font-weight: 700;
     color: var(--accent);
-    letter-spacing: 0.02em;
-    margin: 0 0 12px;
+    background: var(--accent-soft);
+    border-radius: 999px;
+    padding: 6px 14px;
+    letter-spacing: 0.01em;
+    margin: 0 0 18px;
   }
   h1 {
-    margin: 0 0 8px;
+    margin: 0 0 10px;
     font-size: clamp(1.8rem, 4vw, 2.4rem);
+    font-weight: 800;
+    letter-spacing: -0.01em;
   }
   p.lead {
     margin: 0 0 40px;
     color: var(--text-secondary);
     max-width: 560px;
+    font-size: 1rem;
+    line-height: 1.6;
     word-break: keep-all;
     overflow-wrap: break-word;
   }
@@ -57,97 +66,102 @@
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 14px;
+  }
+  li.assignment-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: 0 1px 2px rgba(28, 35, 51, 0.04);
+    overflow: hidden;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+  }
+  li.assignment-item:hover,
+  li.assignment-item:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 10px 24px -12px rgba(67, 56, 202, 0.28);
+    transform: translateY(-1px);
   }
   .assignment-card {
     display: block;
-    padding: 20px 24px;
-    background: var(--bg-elevated);
-    border: 1px solid var(--border);
-    border-radius: 12px;
+    padding: 20px 22px;
     text-decoration: none;
     color: inherit;
-    transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
-  }
-  .assignment-card:hover,
-  .assignment-card:focus-visible {
-    border-color: var(--accent-strong);
-    transform: translateY(-2px);
-    box-shadow: 0 12px 28px -12px rgba(99, 102, 241, 0.35);
-    outline: none;
   }
   .assignment-card:focus-visible {
     outline: 3px solid var(--accent);
-    outline-offset: 2px;
+    outline-offset: -3px;
+    border-radius: 12px;
   }
   .assignment-title {
     display: flex;
     align-items: center;
     gap: 10px;
     font-weight: 700;
-    font-size: 1.05rem;
+    font-size: 1.08rem;
     margin-bottom: 6px;
+    color: var(--text);
   }
   .assignment-num {
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
+    font-weight: 700;
     color: var(--accent);
-    background: rgba(99, 102, 241, 0.12);
+    background: var(--accent-soft);
     border: 1px solid var(--border);
-    padding: 2px 8px;
+    padding: 2px 9px;
     border-radius: 999px;
   }
   .assignment-desc {
     margin: 0;
     color: var(--text-secondary);
-    font-size: 0.9rem;
+    font-size: 0.92rem;
+    line-height: 1.5;
   }
   .placeholder {
-    padding: 20px 24px;
+    padding: 20px 22px;
+    background: transparent;
     border: 1px dashed var(--border);
-    border-radius: 12px;
+    border-radius: 14px;
     color: var(--text-secondary);
     font-size: 0.9rem;
+    box-shadow: none;
   }
   .assignment-extra {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
     gap: 8px;
-    margin-top: 0;
-    padding-left: 24px;
-    max-height: 0;
-    opacity: 0;
-    overflow: hidden;
-    pointer-events: none;
-    transition: max-height 0.25s ease, opacity 0.2s ease, margin-top 0.25s ease;
+    padding: 12px 22px 18px;
+    border-top: 1px solid var(--border);
+    background: var(--bg-soft);
   }
-  ul.assignment-list > li:hover .assignment-extra,
-  ul.assignment-list > li:focus-within .assignment-extra {
-    max-height: 60px;
-    opacity: 1;
-    margin-top: 10px;
-    pointer-events: auto;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .assignment-extra { transition: none; }
+  .assignment-extra-label {
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    margin-right: 2px;
   }
   .doc-link {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 7px 14px;
+    padding: 6px 13px;
     border: 1px solid var(--border);
     border-radius: 999px;
-    background: var(--bg-elevated);
+    background: var(--bg-card);
     color: var(--text-secondary);
     text-decoration: none;
     font-size: 0.82rem;
-    transition: border-color 0.15s ease, color 0.15s ease;
+    font-weight: 600;
+    transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
   }
   .doc-link:hover,
   .doc-link:focus-visible {
-    border-color: var(--accent-strong);
-    color: var(--text);
+    border-color: var(--accent);
+    color: var(--accent-strong);
+    background: var(--accent-soft);
+    outline: none;
   }
   .doc-link:focus-visible {
     outline: 3px solid var(--accent);
@@ -155,21 +169,22 @@
   }
   .doc-link svg { width: 14px; height: 14px; flex: none; }
   footer {
-    margin-top: 48px;
+    margin-top: 44px;
     color: var(--text-secondary);
     font-size: 0.85rem;
   }
-  footer a { color: var(--accent); }
+  footer a { color: var(--accent); font-weight: 600; text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
 </style>
 </head>
 <body>
   <div class="container">
-    <p class="eyebrow">K-뉴딜 국비교육 과제 모음</p>
+    <p class="eyebrow">📘 K-뉴딜 국비교육 과제 모음</p>
     <h1>김대훈</h1>
     <p class="lead">국비교육 과정에서 진행한 과제들을 폴더별로 모아두는 저장소입니다. 아래에서 과제를 선택해 확인하세요.</p>
 
     <ul class="assignment-list">
-      <li>
+      <li class="assignment-item">
         <a class="assignment-card" href="./1%EB%B2%88%EC%A7%B8%20%EA%B3%BC%EC%A0%9C(%EC%98%A8%EB%9D%BC%EC%9D%B8%20%ED%8F%AC%ED%8A%B8%ED%8F%B4%EB%A6%AC%EC%98%A4)/index.html">
           <div class="assignment-title">
             <span class="assignment-num">01</span>
@@ -179,7 +194,7 @@
         </a>
       </li>
 
-      <li>
+      <li class="assignment-item">
         <a class="assignment-card" href="./2%EB%B2%88%EC%A7%B8%20%EA%B3%BC%EC%A0%9C(%ED%8F%AD%ED%83%84%20%ED%95%B4%EC%B2%B4)/index.html">
           <div class="assignment-title">
             <span class="assignment-num">02</span>
@@ -188,6 +203,7 @@
           <p class="assignment-desc">네트워크 보안 기초를 다루는 폭탄 해체 웹 게임</p>
         </a>
         <div class="assignment-extra">
+          <span class="assignment-extra-label">제출 자료</span>
           <a class="doc-link" href="./2%EB%B2%88%EC%A7%B8%20%EA%B3%BC%EC%A0%9C(%ED%8F%AD%ED%83%84%20%ED%95%B4%EC%B2%B4)/%EA%B3%BC%EC%A0%9C%20%EC%A0%9C%EC%B6%9C%20%EB%B3%B4%EA%B3%A0%EC%84%9C(%EA%B9%80%EB%8C%80%ED%9B%88).pdf" download>
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 4v11m0 0 4-4m-4 4-4-4M5 19h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             보고서 PDF 내려받기
@@ -199,7 +215,7 @@
         </div>
       </li>
 
-      <li>
+      <li class="assignment-item">
         <a class="assignment-card" href="./3%EB%B2%88%EC%A7%B8%20%EA%B3%BC%EC%A0%9C(%EC%A7%A4%20%EC%8A%A4%ED%8A%9C%EB%94%94%EC%98%A4)/index.html">
           <div class="assignment-title">
             <span class="assignment-num">03</span>
@@ -208,6 +224,7 @@
           <p class="assignment-desc">이미지와 문구를 조합해 밈·카드를 만들고 내려받는 제작 도구</p>
         </a>
         <div class="assignment-extra">
+          <span class="assignment-extra-label">제출 자료</span>
           <a class="doc-link" href="./3%EB%B2%88%EC%A7%B8%20%EA%B3%BC%EC%A0%9C(%EC%A7%A4%20%EC%8A%A4%ED%8A%9C%EB%94%94%EC%98%A4)/%EA%B3%BC%EC%A0%9C%20%EC%A0%9C%EC%B6%9C%20%EB%B3%B4%EA%B3%A0%EC%84%9C(%EA%B9%80%EB%8C%80%ED%9B%88).pdf" download>
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 4v11m0 0 4-4m-4 4-4-4M5 19h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             보고서 PDF 내려받기
@@ -219,7 +236,7 @@
         </div>
       </li>
 
-      <li>
+      <li class="assignment-item">
         <a class="assignment-card" href="./4%EB%B2%88%EC%A7%B8%20%EA%B3%BC%EC%A0%9C(%EC%98%A4%EB%8A%98%EC%9D%98%20%EC%A0%95%EB%B3%B4%ED%8C%90)/index.html">
           <div class="assignment-title">
             <span class="assignment-num">04</span>
@@ -228,6 +245,7 @@
           <p class="assignment-desc">서울 현재 기온을 출처·조회 시각과 함께 보여주는 실시간 정보판</p>
         </a>
         <div class="assignment-extra">
+          <span class="assignment-extra-label">제출 자료</span>
           <a class="doc-link" href="./4%EB%B2%88%EC%A7%B8%20%EA%B3%BC%EC%A0%9C(%EC%98%A4%EB%8A%98%EC%9D%98%20%EC%A0%95%EB%B3%B4%ED%8C%90)/%EA%B3%BC%EC%A0%9C%20%EC%A0%9C%EC%B6%9C%20%EB%B3%B4%EA%B3%A0%EC%84%9C(%EA%B9%80%EB%8C%80%ED%9B%88).pdf" download>
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 4v11m0 0 4-4m-4 4-4-4M5 19h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             보고서 PDF 내려받기
