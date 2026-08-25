@@ -35,8 +35,10 @@
   const $checkedAt = document.getElementById("checkedAtEl");
   const $lastGoodAt = document.getElementById("lastGoodAtEl");
   const $retryBtn = document.getElementById("retryBtn");
-  const $compare = document.getElementById("compareEl");
+  const $deltaInline = document.getElementById("deltaInline");
+  const $compareLine = document.getElementById("compareLine");
   const $recordsList = document.getElementById("recordsList");
+  const $recordsCount = document.getElementById("recordsCount");
   const $testButtons = document.querySelectorAll(".test-buttons button");
   const $currentCard = document.getElementById("currentCard");
   const $liveClock = document.getElementById("liveClock");
@@ -141,6 +143,7 @@
 
   function renderRecords() {
     const records = getRecords();
+    $recordsCount.textContent = `(${records.length}건)`;
     if (records.length === 0) {
       $recordsList.innerHTML = '<li class="empty">아직 기록이 없습니다.</li>';
       return;
@@ -153,21 +156,24 @@
   function renderCompare() {
     const records = getRecords();
     if (records.length < 2) {
-      $compare.textContent = "비교 자료 부족 — 서로 다른 날짜 기록이 2건 이상 필요합니다. (현재 " + records.length + "건)";
+      $deltaInline.hidden = true;
+      $compareLine.textContent = `비교 자료 부족 — 서로 다른 날짜 기록이 2건 이상 필요합니다. (현재 ${records.length}건)`;
       return;
     }
     const [prev, curr] = records.slice(-2);
     if (prev.unit !== curr.unit) {
-      $compare.textContent = "단위가 달라 비교값을 표시하지 않습니다.";
+      $deltaInline.hidden = true;
+      $compareLine.textContent = "단위가 달라 비교값을 표시하지 않습니다.";
       return;
     }
     const diff = Math.round((curr.value - prev.value) * 10) / 10;
-    let arrowClass = "arrow-flat", arrowChar = "→", word = "변화 없음";
-    if (diff > 0) { arrowClass = "arrow-up"; arrowChar = "▲"; word = "상승"; }
-    else if (diff < 0) { arrowClass = "arrow-down"; arrowChar = "▼"; word = "하락"; }
-    $compare.innerHTML =
-      `${prev.date} <strong>${prev.value}${prev.unit}</strong> → ${curr.date} <strong>${curr.value}${curr.unit}</strong>` +
-      `<br><span class="${arrowClass}">${arrowChar} ${Math.abs(diff)}${curr.unit} (${word})</span>`;
+    let cls = "", arrowChar = "→", word = "변화 없음";
+    if (diff > 0) { cls = "up"; arrowChar = "▲"; word = "상승"; }
+    else if (diff < 0) { cls = "down"; arrowChar = "▼"; word = "하락"; }
+    $deltaInline.hidden = false;
+    $deltaInline.className = "delta-inline" + (cls ? " " + cls : "");
+    $deltaInline.textContent = `${arrowChar} ${Math.abs(diff)}${curr.unit}`;
+    $compareLine.textContent = `어제(${prev.date}) ${prev.value}${prev.unit} → 오늘(${curr.date}) ${curr.value}${curr.unit} · ${word}`;
   }
 
   // ---- 장애 모의실험 ----
