@@ -7,10 +7,7 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="sky" id="sky" aria-hidden="true">
-  <span class="sky-emoji" id="skyEmoji">🌤️</span>
-  <span class="sky-emoji sky-emoji--2" id="skyEmoji2" hidden>☁️</span>
-</div>
+<div class="sky" id="sky" aria-hidden="true"></div>
 <div class="page-flash" id="pageFlash" aria-hidden="true"></div>
 <div class="board" id="boardRoot">
 
@@ -23,6 +20,9 @@
   </header>
 
   <section class="current-card" id="currentCard">
+    <span class="sky-emoji" id="skyEmoji" aria-hidden="true">🌤️</span>
+    <span class="sky-emoji sky-emoji--2" id="skyEmoji2" aria-hidden="true" hidden>☁️</span>
+
     <div class="status-row">
       <span class="status-badge" id="statusBadge">조회 중…</span>
       <span class="stale-note" id="staleNote" hidden>오래된 데이터</span>

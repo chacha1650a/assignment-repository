@@ -60,17 +60,19 @@ body{
 
 .sky-emoji{
   position:absolute;
-  top:8%;
-  right:10%;
-  font-size:min(18vw, 110px);
-  filter:drop-shadow(0 8px 24px rgba(0,0,0,.35));
+  top:14px;
+  right:16px;
+  z-index:0;
+  font-size:min(16vw, 64px);
+  filter:drop-shadow(0 6px 16px rgba(0,0,0,.35));
   animation:sun-spin 18s linear infinite, sun-bob 6s ease-in-out infinite;
   line-height:1;
+  pointer-events:none;
 }
 .sky-emoji--2{
-  top:16%;
-  right:28%;
-  font-size:min(10vw, 60px);
+  top:34px;
+  right:52px;
+  font-size:min(9vw, 36px);
   animation:cloud-drift 14s ease-in-out infinite;
   opacity:.85;
 }
@@ -142,14 +144,28 @@ body{
 .purpose{margin:0;color:var(--muted);font-size:0.95rem;}
 
 .current-card{
-  background:var(--card);
-  border:1px solid var(--card-border);
-  border-radius:16px;
-  padding:24px;
-  backdrop-filter:blur(14px);
-  -webkit-backdrop-filter:blur(14px);
-  box-shadow:0 12px 40px rgba(0,0,0,.3);
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  background:linear-gradient(155deg, rgba(255,255,255,.14), rgba(255,255,255,.03) 35%, rgba(15,23,42,.30) 75%);
+  border:1px solid rgba(255,255,255,.22);
+  border-radius:20px;
+  padding:78px 24px 24px;
+  backdrop-filter:blur(22px) saturate(180%);
+  -webkit-backdrop-filter:blur(22px) saturate(180%);
+  box-shadow:
+    0 16px 44px rgba(0,0,0,.32),
+    inset 0 1px 0 rgba(255,255,255,.35),
+    inset 0 0 60px rgba(255,255,255,.03);
   animation:card-in .5s ease both;
+}
+.current-card::before{ /* 대각선 유리 광택 */
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  background:linear-gradient(115deg, rgba(255,255,255,.16) 0%, transparent 28%);
+  pointer-events:none;
 }
 @keyframes card-in{
   from{opacity:0;transform:translateY(10px);}
@@ -281,10 +297,12 @@ body{
 
 /* ---- 개발자 전용 테스트 패널: 실제 콘텐츠와 확실히 다른 급으로 축소 ---- */
 .test-card{
-  border:1px dashed var(--card-border);
-  border-radius:10px;
+  border:1px dashed rgba(255,255,255,.14);
+  border-radius:12px;
   padding:12px 16px;
-  background:rgba(15,23,42,.35);
+  background:rgba(15,23,42,.30);
+  backdrop-filter:blur(10px) saturate(140%);
+  -webkit-backdrop-filter:blur(10px) saturate(140%);
 }
 .test-card summary{
   cursor:pointer;
