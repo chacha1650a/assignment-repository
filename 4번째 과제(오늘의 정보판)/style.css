@@ -156,14 +156,18 @@ body{
   position:relative;
   isolation:isolate;
   overflow:hidden;
-  background:linear-gradient(155deg, rgba(255,255,255,.14), rgba(255,255,255,.03) 35%, rgba(15,23,42,.30) 75%);
-  border:1px solid rgba(255,255,255,.22);
+  /* 유리 사선 하이라이트 위에, 하늘 톤과 무관하게 카드를 또렷하게 갈라주는
+     균일한 어두운 바탕을 한 겹 깔아준다 (맑은 날 하늘색 위에서도 경계가 살도록) */
+  background:
+    linear-gradient(155deg, rgba(255,255,255,.18), rgba(255,255,255,.02) 32%, transparent 60%),
+    rgba(8,14,28,.46);
+  border:1px solid rgba(255,255,255,.32);
   border-radius:20px;
   padding:24px;
   backdrop-filter:blur(22px) saturate(180%);
   -webkit-backdrop-filter:blur(22px) saturate(180%);
   box-shadow:
-    0 16px 44px rgba(0,0,0,.32),
+    0 20px 50px rgba(0,0,0,.38),
     inset 0 1px 0 rgba(255,255,255,.35),
     inset 0 0 60px rgba(255,255,255,.03);
   animation:card-in .5s ease both;
@@ -256,18 +260,32 @@ body{
 .meta-list a{color:var(--accent);}
 
 .retry-btn, .test-buttons button{
-  background:#334155;
   color:var(--text);
-  border:1px solid var(--card-border);
   border-radius:8px;
   padding:8px 14px;
   cursor:pointer;
   font-size:0.85rem;
-  transition:transform .15s ease, background .2s ease, box-shadow .2s ease;
+  transition:transform .15s ease, background .2s ease, box-shadow .2s ease, border-color .2s ease;
 }
-.retry-btn:hover, .test-buttons button:hover{background:#475569;transform:translateY(-1px);}
 .retry-btn:active, .test-buttons button:active{transform:translateY(0) scale(.96);}
 .retry-btn:disabled{opacity:.5;cursor:progress;transform:none;}
+
+/* 다시 시도: 카드와 같은 유리질 톤 — 별도로 붙인 기본 버튼처럼 보이지 않도록 */
+.retry-btn{
+  background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.30);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.25);
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+}
+.retry-btn:hover{background:rgba(255,255,255,.22);border-color:rgba(255,255,255,.42);transform:translateY(-1px);}
+
+/* 개발자 테스트 버튼: 실제 콘텐츠와 급을 다르게 — 무채색 그대로 유지 */
+.test-buttons button{
+  background:#334155;
+  border:1px solid var(--card-border);
+}
+.test-buttons button:hover{background:#475569;transform:translateY(-1px);}
 
 @keyframes bounce-up{0%{transform:translateY(4px);opacity:0;}60%{transform:translateY(-3px);opacity:1;}100%{transform:translateY(0);}}
 @keyframes bounce-down{0%{transform:translateY(-4px);opacity:0;}60%{transform:translateY(3px);opacity:1;}100%{transform:translateY(0);}}
