@@ -64,11 +64,17 @@
     list-style: none;
     margin: 0;
     padding: 0;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    align-items: stretch;
     gap: 14px;
   }
+  @media (max-width: 620px) {
+    ul.assignment-list { grid-template-columns: 1fr; }
+  }
   li.assignment-item {
+    display: flex;
+    flex-direction: column;
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: 14px;
@@ -84,6 +90,7 @@
   }
   .assignment-card {
     display: block;
+    flex: 1;
     padding: 20px 22px;
     text-decoration: none;
     color: inherit;
@@ -119,6 +126,7 @@
     line-height: 1.5;
   }
   .placeholder {
+    grid-column: 1 / -1;
     padding: 20px 22px;
     background: transparent;
     border: 1px dashed var(--border);
