@@ -150,7 +150,7 @@ body{
   background:linear-gradient(155deg, rgba(255,255,255,.14), rgba(255,255,255,.03) 35%, rgba(15,23,42,.30) 75%);
   border:1px solid rgba(255,255,255,.22);
   border-radius:20px;
-  padding:78px 24px 24px;
+  padding:24px;
   backdrop-filter:blur(22px) saturate(180%);
   -webkit-backdrop-filter:blur(22px) saturate(180%);
   box-shadow:
@@ -220,7 +220,8 @@ body{
 }
 .unit{font-size:1.2rem;color:var(--muted);}
 .delta-inline{
-  margin-left:auto;
+  display:inline-block;
+  margin:6px 0 0;
   font-size:1rem;
   font-weight:700;
   padding:3px 10px;
