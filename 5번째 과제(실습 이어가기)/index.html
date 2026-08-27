@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>오늘의 정보판 — 서울 현재 기온</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="sky" id="sky" aria-hidden="true"></div>
+<div class="page-flash" id="pageFlash" aria-hidden="true"></div>
+<div class="board" id="boardRoot">
+
+  <header class="board-header">
+    <div class="header-top">
+      <h1>오늘의 정보판</h1>
+      <span class="live-clock" id="liveClock" title="브라우저 현재 시각(API 조회시각과 다름)">--:--:--</span>
+    </div>
+    <p class="purpose">이 정보판은 <strong>서울의 현재 기온과 습도</strong>를 확인하기 위한 것이다. <span class="feature-note">개선 기능: 습도(%) 표시 — 습도 30% 미만이면 카드에 먼지가, 70% 초과면 빗방울이 흐릅니다. 「다시 시도」를 누르면 즉시 반영됩니다.</span></p>
+  </header>
+
+  <section class="current-card" id="currentCard">
+    <div class="humidity-fx" id="humidityFx" aria-hidden="true">
+      <span class="drop" style="left:8%;animation-delay:0s"></span>
+      <span class="drop" style="left:22%;animation-delay:.6s"></span>
+      <span class="drop" style="left:38%;animation-delay:1.1s"></span>
+      <span class="drop" style="left:55%;animation-delay:.3s"></span>
+      <span class="drop" style="left:70%;animation-delay:.9s"></span>
+      <span class="drop" style="left:86%;animation-delay:1.4s"></span>
+      <span class="dust" style="left:12%;animation-delay:0s"></span>
+      <span class="dust" style="left:30%;animation-delay:1s"></span>
+      <span class="dust" style="left:50%;animation-delay:.5s"></span>
+      <span class="dust" style="left:68%;animation-delay:1.6s"></span>
+      <span class="dust" style="left:84%;animation-delay:.8s"></span>
+    </div>
+    <span class="sky-emoji" id="skyEmoji" aria-hidden="true">🌤️</span>
+    <span class="sky-emoji sky-emoji--2" id="skyEmoji2" aria-hidden="true" hidden>☁️</span>
+
+    <div class="status-row">
+      <span class="status-badge" id="statusBadge">조회 중…</span>
+      <span class="stale-note" id="staleNote" hidden>오래된 데이터</span>
+    </div>
+
+    <div class="value-row">
+      <span class="value" id="valueEl">—</span>
+      <span class="unit" id="unitEl"></span>
+      <span class="humidity-badge" id="humidityEl" hidden>💧 --%</span>
+    </div>
+    <span class="delta-inline" id="deltaInline" hidden></span>
+    <p class="compare-line" id="compareLine">어제와 비교하는 중…</p>
+
+    <dl class="meta-list">
+      <div><dt>출처</dt><dd><a id="sourceLink" href="#" target="_blank" rel="noopener">불러오는 중…</a></dd></div>
+      <div><dt>마지막 조회 시각 (KST)</dt><dd id="checkedAtEl">—</dd></div>
+      <div><dt>정상값 마지막 확인 (KST)</dt><dd id="lastGoodAtEl">—</dd></div>
+    </dl>
+
+    <button class="retry-btn" id="retryBtn">다시 시도</button>
+
+    <details class="records-toggle">
+      <summary>날짜별 기록 <span id="recordsCount">(0건)</span></summary>
+      <p class="hint">기준 시간대: KST(Asia/Seoul). 같은 날짜는 한 건만 저장됩니다.</p>
+      <ul id="recordsList" class="records-list"><li class="empty">아직 기록이 없습니다.</li></ul>
+    </details>
+  </section>
+
+  <details class="test-card">
+    <summary>개발자 테스트 — 장애 모의실험</summary>
+    <p class="hint">아래 버튼으로 5가지 장애 상태를 각각 재현해 화면 반응을 확인할 수 있습니다.</p>
+    <div class="test-buttons">
+      <button data-sim="none">정상 조회</button>
+      <button data-sim="timeout">timeout</button>
+      <button data-sim="auth">인증 실패</button>
+      <button data-sim="ratelimit">호출 제한</button>
+      <button data-sim="offline">오프라인</button>
+      <button data-sim="format">응답 형식 변경</button>
+    </div>
+  </details>
+
+</div>
+<script src="script.js"></script>
+</body>
+</html>

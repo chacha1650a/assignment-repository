@@ -1,0 +1,421 @@
+:root{
+  --bg:#0a0f1e;
+  --bg2:#0f1730;
+  --card:rgba(30,41,59,.55);
+  --card-border:rgba(148,163,184,.18);
+  --text:#e2e8f0;
+  --muted:#94a3b8;
+  --accent:#38bdf8;
+  --accent2:#a78bfa;
+  --ok:#34d399;
+  --warn:#f59e0b;
+  --err:#f87171;
+  --up:#f87171;
+  --down:#60a5fa;
+  font-family:-apple-system,"Malgun Gothic","Apple SD Gothic Neo",sans-serif;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  color:var(--text);
+  min-height:100vh;
+  padding:24px 16px 64px;
+  background:var(--bg);
+  position:relative;
+}
+
+/* ---- 실제 날씨(weathercode)·시간대에 반응하는 하늘 배경 ---- */
+.sky{
+  position:fixed;
+  inset:0;
+  z-index:0;
+  overflow:hidden;
+  transition:background 1.2s ease;
+  background:linear-gradient(160deg,#0a0f1e,#131c31 55%,#0a0f1e);
+}
+.sky::before{ /* 은은하게 흘러다니는 빛 덩어리 */
+  content:"";
+  position:absolute;
+  inset:-20%;
+  background:
+    radial-gradient(circle at 20% 25%, rgba(255,255,255,.10), transparent 45%),
+    radial-gradient(circle at 80% 75%, rgba(255,255,255,.08), transparent 50%);
+  background-size:180% 180%, 180% 180%;
+  animation:drift 24s ease-in-out infinite;
+}
+@keyframes drift{
+  0%{background-position:0% 0%, 100% 100%;}
+  50%{background-position:100% 50%, 0% 50%;}
+  100%{background-position:0% 0%, 100% 100%;}
+}
+/* 시간대·날씨별 하늘 톤 */
+.sky.tone-day-clear{background:linear-gradient(160deg,#1a5fb4,#4a9be0 55%,#8fd0ee);}
+.sky.tone-day-cloud{background:linear-gradient(160deg,#3a4a63,#6b7d99 55%,#9aa9c0);}
+.sky.tone-day-rain{background:linear-gradient(160deg,#22303f,#3d5164 55%,#5b7086);}
+.sky.tone-day-snow{background:linear-gradient(160deg,#3c4a5c,#7c93a8 55%,#c7d6e2);}
+.sky.tone-day-storm{background:linear-gradient(160deg,#181e2b,#2c3547 55%,#40495c);}
+.sky.tone-night-clear{background:linear-gradient(160deg,#050a18,#0e1830 55%,#182648);}
+.sky.tone-night-cloud{background:linear-gradient(160deg,#0a0f1c,#182236 55%,#26324a);}
+.sky.tone-night-rain{background:linear-gradient(160deg,#060a14,#101a29 55%,#1c2a3c);}
+
+.sky-emoji{
+  position:absolute;
+  top:14px;
+  right:16px;
+  z-index:0;
+  font-size:min(16vw, 64px);
+  filter:drop-shadow(0 6px 16px rgba(0,0,0,.35));
+  animation:sun-spin 18s linear infinite, sun-bob 6s ease-in-out infinite;
+  line-height:1;
+  pointer-events:none;
+}
+.sky-emoji--2{
+  top:34px;
+  right:52px;
+  font-size:min(9vw, 36px);
+  animation:cloud-drift 14s ease-in-out infinite;
+  opacity:.85;
+}
+@keyframes sun-spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+@keyframes sun-bob{0%,100%{transform:translateY(0);}50%{transform:translateY(10px);}}
+@keyframes cloud-drift{0%,100%{transform:translateX(0);}50%{transform:translateX(-18px);}}
+@keyframes rain-shiver{0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(4px) rotate(-4deg);}}
+@keyframes storm-flash{0%,90%,100%{filter:brightness(1);}93%,96%{filter:brightness(1.8);}}
+.sky-emoji.mode-rain{animation:rain-shiver 2.2s ease-in-out infinite;}
+.sky-emoji.mode-storm{animation:storm-flash 3.5s ease-in-out infinite, sun-bob 6s ease-in-out infinite;}
+.sky-emoji.mode-cloud{animation:cloud-drift 10s ease-in-out infinite;}
+.sky-emoji.mode-snow{animation:sun-bob 5s ease-in-out infinite;}
+
+.board{
+  position:relative;
+  z-index:1;
+  max-width:640px;
+  margin:0 auto;
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+}
+.board.shake{animation:board-shake .5s ease;}
+@keyframes board-shake{
+  10%,90%{transform:translateX(-1px);}
+  20%,80%{transform:translateX(2px);}
+  30%,50%,70%{transform:translateX(-4px);}
+  40%,60%{transform:translateX(4px);}
+}
+
+/* ---- 상태별 전면 화면 애니메이션(조회 결과가 화면 전체에 반응) ---- */
+.page-flash{
+  position:fixed;
+  inset:0;
+  z-index:4;
+  pointer-events:none;
+  opacity:0;
+}
+.page-flash.flash-ok{animation:flash-ok 1s ease;}
+.page-flash.flash-stale{animation:flash-stale 1s ease;}
+.page-flash.flash-error{animation:flash-error .8s ease;}
+@keyframes flash-ok{
+  0%{opacity:0;}
+  12%{opacity:1;background:radial-gradient(ellipse at 50% -10%, rgba(52,211,153,.32), transparent 60%);}
+  100%{opacity:0;}
+}
+@keyframes flash-stale{
+  0%{opacity:0;}
+  12%{opacity:1;background:radial-gradient(ellipse at 50% -10%, rgba(245,158,11,.30), transparent 60%);}
+  100%{opacity:0;}
+}
+/* 진짜 오류(정상값 없음)만 화면 전체를 덮는 강한 비네트 — 드문 상황일수록 크게 반응 */
+@keyframes flash-error{
+  0%{opacity:0;}
+  10%{
+    opacity:1;
+    background:
+      radial-gradient(circle at 50% 50%, rgba(248,113,113,.16), transparent 65%),
+      radial-gradient(ellipse at 50% 0%, rgba(248,113,113,.45), transparent 55%),
+      radial-gradient(ellipse at 50% 100%, rgba(248,113,113,.45), transparent 55%),
+      radial-gradient(ellipse at 0% 50%, rgba(248,113,113,.35), transparent 55%),
+      radial-gradient(ellipse at 100% 50%, rgba(248,113,113,.35), transparent 55%);
+  }
+  40%{opacity:.65;}
+  55%{opacity:1;}
+  100%{opacity:0;}
+}
+.header-top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;}
+.board-header h1{margin:0 0 4px;font-size:1.6rem;}
+.live-clock{
+  font-variant-numeric:tabular-nums;
+  font-size:0.85rem;
+  color:var(--muted);
+  letter-spacing:.03em;
+}
+.live-clock .blink{animation:blink 1s step-start infinite;}
+@keyframes blink{50%{opacity:0;}}
+.purpose{margin:0;color:var(--muted);font-size:0.95rem;}
+.feature-note{display:block;margin-top:4px;font-size:0.8rem;color:var(--accent2);}
+
+.current-card{
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  /* 유리 사선 하이라이트 위에, 하늘 톤과 무관하게 카드를 또렷하게 갈라주는
+     균일한 어두운 바탕을 한 겹 깔아준다 (맑은 날 하늘색 위에서도 경계가 살도록) */
+  background:
+    linear-gradient(155deg, rgba(255,255,255,.18), rgba(255,255,255,.02) 32%, transparent 60%),
+    rgba(8,14,28,.46);
+  border:1px solid rgba(255,255,255,.32);
+  border-radius:20px;
+  padding:24px;
+  backdrop-filter:blur(22px) saturate(180%);
+  -webkit-backdrop-filter:blur(22px) saturate(180%);
+  box-shadow:
+    0 20px 50px rgba(0,0,0,.38),
+    inset 0 1px 0 rgba(255,255,255,.35),
+    inset 0 0 60px rgba(255,255,255,.03);
+  animation:card-in .5s ease both;
+}
+.current-card::before{ /* 대각선 유리 광택 */
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  background:linear-gradient(115deg, rgba(255,255,255,.16) 0%, transparent 28%);
+  pointer-events:none;
+}
+@keyframes card-in{
+  from{opacity:0;transform:translateY(10px);}
+  to{opacity:1;transform:translateY(0);}
+}
+.hint{color:var(--muted);font-size:0.85rem;margin:0 0 10px;}
+
+.status-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.status-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:4px 10px;
+  border-radius:999px;
+  font-size:0.8rem;
+  font-weight:600;
+  background:#334155;
+  color:var(--muted);
+  transition:background .3s, color .3s;
+}
+.status-badge::before{
+  content:"";
+  width:7px;height:7px;
+  border-radius:50%;
+  background:currentColor;
+}
+.status-badge.ok{background:rgba(52,211,153,.15);color:var(--ok);}
+.status-badge.ok::before{animation:pulse-dot 1.6s ease-in-out infinite;}
+@keyframes pulse-dot{
+  0%,100%{box-shadow:0 0 0 0 rgba(52,211,153,.55);}
+  50%{box-shadow:0 0 0 5px rgba(52,211,153,0);}
+}
+.status-badge.stale{background:rgba(245,158,11,.15);color:var(--warn);}
+.status-badge.error{background:rgba(248,113,113,.15);color:var(--err);}
+.status-badge.loading::before{animation:pulse-dot-muted 1s ease-in-out infinite;}
+@keyframes pulse-dot-muted{0%,100%{opacity:.4;}50%{opacity:1;}}
+.stale-note{
+  font-size:0.78rem;
+  color:var(--warn);
+  border:1px solid var(--warn);
+  border-radius:6px;
+  padding:2px 6px;
+}
+
+.value-row{display:flex;align-items:baseline;gap:6px;margin-bottom:2px;flex-wrap:wrap;}
+.value{font-size:3rem;font-weight:700;line-height:1;transition:color .3s;}
+.value.pop{animation:value-pop .35s ease;}
+@keyframes value-pop{
+  0%{transform:scale(1);}
+  40%{transform:scale(1.12);color:var(--accent);}
+  100%{transform:scale(1);}
+}
+.unit{font-size:1.2rem;color:var(--muted);}
+.humidity-badge{
+  font-size:0.95rem;
+  font-weight:600;
+  color:var(--accent);
+  background:rgba(56,189,248,.12);
+  border-radius:999px;
+  padding:3px 10px;
+  margin-left:4px;
+  transition:color .3s,background .3s;
+}
+.humidity-badge.zone-dry{color:var(--warn);background:rgba(245,158,11,.16);}
+.humidity-badge.zone-humid{color:var(--accent);background:rgba(56,189,248,.22);}
+
+/* ---- 습도 연출: 30% 미만 = 먼지, 70% 초과 = 빗방울 (카드 안에서만 재생, 배경 sky와 별개) ---- */
+.humidity-fx{
+  position:absolute;
+  inset:0;
+  z-index:0;
+  overflow:hidden;
+  pointer-events:none;
+  border-radius:inherit;
+}
+.humidity-fx .drop,
+.humidity-fx .dust{
+  position:absolute;
+  opacity:0;
+}
+.humidity-fx .drop{
+  top:-8%;
+  width:3px;
+  height:16px;
+  border-radius:0 0 4px 4px;
+  background:linear-gradient(to bottom, rgba(56,189,248,0), rgba(56,189,248,.65));
+}
+.current-card.zone-humid .humidity-fx .drop{
+  animation:drop-fall 1.9s linear infinite;
+}
+@keyframes drop-fall{
+  0%{transform:translateY(-8%); opacity:0;}
+  12%{opacity:1;}
+  92%{opacity:.4;}
+  100%{transform:translateY(340px); opacity:0;}
+}
+.humidity-fx .dust{
+  bottom:-4%;
+  width:3px;
+  height:3px;
+  border-radius:50%;
+  background:rgba(245,158,11,.6);
+}
+.current-card.zone-dry .humidity-fx .dust{
+  animation:dust-rise 3.4s ease-in-out infinite;
+}
+@keyframes dust-rise{
+  0%{transform:translate(0,0); opacity:0;}
+  15%{opacity:.85;}
+  100%{transform:translate(14px,-200px); opacity:0;}
+}
+.current-card.zone-dry{box-shadow:inset 0 0 70px rgba(245,158,11,.12);transition:box-shadow .6s;}
+.current-card.zone-humid{box-shadow:inset 0 0 70px rgba(56,189,248,.14);transition:box-shadow .6s;}
+.delta-inline{
+  display:inline-block;
+  margin:6px 0 0;
+  font-size:1rem;
+  font-weight:700;
+  padding:3px 10px;
+  border-radius:999px;
+  background:rgba(148,163,184,.12);
+}
+.delta-inline.up{color:var(--up);background:rgba(248,113,113,.12);}
+.delta-inline.down{color:var(--down);background:rgba(96,165,250,.12);}
+.compare-line{margin:10px 0 16px;color:var(--muted);font-size:0.85rem;}
+
+.current-card.is-loading .value-row,
+.current-card.is-loading .meta-list{
+  position:relative;
+  overflow:hidden;
+}
+.current-card.is-loading .value{color:transparent;background:linear-gradient(90deg,#334155 25%,#475569 37%,#334155 63%);background-size:400% 100%;border-radius:6px;animation:shimmer 1.4s ease infinite;}
+@keyframes shimmer{0%{background-position:100% 0;}100%{background-position:-100% 0;}}
+
+.meta-list{margin:0 0 14px;display:flex;flex-direction:column;gap:6px;}
+.meta-list > div{display:flex;justify-content:space-between;gap:12px;font-size:0.88rem;}
+.meta-list dt{color:var(--muted);}
+.meta-list dd{margin:0;text-align:right;word-break:break-all;}
+.meta-list a{color:var(--accent);}
+
+.retry-btn, .test-buttons button{
+  color:var(--text);
+  border-radius:8px;
+  padding:8px 14px;
+  cursor:pointer;
+  font-size:0.85rem;
+  transition:transform .15s ease, background .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.retry-btn:active, .test-buttons button:active{transform:translateY(0) scale(.96);}
+.retry-btn:disabled{opacity:.5;cursor:progress;transform:none;}
+
+/* 다시 시도: 카드와 같은 유리질 톤 — 별도로 붙인 기본 버튼처럼 보이지 않도록 */
+.retry-btn{
+  background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.30);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.25);
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+}
+.retry-btn:hover{background:rgba(255,255,255,.22);border-color:rgba(255,255,255,.42);transform:translateY(-1px);}
+
+/* 개발자 테스트 버튼: 실제 콘텐츠와 급을 다르게 — 무채색 그대로 유지 */
+.test-buttons button{
+  background:#334155;
+  border:1px solid var(--card-border);
+}
+.test-buttons button:hover{background:#475569;transform:translateY(-1px);}
+
+@keyframes bounce-up{0%{transform:translateY(4px);opacity:0;}60%{transform:translateY(-3px);opacity:1;}100%{transform:translateY(0);}}
+@keyframes bounce-down{0%{transform:translateY(-4px);opacity:0;}60%{transform:translateY(3px);opacity:1;}100%{transform:translateY(0);}}
+
+/* ---- 히어로 카드 안의 접이식 날짜별 기록 (독립 박스 아님) ---- */
+.records-toggle{margin-top:16px;border-top:1px solid var(--card-border);padding-top:12px;}
+.records-toggle summary{
+  cursor:pointer;
+  font-size:0.88rem;
+  color:var(--muted);
+  list-style:none;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  user-select:none;
+}
+.records-toggle summary::-webkit-details-marker{display:none;}
+.records-toggle summary::before{content:"▸";transition:transform .2s ease;}
+.records-toggle[open] summary::before{transform:rotate(90deg);}
+.records-toggle .hint{margin:10px 0 8px;}
+
+.records-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;}
+.records-list li{
+  display:flex;
+  justify-content:space-between;
+  font-size:0.88rem;
+  border-bottom:1px dashed var(--card-border);
+  padding-bottom:6px;
+  opacity:0;
+  animation:row-in .4s ease forwards;
+}
+.records-list li.empty{color:var(--muted);border-bottom:none;animation:none;opacity:1;}
+@keyframes row-in{
+  from{opacity:0;transform:translateX(-6px);}
+  to{opacity:1;transform:translateX(0);}
+}
+
+/* ---- 개발자 전용 테스트 패널: 실제 콘텐츠와 확실히 다른 급으로 축소 ---- */
+.test-card{
+  border:1px dashed rgba(255,255,255,.14);
+  border-radius:12px;
+  padding:12px 16px;
+  background:rgba(15,23,42,.30);
+  backdrop-filter:blur(10px) saturate(140%);
+  -webkit-backdrop-filter:blur(10px) saturate(140%);
+}
+.test-card summary{
+  cursor:pointer;
+  font-size:0.8rem;
+  color:var(--muted);
+  list-style:none;
+  user-select:none;
+}
+.test-card summary::-webkit-details-marker{display:none;}
+.test-card summary::before{content:"▸ ";}
+.test-card[open] summary::before{content:"▾ ";}
+.test-card .hint{margin:10px 0;font-size:0.78rem;}
+.test-buttons{display:flex;flex-wrap:wrap;gap:8px;}
+.test-buttons button{font-size:0.78rem;padding:6px 12px;}
+
+@media(max-width:420px){
+  .value{font-size:2.1rem;}
+}
+
+@media (prefers-reduced-motion: reduce){
+  *, *::before, *::after{
+    animation-duration:.001s !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.001s !important;
+  }
+  body{animation:none;}
+}
