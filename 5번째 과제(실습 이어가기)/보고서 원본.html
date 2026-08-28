@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>과제 제출 보고서 — 실습 이어가기</title>
+<style>
+  @page { size: A4; margin: 16mm 15mm 18mm; }
+  @page :first { margin: 0; }
+
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    font-family:"Malgun Gothic","맑은 고딕","Apple SD Gothic Neo",sans-serif;
+    color:#1c2333; font-size:10pt; line-height:1.65;
+    -webkit-print-color-adjust:exact; print-color-adjust:exact;
+  }
+
+  /* ---- 표지 ---- */
+  .cover{
+    height:297mm; page-break-after:always;
+    background:linear-gradient(160deg,#0a0f1e,#16233f 55%,#1d2f52);
+    color:#e2e8f0; padding:46mm 22mm 22mm; position:relative;
+  }
+  .cover .kicker{ font-size:10.5pt; letter-spacing:.08em; color:#7dd3fc; margin-bottom:10mm; }
+  .cover h1{ font-size:34pt; margin:0 0 4mm; letter-spacing:-.02em; }
+  .cover .sub{ font-size:13pt; color:#cbd5e1; line-height:1.5; margin:0 0 14mm; max-width:130mm; }
+  .cover .meta{ position:absolute; left:22mm; bottom:24mm; font-size:10pt; color:#94a3b8; line-height:2; }
+  .cover .meta b{ color:#e2e8f0; font-weight:600; display:inline-block; min-width:24mm; }
+  .cover .url{ color:#7dd3fc; }
+
+  /* ---- 본문 ---- */
+  section{ page-break-inside:avoid; margin-bottom:9mm; }
+  .sec-num{ font-size:9pt; color:#4338ca; letter-spacing:.1em; font-weight:700; }
+  h2{ font-size:15pt; margin:1mm 0 3mm; letter-spacing:-.01em; }
+  h3{ font-size:11pt; margin:5mm 0 2mm; color:#1c2333; }
+  p{ margin:0 0 2.5mm; }
+  ul,ol{ margin:0 0 3mm; padding-left:5mm; }
+  li{ margin-bottom:1.4mm; }
+  strong{ color:#111827; }
+  code{ font-family:Consolas,monospace; font-size:9pt; background:#eef0fe; color:#3730a3;
+        padding:0 1mm; border-radius:2px; }
+  .lead{ color:#64708a; margin-bottom:4mm; }
+
+  table{ border-collapse:collapse; width:100%; font-size:9pt; margin:2mm 0 3mm; }
+  th,td{ border:1px solid #dfe3ee; padding:1.8mm 2.4mm; text-align:left; vertical-align:top; }
+  th{ background:#f2f4fb; font-weight:600; }
+  td.ok{ color:#047857; }
+  td.bad{ color:#b91c1c; }
+
+  .note{ border-left:3px solid #4338ca; background:#f6f7fd; padding:2.5mm 4mm; margin:3mm 0;
+         font-size:9.5pt; }
+  .warn{ border-left:3px solid #d97706; background:#fffaf0; padding:2.5mm 4mm; margin:3mm 0;
+         font-size:9.5pt; }
+
+  figure{ margin:0 0 5mm; page-break-inside:avoid; }
+  figure img{ width:100%; border:1px solid #dfe3ee; border-radius:2mm; display:block; }
+  figcaption{ font-size:8.5pt; color:#64708a; margin-top:1.5mm; }
+  .two{ display:flex; gap:4mm; }
+  .two figure{ flex:1; }
+  .pagebreak{ page-break-before:always; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="kicker">K-뉴딜 국비교육 · 5번째 과제</div>
+  <h1>실습 이어가기</h1>
+  <p class="sub">대화가 끊겨도 이어지는 프로젝트 — 「오늘의 정보판」에 습도 기능을 더하고,
+    두 AI에 나눠 맡긴 결과를 비교한 기록<br>과제 제출 보고서</p>
+  <div class="meta">
+    <div><b>제출자</b> 김대훈</div>
+    <div><b>제출일</b> 2026년 8월 28일</div>
+    <div><b>공개 주소</b> <span class="url">chacha1650a.github.io/assignment-repository</span></div>
+    <div><b>소스</b> <span class="url">github.com/chacha1650a/assignment-repository</span></div>
+  </div>
+</div>
+
+<section>
+  <div class="sec-num">01</div>
+  <h2>무엇을 만들었나</h2>
+  <p class="lead">4번째 과제 「오늘의 정보판」을 그대로 복사해 독립시킨 뒤, 작은 기능 하나를 더하고
+    그 과정을 두 AI에 나눠 맡겼습니다.</p>
+
+  <p><strong>개선한 기능은 습도입니다.</strong> 정보판을 열거나 「다시 시도」를 누르면, 기온 옆에
+    현재 습도(%)가 함께 보입니다. 습도가 30% 미만이면 카드에 먼지가 흩날리고, 70%를 넘으면
+    빗방울이 흐릅니다. 30~70%는 연출이 없습니다 — 흔한 구간까지 반응하면 의미가 없어서
+    일부러 극단값에서만 반응하게 했습니다.</p>
+
+  <p>이 과제의 핵심은 기능 자체가 아니라 <strong>"AI A가 만들다 멈추고, AI B가 저장소와 인계
+    문서만으로 이어받을 수 있는가"</strong>입니다. 그래서 기능은 일부러 작게 잡고, 대신 기준과
+    기록을 먼저 세웠습니다.</p>
+
+  <h3>기능 외에 더한 것</h3>
+  <ul>
+    <li><strong>위치 지도</strong> — 정보판이 보여주는 지점(서울)을 지도로 표시</li>
+    <li><strong>오늘의 기온 변화 그래프</strong> — 외부 차트 라이브러리 없이 인라인 SVG로 직접 구현</li>
+    <li><strong>두 AI 비교 영역</strong> — 비교 요약과 앞으로의 선택 기준을 같은 화면에 표시</li>
+    <li><strong>화면 낭독기 대응, 10분 자동 갱신</strong></li>
+  </ul>
+
+  <div class="note">
+    <strong>일부러 하지 않은 것.</strong> "훨씬 큰 개선"을 넣고 싶었지만, 과제가 요구하는 것은
+    <em>한 번에 확인 가능한 작은 개선</em>이고 과제 문서 자체가 큰 기능을 실패 사례로 들고
+    있었습니다. 그래서 기능 범위는 습도로 유지하고, 대신 표현과 완성도를 키우는 쪽을 택했습니다.
+  </div>
+</section>
+
+<section>
+  <div class="sec-num">02</div>
+  <h2>어떻게 확인하나</h2>
+  <p class="lead">설치할 것은 없습니다. 공개 주소에서 「05 실습 이어가기」 카드를 누르면 바로 실행됩니다.</p>
+
+  <h3>3단계</h3>
+  <ol>
+    <li>기온 옆에 <strong>습도(%)</strong>가 보이는지 확인하고, <strong>「다시 시도」</strong>를 눌러
+      습도와 조회 시각이 함께 갱신되는지 봅니다.</li>
+    <li>화면을 내려 <strong>「두 AI에 나눠 맡긴 결과」</strong> 표와 그 아래 <strong>선택 기준 3개</strong>를 봅니다.</li>
+    <li>맨 아래 <strong>「개발자 테스트 — 장애 모의실험」</strong>에서 <strong>「오프라인」</strong>을 눌러보고
+      <strong>「정상 조회」</strong>로 되돌립니다.</li>
+  </ol>
+
+  <h3>무엇이 보이면 통과인가</h3>
+  <ul>
+    <li>기온 옆에 <code>💧 76%</code> 형태의 <strong>정수 % 습도</strong>가 보인다.</li>
+    <li>「다시 시도」 <strong>한 번</strong>으로 값이 즉시 바뀐다.</li>
+    <li>같은 화면에 <strong>두 AI 비교표와 선택 기준</strong>이 함께 보인다.</li>
+    <li>장애 상태에서도 <strong>마지막 정상값이 사라지지 않고</strong> "오래된 데이터"와 함께 남는다.</li>
+    <li>정상값이 <strong>아예 없을 때만</strong> 기온·습도가 모두 <code>—</code>가 된다.
+      <strong>값을 지어내지 않는 것이 의도된 동작입니다.</strong></li>
+  </ul>
+
+  <div class="warn">
+    <strong>안 될 때.</strong> 값이 <code>—</code>이면 Open-Meteo가 일시적으로 응답하지 않는 상태이니
+    「다시 시도」를 누르세요. 습도 연출이 안 보이면 현재 습도가 30~70% 구간인 것이 정상입니다.
+    옛날 화면이 보이면 강력 새로고침(Ctrl+Shift+R)을 눌러주세요.
+  </div>
+</section>
+
+<section class="pagebreak">
+  <div class="sec-num">03</div>
+  <h2>누구에게, 무엇을 공개하나</h2>
+  <p class="lead">누구나 열 수 있는 공개 페이지이며, 로그인·개인정보 입력이 전혀 없습니다.</p>
+
+  <table>
+    <tr><th style="width:32mm">항목</th><th>내용</th></tr>
+    <tr><td>공개 범위</td><td>주소를 아는 누구나. 계정·로그인 없음</td></tr>
+    <tr><td>수집하는 개인정보</td><td>없음. 입력란 자체가 없음</td></tr>
+    <tr><td>저장 위치</td><td>날짜별 기록은 <strong>이 브라우저의 localStorage에만</strong> 저장. 서버 전송 없음</td></tr>
+    <tr><td>외부 통신</td><td>Open-Meteo(기상), Esri(지도 타일), unpkg·jsDelivr(라이브러리·폰트) — 모두 공개·무인증</td></tr>
+  </table>
+
+  <h3>비밀값 0건</h3>
+  <p>이 프로젝트의 완료 기준 중 하나는 <strong>"브라우저·배포 파일·네트워크 주소·Git 기록에
+    비밀값(토큰·키·개인정보)이 0건"</strong>입니다. 이 기준 때문에 실제로 여러 선택이 뒤집혔습니다.</p>
+  <table>
+    <tr><th style="width:42mm">검토한 것</th><th style="width:16mm">결과</th><th>이유</th></tr>
+    <tr><td>Google Maps JS API</td><td class="bad">기각</td><td>API 키를 브라우저에 심어야 하고, 그 키가 배포 파일과 Git 기록에 남는다</td></tr>
+    <tr><td>카카오맵 · 네이버맵</td><td class="bad">기각</td><td>키 발급·회원가입 필요</td></tr>
+    <tr><td>CARTO 지도 타일</td><td class="bad">기각</td><td>타일에 "API KEY REQUIRED" 워터마크가 찍혀서 내려옴(직접 받아 확인)</td></tr>
+    <tr><td>Esri World Street Map</td><td class="ok">채택</td><td>키 불필요. 한글 지명·지하철역까지 나와 구글맵과 인상이 가장 비슷</td></tr>
+    <tr><td>Open-Meteo</td><td class="ok">채택</td><td>키 없이 호출 가능. 원자료 JSON 주소를 화면에 그대로 공개</td></tr>
+  </table>
+</section>
+
+<section class="pagebreak">
+  <div class="sec-num">04</div>
+  <h2>화면 증거 1/2 — 정상 상태</h2>
+  <figure>
+    <img src="증거/01-정상.png" alt="">
+    <figcaption>정상 조회 상태. 기온 28.4°C 옆에 습도 76%가 함께 표시되고, 70%를 넘겼기 때문에
+      카드 안에 빗방울 연출이 흐르고 있습니다. 오른쪽에 위치 지도, 아래에 0시~23시 기온 변화
+      그래프(현재 시각 강조점 포함)가 있으며, 그래프의 현재값 28.4°C는 카드의 기온과 일치합니다.</figcaption>
+  </figure>
+  <figure>
+    <img src="증거/04-두AI비교.png" alt="">
+    <figcaption>같은 화면 안의 「두 AI에 나눠 맡긴 결과」 영역. 비교표 5줄과 앞으로의 선택 기준
+      3개가 함께 보입니다(완료 기준 3). AI B가 수행하지 못한 항목은 붉은색으로 구분했습니다.</figcaption>
+  </figure>
+</section>
+
+<section class="pagebreak">
+  <div class="sec-num">04</div>
+  <h2>화면 증거 2/2 — 장애 상태와 좁은 화면</h2>
+  <div class="two">
+    <figure>
+      <img src="증거/02-오프라인.png" alt="">
+      <figcaption>「오프라인」 모의실험. 상태가 "오류 · 오래된 데이터 표시 중"으로 바뀌었지만
+        마지막 정상값(28.4°C, 76%)은 그대로 남아 있습니다.</figcaption>
+    </figure>
+    <figure>
+      <img src="증거/03-정상값없음.png" alt="">
+      <figcaption>저장된 정상값이 하나도 없는 상태에서의 오류. 기온과 습도가 모두 <code>—</code>로
+        비워집니다. <strong>값을 지어내지 않습니다.</strong></figcaption>
+    </figure>
+  </div>
+  <div class="two" style="align-items:flex-start;">
+    <figure style="flex:0 0 55mm;">
+      <img src="증거/05-모바일.png" alt="">
+    </figure>
+    <div style="flex:1; padding-top:2mm;">
+      <h3 style="margin-top:0;">좁은 화면 — 휴대폰 폭 390px</h3>
+      <p>카드가 1단으로 재배치되고 <strong>가로 스크롤이 없습니다.</strong></p>
+      <p>기온 카드에서는 라벨과 값이 위아래로 쌓입니다. 가로로 붙여두면 자리가 모자라
+        <code>2026. 08. 28. 15:46:0 / 3</code>처럼 시각 한가운데가 잘려 줄바꿈되던 문제를
+        이렇게 고쳤습니다.</p>
+      <p>지도는 좁아져도 최소 높이를 유지하고, 두 AI 비교표는 페이지 전체를 밀어내는 대신
+        <strong>표 영역만 좌우로 스크롤</strong>됩니다.</p>
+    </div>
+  </div>
+</section>
+
+<section class="pagebreak">
+  <div class="sec-num">05</div>
+  <h2>검사 10개 — 전부 실제 화면으로 확인</h2>
+  <p class="lead">작업을 시작하기 전에 harness.md에 10개를 먼저 못박아 두고, 기능이 끝난 뒤가 아니라
+    변경할 때마다 다시 확인했습니다. 아래는 최종 확인 결과입니다.</p>
+
+  <table>
+    <tr><th style="width:8mm">#</th><th>검사 항목</th><th style="width:14mm">결과</th></tr>
+    <tr><td>1</td><td>정상 조회 시 습도(%)가 기온과 함께 표시된다</td><td class="ok">통과</td></tr>
+    <tr><td>2</td><td>습도는 정수 % 형식이다</td><td class="ok">통과</td></tr>
+    <tr><td>3</td><td>「다시 시도」 시 습도도 함께 갱신된다</td><td class="ok">통과</td></tr>
+    <tr><td>4</td><td>최초 로드 후 placeholder가 아닌 실제 값이 채워진다</td><td class="ok">통과</td></tr>
+    <tr><td>5</td><td>오프라인 모의 시 습도도 오류/오래된 데이터를 반영한다</td><td class="ok">통과</td></tr>
+    <tr><td>6</td><td>응답 형식 변경 모의 시 화면이 죽지 않는다</td><td class="ok">통과</td></tr>
+    <tr><td>7</td><td>정상값이 전혀 없을 때 습도도 <code>—</code>가 된다</td><td class="ok">통과</td></tr>
+    <tr><td>8</td><td>기존 기온·출처 링크·조회 시각이 그대로 동작한다</td><td class="ok">통과</td></tr>
+    <tr><td>9</td><td>날짜별 기록 중복 방지와 어제 대비 비교가 그대로 동작한다</td><td class="ok">통과</td></tr>
+    <tr><td>10</td><td>장애 5종 버튼과 하늘 배경 반응이 그대로 동작한다</td><td class="ok">통과</td></tr>
+  </table>
+
+  <h3>추가로 확인한 것</h3>
+  <table>
+    <tr><th style="width:44mm">항목</th><th>확인 방법</th><th style="width:14mm">결과</th></tr>
+    <tr><td>자동 갱신 동작</td><td>주기를 10분에서 5초로 임시 변경해 조회 시각이 자동으로 바뀌는지 확인한 뒤 되돌림</td><td class="ok">통과</td></tr>
+    <tr><td>자동 갱신 차단(숨긴 탭)</td><td>탭이 화면에 없는 상태에서 13초간 갱신되지 않음</td><td class="ok">통과</td></tr>
+    <tr><td>자동 갱신 차단(장애 중)</td><td>오프라인 모의 상태에서 9초간 오류 화면이 유지됨</td><td class="ok">통과</td></tr>
+    <tr><td>좁은 화면 375px</td><td>가로 스크롤 없음, 비교표만 자체 스크롤</td><td class="ok">통과</td></tr>
+    <tr><td>비밀값 노출</td><td>변경 파일 전체를 key·token·secret 패턴으로 검사</td><td class="ok">0건</td></tr>
+  </table>
+
+  <div class="note">
+    <strong>검사 #7이 한동안 실패로 보였던 이유.</strong> 코드 문제가 아니라 순서 문제였습니다.
+    최초 로드의 조회가 「오프라인」 클릭보다 <em>늦게</em> 끝나면서 방금 비운 화면을 정상값으로
+    덮어쓰고 있었습니다. 로드 완료를 기다린 뒤 저장소를 비우고 클릭하니 의도대로 동작했습니다.
+  </div>
+</section>
+
+<section class="pagebreak">
+  <div class="sec-num">06</div>
+  <h2>두 AI를 같은 단위로 비교하면</h2>
+
+  <table>
+    <tr><th style="width:32mm">항목</th><th>AI A — Claude</th><th>AI B — Gemini</th></tr>
+    <tr><td>맡은 일</td><td>습도 기능·지도·기온 그래프 구현</td><td>자료 조사, 이어받아 마무리</td></tr>
+    <tr><td>시도 횟수</td><td>1회(연속 세션)</td><td>2회</td></tr>
+    <tr><td>저장소에 남은 것</td><td>커밋 14건, 코드 3개 파일 +400 −24줄</td><td class="bad">없음 — 파일을 쓰지 않고 채팅 답변만</td></tr>
+    <tr><td>검사 10개</td><td>10개 통과</td><td class="bad">수행하지 못함</td></tr>
+    <tr><td>되돌린 작업</td><td>지도 타일 3회 교체, 막대 그래프 검토 후 기각</td><td class="bad">2회 시도 모두 폐기</td></tr>
+    <tr><td>대표적인 오류</td><td>화면에 반영되지 않은 CSS를 스크린샷만 믿고 판단</td><td class="bad">없는 구조(서버·DB·REST API)를 있다고 전제</td></tr>
+  </table>
+
+  <h3>무엇이 갈렸나</h3>
+  <p><strong>AI B 1차 시도.</strong> Spring Boot 백엔드, 데이터베이스,
+    <code>POST /api/control/humidity</code>, IoT 센서를 전제로 한 작업 계획을 내놨습니다.
+    이 프로젝트에는 그중 <strong>아무것도 없습니다</strong> — 서버도 DB도 없는 정적 프론트엔드입니다.
+    확인해 보니 파일은 하나도 쓰이지 않았습니다.</p>
+  <p><strong>AI B 2차 시도.</strong> 프로젝트 종류는 맞췄지만 여전히 파일을 쓰지 않았고, 근거로
+    제시한 코드의 이름이 실제와 달랐습니다 — <code>updateHumidityUI()</code>라고 했지만 실제
+    코드에는 <code>renderHumidity()</code>가 있습니다.</p>
+  <p><strong>AI A도 틀렸습니다.</strong> 지도 타일을 세 번 갈아치웠고, 막대 그래프를 검토했다가
+    기각했습니다. 다만 <strong>틀린 것이 전부 저장소에 기록으로 남아</strong> 되짚을 수 있었습니다.</p>
+
+  <h3>앞으로 AI를 고를 때의 기준</h3>
+  <ol>
+    <li><strong>저장소에 직접 쓸 수 있는가.</strong> 채팅으로 코드를 읊기만 하면 다음 사람이
+      이어받을 것이 남지 않습니다. 이번에 결과를 가른 결정적인 차이였습니다.</li>
+    <li><strong>모르는 것을 모른다고 하는가.</strong> 확인 없이 지어낸 구조를 걸러내는 데 든
+      시간이 직접 하는 것보다 길었습니다. <strong>그럴듯한 답이 빈 답보다 비쌉니다.</strong></li>
+    <li><strong>근거를 실제 이름으로 대는가.</strong> 「습도를 표시했다」가 아니라
+      「<code>renderHumidity()</code>가 <code>#humidityEl</code>에 쓴다」로 말해야 사실인지
+      확인할 수 있습니다.</li>
+  </ol>
+  <p>최종 지분은 <strong>Claude 70% / Gemini 30%</strong>로 정했습니다. 저장소 기여만 보면 격차가
+    더 크지만, Gemini가 쓴 시간과 그 결과를 걸러낸 과정도 이 실습의 일부라 그대로 두었습니다.</p>
+</section>
+
+<section class="pagebreak">
+  <div class="sec-num">07</div>
+  <h2>AI에 맡기지 않고 직접 판단한 것</h2>
+  <table>
+    <tr><th style="width:44mm">내가 지적한 것</th><th>결과</th></tr>
+    <tr><td>바로 구현에 들어가려는 것을 멈춤</td><td>다른 과제들처럼 <code>harness.md</code>로 방향성과 검사 10개부터 확정한 뒤 시작하게 되돌림. 인계 문서만으로 이어받는 과제인 만큼 기준이 먼저 서 있어야 한다고 판단</td></tr>
+    <tr><td>4번 과제 폴더를 그대로 쓰지 않음</td><td>파일을 5번 폴더로 복사해 독립시킨 뒤 개선. 원본 과제가 망가지지 않도록</td></tr>
+    <tr><td>"위성사진 지도는 위치가 안 읽힌다"</td><td>일반 지도로 교체. 단 구글맵 API는 키 노출 때문에 쓸 수 없어 키 없는 대안을 찾음</td></tr>
+    <tr><td>"배경이 단색이라 눈이 아프다"</td><td>다크 유지하되 색 덩어리·비네트·미세 노이즈로 깊이를 넣음</td></tr>
+    <tr><td>"넓은 화면에서 양옆이 빈다"</td><td>최대 폭을 900px에서 1400px로 넓히고 두 칸 높이를 맞춤</td></tr>
+    <tr><td>"그래프에 제목·설명이 굳이 필요한가"</td><td>완료 기준과 검사 10개를 먼저 확인해 걸리는 항목이 없음을 확인한 뒤 제거</td></tr>
+    <tr><td>Gemini 결과물 2회 모두 폐기 결정</td><td>실제 프로젝트 구조·식별자와 대조해 사실이 아님을 확인하고 반영하지 않음</td></tr>
+  </table>
+
+  <div class="note">
+    <strong>AI가 내 제안을 되돌린 경우도 있었습니다.</strong> "훨씬 큰 개선"을 넣자는 제 생각과
+    막대 그래프로 바꾸자는 제안은, 각각 <em>과제가 작은 개선을 요구한다</em>는 점과
+    <em>기준선 0이 아닌 막대는 15% 차이를 몇 배처럼 과장한다</em>는 이유로 반대 의견을 들었고,
+    설명을 듣고 제가 받아들였습니다. 판단 근거는 문서에 남겨 두었습니다.
+  </div>
+</section>
+
+<section class="pagebreak">
+  <div class="sec-num">08</div>
+  <h2>기술 구성</h2>
+  <table>
+    <tr><th style="width:34mm">구분</th><th>내용</th></tr>
+    <tr><td>구성</td><td>정적 프론트엔드 3개 파일(<code>index.html</code>, <code>script.js</code>, <code>style.css</code>). 서버·DB·빌드 도구 없음</td></tr>
+    <tr><td>기상 자료</td><td>Open-Meteo <code>current</code>(기온·습도·날씨코드) + <code>hourly</code>(시간별 기온). 키 불필요</td></tr>
+    <tr><td>지도</td><td>Leaflet 1.9.4 + Esri World Street Map 타일. 확대 상한 13단계(한국 캐시 한계)</td></tr>
+    <tr><td>그래프</td><td><strong>외부 차트 라이브러리 없이</strong> 인라인 SVG를 직접 생성</td></tr>
+    <tr><td>저장</td><td>localStorage 2개 키 — 날짜별 기록, 마지막 정상값</td></tr>
+    <tr><td>접근성</td><td><code>role="status"</code>, <code>aria-live</code>, 습도 이모지를 감추고 "습도"를 대신 읽히게 함</td></tr>
+    <tr><td>자동 갱신</td><td>10분. 숨긴 탭·장애 모의실험 중에는 건너뜀</td></tr>
+  </table>
+
+  <h3>설계에서 지킨 원칙</h3>
+  <ul>
+    <li><strong>값을 지어내지 않는다.</strong> 습도도 그래프도, 자료가 없으면 채우는 대신 비웁니다.</li>
+    <li><strong>선택 기능은 핵심을 무너뜨리지 않는다.</strong> 습도와 시간별 기온은 응답에서
+      <em>선택 항목</em>으로 다뤄, 그 필드가 사라져도 기온 표시는 계속 동작합니다.</li>
+    <li><strong>되돌린 결정도 이유와 함께 남긴다.</strong> 지도 타일 3회 교체, 막대 그래프 기각처럼
+      "하지 않기로 한 것"을 문서에 적어 다음 사람이 같은 고민을 반복하지 않게 했습니다.</li>
+  </ul>
+</section>
+
+<section class="pagebreak">
+  <div class="sec-num">09</div>
+  <h2>작업 순서와 스스로 짚은 미비점</h2>
+
+  <h3>작업 순서</h3>
+  <ol>
+    <li><code>harness.md</code>로 개선 기능 한 문장, 검사 10개, AI별 예산을 <strong>먼저</strong> 확정</li>
+    <li>4번 과제 파일을 복사해 독립시킨 뒤 습도 연동 및 구간별 연출 구현</li>
+    <li>AI A 중단 → <strong>인계 문서</strong> 작성(7항목) → AI B에 저장소와 인계 문서만 전달</li>
+    <li>AI B 결과 2회 검증 후 폐기 판단 → AI A가 이어서 지도·그래프·UI·접근성·자동 갱신</li>
+    <li>두 AI 비교 영역을 화면에 반영, 배포, 검증 문서 작성</li>
+  </ol>
+
+  <h3>스스로 짚은 미비점</h3>
+  <ul>
+    <li><strong>AI B의 몫이 사실상 비었습니다.</strong> 두 AI를 견주는 것이 목적인 과제인데 한쪽이
+      저장소에 아무것도 남기지 못해, 비교가 "잘한 쪽 대 못한 쪽"으로 기울었습니다. 다만 그
+      실패 자체가 선택 기준 3개를 뽑아낸 재료가 되었습니다.</li>
+    <li><strong>건조(30% 미만) 연출은 실제 데이터로 확인하지 못했습니다.</strong> 관측 기간의 서울
+      습도가 계속 그 위였습니다. 다습(70% 초과)은 실제 76%·83% 값에서 확인했습니다.</li>
+    <li><strong>지도·그래프·배경은 검사 10개에 넣지 않았습니다.</strong> 카드 1에서 정한 범위(습도)
+      밖의 추가물이라 기준을 사후에 바꾸지 않는 쪽을 택했고, 대신 변경마다 화면으로 확인했습니다.</li>
+    <li><strong>날짜별 기록에 습도는 저장하지 않습니다.</strong> 기존 어제 대비 비교 로직이 단일
+      값·단위를 전제로 해서, 지금 끼워 넣으면 비교가 깨집니다. 별도 필드 설계가 필요합니다.</li>
+    <li><strong>그래프는 특정 시각의 값을 짚어볼 수 없습니다.</strong> 현재 시각 점 외에는 마우스를
+      올려도 값이 뜨지 않습니다.</li>
+  </ul>
+
+  <div class="note">
+    <strong>이번에 가장 크게 배운 것.</strong> 화면이 안 바뀌길래 CSS를 한참 의심했는데, 실제로는
+    미리보기 창이 화면을 갱신하지 않고 있었습니다. <strong>"보이는 것"을 증거로 삼기 전에 그
+    보이는 경로 자체가 믿을 만한지 먼저 확인해야 한다</strong>는 것을, 시간을 꽤 쓰고 나서
+    배웠습니다. 이후로는 타일 주소·계산된 스타일·픽셀값을 직접 찍어 확인했습니다.
+  </div>
+</section>
+
+</body>
+</html>
