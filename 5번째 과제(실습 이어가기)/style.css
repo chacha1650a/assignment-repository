@@ -12,7 +12,7 @@
   --err:#f87171;
   --up:#f87171;
   --down:#60a5fa;
-  font-family:-apple-system,"Malgun Gothic","Apple SD Gothic Neo",sans-serif;
+  font-family:"Pretendard Variable",Pretendard,-apple-system,"Malgun Gothic","Apple SD Gothic Neo",sans-serif;
 }
 *{box-sizing:border-box;}
 body{
@@ -309,16 +309,36 @@ body{
   gap:16px; /* 지도 아래 기온 그래프가 들어올 자리 (다음 개선) */
 }
 
-/* ---- 지도 카드 (Leaflet + Esri World Street Map, 구글맵과 비슷한 톤의 무료·무키 타일) ---- */
+/* ---- 지도 카드 (Leaflet + Esri World Street Map, 구글맵과 비슷한 톤의 무료·무키 타일) ----
+   .current-card와 같은 "리퀴드 글래스" 톤(대각선 하이라이트 + 안쪽 광택 + 등장 애니메이션)을
+   맞춰서 두 카드가 한 세트로 보이게 한다. */
 .map-card{
   position:relative;
+  isolation:isolate;
+  overflow:hidden;
   z-index:1;
   margin:0;
   padding:16px 18px 18px;
-  border-radius:18px;
-  background:var(--card);
-  border:1px solid var(--card-border);
-  backdrop-filter:blur(14px);
+  border-radius:20px;
+  background:
+    linear-gradient(155deg, rgba(255,255,255,.14), rgba(255,255,255,.02) 32%, transparent 60%),
+    rgba(8,14,28,.46);
+  border:1px solid rgba(255,255,255,.24);
+  backdrop-filter:blur(22px) saturate(180%);
+  -webkit-backdrop-filter:blur(22px) saturate(180%);
+  box-shadow:
+    0 20px 50px rgba(0,0,0,.32),
+    inset 0 1px 0 rgba(255,255,255,.28),
+    inset 0 0 60px rgba(255,255,255,.03);
+  animation:card-in .5s ease .1s both;
+}
+.map-card::before{ /* 대각선 유리 광택 — current-card와 동일 기법 */
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  background:linear-gradient(115deg, rgba(255,255,255,.13) 0%, transparent 28%);
+  pointer-events:none;
 }
 .map-card h2{margin:0 0 4px;font-size:1rem;}
 .map-card .hint{margin:0 0 10px;color:var(--muted);font-size:0.82rem;}
