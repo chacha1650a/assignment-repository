@@ -111,6 +111,13 @@
     // 초기 레이아웃 계산 시점에 컨테이너 크기가 아직 확정 안 됐을 수 있어
     // (지난 버전에서 실제로 줌이 어긋나 화면이 훨씬 넓게 보이는 문제가 있었음) 한 번 더 보정한다.
     requestAnimationFrame(() => map.invalidateSize());
+    // 지도 높이가 이제 고정값이 아니라 왼쪽 기온 카드 높이를 따라간다. 날씨를 불러오거나
+    // 「날짜별 기록」을 펼치면 카드가 자라면서 지도 칸도 같이 커지는데, Leaflet은 그걸 스스로
+    // 알아채지 못해 회색 빈칸이 남는다. 크기가 바뀔 때마다 다시 계산하게 해둔다.
+    if (typeof ResizeObserver !== "undefined") {
+      new ResizeObserver(() => map.invalidateSize())
+        .observe(document.getElementById("map"));
+    }
   }
   initMap();
 

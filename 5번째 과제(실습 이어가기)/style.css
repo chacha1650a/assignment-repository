@@ -115,7 +115,10 @@ body{
 .board{
   position:relative;
   z-index:1;
-  max-width:900px; /* 지도가 기온 카드 옆에 나란히 앉을 수 있도록 640px보다 넓힘 */
+  /* 640px(4번째 과제) → 900px(지도를 옆에 앉히면서) → 1180px.
+     900px에서는 넓은 모니터에서 양옆이 280px씩 비어 보였다. 다만 무한정 늘리지는 않는다 —
+     한 줄이 너무 길면 눈이 다음 줄 첫 글자를 못 찾아서 오히려 읽기 나빠진다. */
+  max-width:1400px;
   margin:0 auto;
   display:flex;
   flex-direction:column;
@@ -326,12 +329,13 @@ body{
 .board-grid{
   display:flex;
   flex-wrap:wrap;
-  align-items:flex-start;
+  /* stretch로 둬야 두 칸의 높이가 같아진다. flex-start면 지도 칸만 짧아서 오른쪽 아래가 빈다. */
+  align-items:stretch;
   gap:20px;
 }
-.board-grid .current-card{flex:1 1 320px;margin:0;}
+.board-grid .current-card{flex:1 1 340px;margin:0;}
 .side-col{
-  flex:1 1 320px;
+  flex:1 1 340px;
   display:flex;
   flex-direction:column;
   gap:16px; /* 지도 아래 기온 그래프가 들어올 자리 (다음 개선) */
@@ -409,6 +413,10 @@ body{
   overflow:hidden;
   z-index:1;
   margin:0;
+  /* side-col의 높이를 끝까지 채우고, 내부에서 #map이 남은 공간을 먹는다 */
+  flex:1 1 auto;
+  display:flex;
+  flex-direction:column;
   padding:16px 18px 18px;
   border-radius:20px;
   background:
@@ -434,8 +442,11 @@ body{
 .map-card h2{margin:0 0 4px;font-size:1rem;}
 .map-card .hint{margin:0 0 10px;color:var(--muted);font-size:0.82rem;}
 .map-card .hint a{color:var(--accent);}
+/* 지도는 고정 높이 대신 지도 카드의 남은 높이를 채운다 — 그래야 왼쪽 기온 카드와 아래가
+   딱 맞아떨어진다. 세로로 쌓이는 좁은 화면에서는 min-height가 기준이 된다. */
 #map{
-  height:260px;
+  flex:1 1 auto;
+  min-height:260px;
   border-radius:12px;
   overflow:hidden;
   border:1px solid var(--card-border);
