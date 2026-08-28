@@ -102,12 +102,13 @@
        문서가 아니라 이 화면에 있어야 하는 항목이라 정보판 안에 넣었다. -->
   <section class="ai-card" id="aiCard">
     <h2>두 AI에 나눠 맡긴 결과</h2>
-    <p class="hint">같은 기능을 AI 두 곳에 맡겨보고 무엇이 갈렸는지 정리한 것입니다.
+    <p class="hint">같은 과제를 AI 두 곳에 맡겨보고 무엇이 갈렸는지 정리한 것입니다.
+      결론부터 적자면 <strong>능력보다 작업 환경의 차이가 컸습니다.</strong>
       아래 기준은 다음에 AI를 고를 때 쓰려고 뽑았습니다.</p>
 
     <div class="ai-table-wrap">
       <table class="ai-table">
-        <caption class="sr-only">AI A와 AI B의 작업 결과 비교</caption>
+        <caption class="sr-only">AI A와 AI B의 작업 환경과 결과 비교</caption>
         <thead>
           <tr>
             <th scope="col">항목</th>
@@ -117,40 +118,44 @@
         </thead>
         <tbody>
           <tr>
-            <th scope="row">맡은 일</th>
-            <td>습도 기능·지도·기온 그래프 구현</td>
-            <td>자료 조사, 이어받아 마무리</td>
+            <th scope="row">맡은 역할</th>
+            <td>코드 구현</td>
+            <td>자료 조사, 작업 단계 정리</td>
+          </tr>
+          <tr>
+            <th scope="row">작업 환경</th>
+            <td>저장소를 직접 읽고 쓰는 도구</td>
+            <td class="ai-limit">채팅 화면 — 파일을 읽지도 쓰지도 못함</td>
           </tr>
           <tr>
             <th scope="row">저장소에 남은 것</th>
             <td>커밋 14건, 코드 3개 파일 +400줄</td>
-            <td class="ai-bad">없음 — 파일을 쓰지 않고 채팅 답변만</td>
+            <td class="ai-limit">없음 — 답을 사람이 옮겨 적어야 하는 구조</td>
           </tr>
           <tr>
-            <th scope="row">검사 10개</th>
-            <td>10개 통과</td>
-            <td class="ai-bad">수행하지 못함</td>
+            <th scope="row">도움이 된 것</th>
+            <td>검사 10개를 통과하는 구현까지 완료</td>
+            <td>작업을 단계로 쪼개 정리해 순서를 잡는 데 도움</td>
           </tr>
           <tr>
-            <th scope="row">되돌린 작업</th>
-            <td>지도 타일 3회 교체, 막대 그래프 검토 후 기각</td>
-            <td class="ai-bad">2회 시도 모두 폐기</td>
-          </tr>
-          <tr>
-            <th scope="row">대표적인 오류</th>
+            <th scope="row">어긋난 것</th>
             <td>화면에 반영되지 않은 CSS를 스크린샷만 믿고 판단</td>
-            <td class="ai-bad">없는 구조(서버·DB·REST API)를 있다고 전제</td>
+            <td>저장소를 볼 수 없어 구조를 추측 — 서버·DB가 있다고 전제</td>
           </tr>
         </tbody>
       </table>
     </div>
 
+    <p class="ai-foot"><strong>둘 다 틀렸습니다.</strong> 차이는 틀린 것이 기록으로 남아
+      되짚을 수 있었느냐였습니다. 한쪽은 커밋에 남았고, 한쪽은 채팅 기록에만 남았습니다.</p>
+
     <h3>다음에 AI를 고를 때의 기준</h3>
     <ol class="ai-criteria">
-      <li><strong>저장소에 직접 쓸 수 있는가.</strong> 채팅으로 코드를 읊기만 하면 다음 사람이
-        이어받을 것이 남지 않는다. 이번에 결과를 가른 결정적인 차이였다.</li>
-      <li><strong>모르는 것을 모른다고 하는가.</strong> AI B는 확인 없이 프로젝트 구조를
-        지어냈고, 그것을 걸러내는 데 든 시간이 직접 하는 것보다 길었다.</li>
+      <li><strong>일감을 볼 수 있는 자리에 있는가.</strong> 코드를 볼 수 없는 AI에게 코드
+        작업을 맡기면 추측할 수밖에 없다. 이번 차이는 대부분 여기서 왔다 — 같은 AI라도
+        저장소에 붙여 놓았다면 결과가 달랐을 것이다.</li>
+      <li><strong>추측인지 확인인지 구분해서 말하는가.</strong> 추측 자체는 문제가 아니고,
+        추측을 확인한 것처럼 말하는 것이 문제다. 걸러내는 데 시간이 든다.</li>
       <li><strong>근거를 실제 이름으로 대는가.</strong> 「습도를 표시했다」가 아니라
         「<code>renderHumidity()</code>가 <code>#humidityEl</code>에 쓴다」로 말해야
         사실인지 확인할 수 있다.</li>

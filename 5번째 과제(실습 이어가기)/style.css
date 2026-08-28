@@ -641,8 +641,12 @@ body{
 .ai-table tbody th{color:var(--muted);font-weight:500;white-space:nowrap;}
 .ai-table tbody tr:last-child th,
 .ai-table tbody tr:last-child td{border-bottom:none;}
-/* AI B가 못 한 항목은 색으로도 구분 — 표만 훑어도 어디서 갈렸는지 보이게 */
-.ai-table .ai-bad{color:var(--err);}
+/* 환경 제약으로 갈린 항목만 옅게 구분한다. 처음에는 빨간색(--err)이었는데, 표 전체가
+   붉어지니 비교가 아니라 점수표처럼 읽혀서 중립적인 색으로 낮췄다. 잘잘못을 매기는 표가
+   아니라 무엇이 달랐는지 보여주는 표다. */
+.ai-table .ai-limit{color:var(--muted);}
+.ai-foot{margin:12px 0 0;font-size:0.84rem;color:var(--muted);}
+.ai-foot strong{color:var(--text);}
 .ai-criteria{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:8px;font-size:0.84rem;}
 .ai-criteria strong{color:var(--text);}
 .ai-criteria code{
