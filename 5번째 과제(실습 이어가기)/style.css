@@ -15,6 +15,16 @@
   font-family:"Pretendard Variable",Pretendard,-apple-system,"Malgun Gothic","Apple SD Gothic Neo",sans-serif;
 }
 *{box-sizing:border-box;}
+/* 눈에는 안 보이지만 화면 낭독기는 읽는 텍스트. display:none이면 낭독기도 건너뛰므로
+   크기를 0으로 줄여서 감춘다. */
+.sr-only{
+  position:absolute;
+  width:1px;height:1px;
+  margin:-1px;padding:0;border:0;
+  clip-path:inset(50%);
+  overflow:hidden;
+  white-space:nowrap;
+}
 body{
   margin:0;
   color:var(--text);
@@ -592,6 +602,57 @@ body{
   to{opacity:1;transform:translateX(0);}
 }
 
+/* ---- 두 AI 비교 (완료 기준 3) — 다른 카드와 같은 유리 톤 ---- */
+.ai-card{
+  position:relative;
+  isolation:isolate;
+  z-index:1;
+  padding:18px 20px 20px;
+  border-radius:20px;
+  background:
+    linear-gradient(155deg, rgba(255,255,255,.14), rgba(255,255,255,.03) 32%, transparent 60%),
+    rgba(38,50,72,.52);
+  border:1px solid rgba(255,255,255,.16);
+  backdrop-filter:blur(22px) saturate(180%);
+  -webkit-backdrop-filter:blur(22px) saturate(180%);
+  box-shadow:
+    0 20px 50px rgba(0,0,0,.32),
+    inset 0 1px 0 rgba(255,255,255,.28);
+  animation:card-in .5s ease .24s both;
+}
+.ai-card h2{margin:0 0 4px;font-size:1rem;}
+.ai-card h3{margin:20px 0 8px;font-size:0.92rem;}
+.ai-card .hint{margin:0 0 14px;font-size:0.82rem;color:var(--muted);}
+/* 좁은 화면에서 표가 페이지 전체를 밀어내지 않도록 표만 따로 가로 스크롤 */
+.ai-table-wrap{overflow-x:auto;}
+.ai-table{border-collapse:collapse;width:100%;min-width:520px;font-size:0.84rem;}
+.ai-table th,.ai-table td{
+  text-align:left;
+  vertical-align:top;
+  padding:9px 12px;
+  border-bottom:1px solid var(--card-border);
+}
+.ai-table thead th{
+  color:var(--text);
+  font-weight:600;
+  border-bottom:1px solid rgba(255,255,255,.22);
+  white-space:nowrap;
+}
+.ai-table tbody th{color:var(--muted);font-weight:500;white-space:nowrap;}
+.ai-table tbody tr:last-child th,
+.ai-table tbody tr:last-child td{border-bottom:none;}
+/* AI B가 못 한 항목은 색으로도 구분 — 표만 훑어도 어디서 갈렸는지 보이게 */
+.ai-table .ai-bad{color:var(--err);}
+.ai-criteria{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:8px;font-size:0.84rem;}
+.ai-criteria strong{color:var(--text);}
+.ai-criteria code{
+  font-size:0.92em;
+  padding:1px 5px;
+  border-radius:5px;
+  background:rgba(15,23,42,.55);
+  color:var(--accent);
+}
+
 /* ---- 개발자 전용 테스트 패널: 실제 콘텐츠와 확실히 다른 급으로 축소 ---- */
 .test-card{
   border:1px dashed rgba(255,255,255,.14);
@@ -617,6 +678,10 @@ body{
 
 @media(max-width:420px){
   .value{font-size:2.1rem;}
+  /* 좁은 화면에서는 라벨과 값을 한 줄에 밀어넣지 않는다. 가로로 붙여두면 자리가 모자라
+     "2026. 08. 28. 15:46:0 / 3"처럼 시각 한가운데가 잘려 줄바꿈된다. */
+  .meta-list > div{flex-direction:column;gap:2px;}
+  .meta-list dd{text-align:left;word-break:normal;}
 }
 
 @media (prefers-reduced-motion: reduce){

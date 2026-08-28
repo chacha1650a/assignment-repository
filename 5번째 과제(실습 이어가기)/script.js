@@ -169,6 +169,9 @@
     $currentCard.classList.toggle("is-loading", kind === "loading");
   }
 
+  const humidityMarkup = (text) =>
+    `<span aria-hidden="true">💧</span><span class="sr-only">습도 </span>${text}`;
+
   // 습도 구간: 30% 미만 = 건조(먼지), 70% 초과 = 다습(빗방울), 그 사이는 연출 없음.
   function humidityZone(h) {
     if (typeof h !== "number" || !Number.isFinite(h)) return "";
@@ -183,7 +186,9 @@
     const ok = typeof humidity === "number" && Number.isFinite(humidity);
     const zone = humidityZone(humidity);
     $humidity.hidden = false;
-    $humidity.textContent = ok ? `💧 ${Math.round(humidity)}%` : "💧 --%";
+    // 이모지는 낭독기가 "물방울"로 읽어서 무슨 값인지 전달이 안 된다. 이모지는 숨기고
+    // 눈에는 안 보이는 "습도 "를 대신 읽히게 한다 — 보이는 모습은 그대로다.
+    $humidity.innerHTML = humidityMarkup(ok ? `${Math.round(humidity)}%` : "--%");
     $humidity.className = "humidity-badge" + (zone ? " zone-" + zone : "");
     $currentCard.classList.remove("zone-dry", "zone-humid");
     if (zone) $currentCard.classList.add("zone-" + zone);
@@ -210,7 +215,7 @@
     $checkedAt.textContent = message;
     $staleNote.hidden = true;
     $humidity.hidden = false;
-    $humidity.textContent = "💧 —";
+    $humidity.innerHTML = humidityMarkup("—");
     $humidity.className = "humidity-badge";
     $currentCard.classList.remove("zone-dry", "zone-humid");
   }
@@ -392,6 +397,7 @@
   }
 
   // ---- 메인 로드 함수 ----
+  let lastLoadAt = 0; // 자동 갱신이 "얼마나 지났는지" 판단하는 기준
   async function loadWeather(simulate = null) {
     setStatus("loading", "조회 중…");
     $retryBtn.disabled = true;
@@ -437,13 +443,32 @@
       }
     } finally {
       $retryBtn.disabled = false;
+      lastLoadAt = Date.now();
     }
   }
 
   // ---- 이벤트 ----
-  $retryBtn.addEventListener("click", () => loadWeather(null));
+  // 마지막으로 누른 장애 모의실험 종류. 자동 갱신이 오류 화면을 덮어쓰지 않게 하려고 기억한다.
+  let activeSim = null;
+  $retryBtn.addEventListener("click", () => { activeSim = null; loadWeather(null); });
   $testButtons.forEach(btn => {
-    btn.addEventListener("click", () => loadWeather(btn.dataset.sim));
+    btn.addEventListener("click", () => {
+      activeSim = btn.dataset.sim === "none" ? null : btn.dataset.sim;
+      loadWeather(btn.dataset.sim);
+    });
+  });
+
+  // ---- 자동 갱신 ----
+  // 정보판인데 옆의 시계만 흘러가고 기온은 영영 그대로면 이상하다. 10분마다 조용히 다시 부른다.
+  // 두 경우는 일부러 건너뛴다.
+  //  - 탭이 화면에 없을 때: 보이지도 않는 화면 때문에 API를 두드릴 이유가 없다.
+  //  - 장애 모의실험 중일 때: 확인하려고 띄운 오류 화면을 갱신이 덮어버리면 안 된다.
+  const AUTO_REFRESH_MS = 10 * 60 * 1000;
+  const canAutoRefresh = () => !document.hidden && activeSim === null;
+  setInterval(() => { if (canAutoRefresh()) loadWeather(null); }, AUTO_REFRESH_MS);
+  // 탭을 오래 숨겨뒀다가 돌아오면 그동안 건너뛴 갱신을 한 번 따라잡는다.
+  document.addEventListener("visibilitychange", () => {
+    if (canAutoRefresh() && Date.now() - lastLoadAt >= AUTO_REFRESH_MS) loadWeather(null);
   });
 
   // ---- 초기 로드 ----
