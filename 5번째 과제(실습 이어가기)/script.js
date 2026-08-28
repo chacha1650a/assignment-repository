@@ -73,6 +73,20 @@
   $sourceLink.href = API_URL;
   $sourceLink.textContent = "Open-Meteo 원자료 (JSON) 열기";
 
+  // ---- 지도 (Leaflet + OpenStreetMap — API 키 없이 무료 공개 타일) ----
+  // 위치는 정보판이 보여주는 서울 좌표로 고정, 인터랙션은 확대/축소·이동 정도만.
+  function initMap() {
+    if (typeof L === "undefined") return; // CDN 로드 실패해도 나머지 정보판은 정상 동작
+    const map = L.map("map", { scrollWheelZoom: false }).setView([LAT, LON], 12);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 18,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    }).addTo(map);
+    L.marker([LAT, LON]).addTo(map)
+      .bindPopup("서울 — 이 정보판이 보여주는 위치").openPopup();
+  }
+  initMap();
+
   // ---- 실시간 브라우저 시계 (장식용, API 조회시각과 별개) ----
   function tickLiveClock() {
     const parts = new Intl.DateTimeFormat("ko-KR", {

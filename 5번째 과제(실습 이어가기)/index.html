@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>오늘의 정보판 — 서울 현재 기온</title>
 <link rel="stylesheet" href="style.css">
+<!-- Leaflet + OpenStreetMap: 무료, API 키/회원가입 불필요 (비밀값 0건 원칙 유지) -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 </head>
 <body>
 <div class="sky" id="sky" aria-hidden="true"></div>
@@ -64,6 +67,14 @@
     </details>
   </section>
 
+  <section class="map-card">
+    <h2>위치</h2>
+    <p class="hint">이 정보판이 보여주는 지점 — 서울 (37.5665, 126.9780). 지도는
+      <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>
+      공개 타일을 API 키 없이 그대로 불러온다.</p>
+    <div id="map" aria-label="서울 위치 지도"></div>
+  </section>
+
   <details class="test-card">
     <summary>개발자 테스트 — 장애 모의실험</summary>
     <p class="hint">아래 버튼으로 5가지 장애 상태를 각각 재현해 화면 반응을 확인할 수 있습니다.</p>
@@ -78,6 +89,8 @@
   </details>
 
 </div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script src="script.js"></script>
 </body>
 </html>
