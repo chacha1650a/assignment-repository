@@ -342,10 +342,9 @@ body{
   background:linear-gradient(115deg, rgba(255,255,255,.13) 0%, transparent 28%);
   pointer-events:none;
 }
-.chart-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;}
-.chart-head h2{margin:0;font-size:1rem;}
+/* 제목을 뺐으므로 최저/최고 표시만 오른쪽에 남긴다 */
+.chart-head{display:flex;align-items:baseline;justify-content:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:4px;}
 .chart-range{color:var(--muted);font-size:0.82rem;font-variant-numeric:tabular-nums;}
-.chart-card .hint{margin:2px 0 8px;font-size:0.78rem;}
 .chart-wrap{position:relative;}
 /* viewBox 비율을 그대로 유지해야 라벨·숫자가 늘어나지 않는다 (preserveAspectRatio 기본값 사용) */
 .temp-chart{width:100%;height:auto;aspect-ratio:720/220;display:block;overflow:visible;}

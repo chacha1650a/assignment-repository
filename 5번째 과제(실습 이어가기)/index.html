@@ -83,11 +83,11 @@
   </div><!-- /.board-grid -->
 
   <section class="chart-card" id="chartCard">
+    <!-- 제목·설명 문단은 뺐다. 축 라벨(시각/°C)만으로 무슨 그래프인지 읽히고, 출처와 기준
+         시각은 위 기온 카드에 이미 있다. 화면 낭독기용 설명은 svg의 aria-label에 남아 있다. -->
     <div class="chart-head">
-      <h2>오늘의 기온 변화</h2>
       <span class="chart-range" id="chartRange">불러오는 중…</span>
     </div>
-    <p class="hint">Open-Meteo 시간별 예보(KST 0시~23시). 밝은 점이 현재 시각입니다.</p>
     <div class="chart-wrap">
       <svg id="tempChart" class="temp-chart" viewBox="0 0 720 220"
         role="img" aria-label="오늘의 시간별 기온 변화 그래프"></svg>
