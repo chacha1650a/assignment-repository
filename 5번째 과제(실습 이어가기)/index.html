@@ -22,6 +22,7 @@
     <p class="purpose">이 정보판은 <strong>서울의 현재 기온과 습도</strong>를 확인하기 위한 것이다. <span class="feature-note">개선 기능: 습도(%) 표시 — 습도 30% 미만이면 카드에 먼지가, 70% 초과면 빗방울이 흐릅니다. 「다시 시도」를 누르면 즉시 반영됩니다.</span></p>
   </header>
 
+  <div class="board-grid">
   <section class="current-card" id="currentCard">
     <div class="humidity-fx" id="humidityFx" aria-hidden="true">
       <span class="drop" style="left:8%;animation-delay:0s"></span>
@@ -67,13 +68,17 @@
     </details>
   </section>
 
-  <section class="map-card">
-    <h2>위치</h2>
-    <p class="hint">이 정보판이 보여주는 지점 — 서울 (37.5665, 126.9780). 지도는
-      <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>
-      공개 타일을 API 키 없이 그대로 불러온다.</p>
-    <div id="map" aria-label="서울 위치 지도"></div>
-  </section>
+  <div class="side-col">
+    <section class="map-card">
+      <h2>위치</h2>
+      <p class="hint">이 정보판이 보여주는 지점 — 서울 (37.5665, 126.9780). 지도는
+        <a href="https://server.arcgisonline.com/arcgis/rest/services/World_Street_Map/MapServer" target="_blank" rel="noopener">Esri World Street Map</a>
+        공개 타일을 API 키 없이 그대로 불러온다.</p>
+      <div id="map" aria-label="서울 위치 지도"></div>
+    </section>
+    <!-- 다음 개선 예정: 기온 그래프를 이 아래에 추가 (지도와 같은 세로 열) -->
+  </div>
+  </div><!-- /.board-grid -->
 
   <details class="test-card">
     <summary>개발자 테스트 — 장애 모의실험</summary>

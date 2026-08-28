@@ -89,7 +89,7 @@ body{
 .board{
   position:relative;
   z-index:1;
-  max-width:640px;
+  max-width:900px; /* 지도가 기온 카드 옆에 나란히 앉을 수 있도록 640px보다 넓힘 */
   margin:0 auto;
   display:flex;
   flex-direction:column;
@@ -294,12 +294,26 @@ body{
 .current-card.zone-dry{box-shadow:inset 0 0 70px rgba(245,158,11,.12);transition:box-shadow .6s;}
 .current-card.zone-humid{box-shadow:inset 0 0 70px rgba(56,189,248,.14);transition:box-shadow .6s;}
 
-/* ---- 지도 카드 (Leaflet + OpenStreetMap) ---- */
+/* ---- 지도·기온 카드가 나란히 앉는 좌우 레이아웃. 카드 폭보다 좁아지면 세로로 쌓인다. ---- */
+.board-grid{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:flex-start;
+  gap:20px;
+}
+.board-grid .current-card{flex:1 1 320px;margin:0;}
+.side-col{
+  flex:1 1 320px;
+  display:flex;
+  flex-direction:column;
+  gap:16px; /* 지도 아래 기온 그래프가 들어올 자리 (다음 개선) */
+}
+
+/* ---- 지도 카드 (Leaflet + Esri World Street Map, 구글맵과 비슷한 톤의 무료·무키 타일) ---- */
 .map-card{
   position:relative;
   z-index:1;
-  max-width:520px;
-  margin:16px auto 0;
+  margin:0;
   padding:16px 18px 18px;
   border-radius:18px;
   background:var(--card);
@@ -310,16 +324,14 @@ body{
 .map-card .hint{margin:0 0 10px;color:var(--muted);font-size:0.82rem;}
 .map-card .hint a{color:var(--accent);}
 #map{
-  height:220px;
+  height:260px;
   border-radius:12px;
   overflow:hidden;
   border:1px solid var(--card-border);
 }
-/* 사이트 전체가 다크 테마라, OSM 밝은 타일만 반전시켜 톤을 맞춘다.
-   마커·팝업 pane은 건드리지 않아 아이콘/텍스트는 원래 색 그대로 보인다. */
-.leaflet-tile-pane{filter:invert(1) hue-rotate(180deg) brightness(0.95) contrast(0.9);}
-.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#1e293b;color:var(--text);}
-.leaflet-container{background:#0f1730;font-family:inherit;}
+/* Esri 타일 자체가 이미 밝고 정돈된 배색이라(구글맵과 비슷한 팔레트) 반전 없이 그대로 쓴다.
+   컨테이너 배경만 카드 로딩 중 대비용으로 살짝 어둡게. */
+.leaflet-container{background:#1e293b;font-family:inherit;}
 .delta-inline{
   display:inline-block;
   margin:6px 0 0;

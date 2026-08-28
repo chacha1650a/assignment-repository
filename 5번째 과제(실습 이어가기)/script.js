@@ -73,17 +73,25 @@
   $sourceLink.href = API_URL;
   $sourceLink.textContent = "Open-Meteo 원자료 (JSON) 열기";
 
-  // ---- 지도 (Leaflet + OpenStreetMap — API 키 없이 무료 공개 타일) ----
+  // ---- 지도 (Leaflet + Esri World Street Map — API 키 없이 무료 공개 타일) ----
   // 위치는 정보판이 보여주는 서울 좌표로 고정, 인터랙션은 확대/축소·이동 정도만.
+  // Esri의 전통적인 REST 타일 서비스(server.arcgisonline.com)는 계정·키 없이 쓸 수 있고,
+  // 라벨·POI가 정리돼 있어 원본 OSM 표준 타일보다 구글맵에 가까운 깔끔한 느낌을 준다.
   function initMap() {
     if (typeof L === "undefined") return; // CDN 로드 실패해도 나머지 정보판은 정상 동작
-    const map = L.map("map", { scrollWheelZoom: false }).setView([LAT, LON], 12);
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 18,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    }).addTo(map);
+    const map = L.map("map", { scrollWheelZoom: false }).setView([LAT, LON], 13);
+    L.tileLayer(
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
+      {
+        maxZoom: 18,
+        attribution: "Tiles &copy; Esri — Source: Esri, HERE, Garmin, USGS, OpenStreetMap contributors",
+      }
+    ).addTo(map);
     L.marker([LAT, LON]).addTo(map)
       .bindPopup("서울 — 이 정보판이 보여주는 위치").openPopup();
+    // 초기 레이아웃 계산 시점에 컨테이너 크기가 아직 확정 안 됐을 수 있어
+    // (지난 버전에서 실제로 줌이 어긋나 화면이 훨씬 넓게 보이는 문제가 있었음) 한 번 더 보정한다.
+    requestAnimationFrame(() => map.invalidateSize());
   }
   initMap();
 
