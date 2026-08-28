@@ -77,23 +77,37 @@
   $sourceLink.href = API_URL;
   $sourceLink.textContent = "Open-Meteo 원자료 (JSON) 열기";
 
-  // ---- 지도 (Leaflet + Esri World Imagery 위성사진 — API 키 없이 무료 공개 타일) ----
+  // ---- 지도 (Leaflet + Esri World Street Map — API 키 없이 무료 공개 타일) ----
   // 위치는 정보판이 보여주는 서울 좌표로 고정, 인터랙션은 확대/축소·이동 정도만.
   // Esri의 전통적인 REST 타일 서비스(server.arcgisonline.com)는 계정·키 없이 쓸 수 있다.
-  // 일반 지도(World_Street_Map)에서 위성사진(World_Imagery)으로 바꾼 이유: 어두운 실사
-  // 이미지가 다크 글래스 카드와 톤이 맞고, "실제 그 자리"를 보여줘서 임팩트가 크다.
+  //
+  // 위성사진(World_Imagery)에서 일반 지도로 바꾼 이유: 구글맵처럼 "도로 + 한글 지명 + 역·
+  // 관공서 아이콘"이 보이는 쪽이 위치를 알아보기 쉽다. 구글맵 JS API 자체는 브라우저에
+  // API 키를 심어야 해서 이 프로젝트의 "비밀값 0건" 기준을 어긴다(harness.md 참고).
+  // World_Street_Map은 키 없이 같은 인상을 낸다.
+  //
+  // 확대 단계는 13이 상한이다. Esri가 한국 지역 캐시를 13단계까지만 제공하고, 14단계부터는
+  // "Map data not yet available" 회색 타일이 내려온다(실제로 확인함 — 14~17 전부 동일한
+  // 2.5KB 안내 타일). 그래서 maxZoom을 13으로 묶어 깨진 화면 대신 확대 버튼이 비활성화되게
+  // 했다. 마침 13단계가 구·동 이름과 큰 도로까지만 보이는 지점이라
+  // "세부 도로명은 없어도 된다"는 요구와도 맞는다.
+  const ESRI_REST = "https://server.arcgisonline.com/ArcGIS/rest/services/";
+  const MAP_MAX_ZOOM = 13;
   function initMap() {
     if (typeof L === "undefined") return; // CDN 로드 실패해도 나머지 정보판은 정상 동작
-    const map = L.map("map", { scrollWheelZoom: false }).setView([LAT, LON], 13);
-    L.tileLayer(
-      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-      {
-        maxZoom: 18,
-        attribution: "&copy; Esri &middot; Maxar, Earthstar Geographics",
-      }
-    ).addTo(map);
+    const map = L.map("map", {
+      scrollWheelZoom: false,
+      minZoom: 9,
+      maxZoom: MAP_MAX_ZOOM,
+    }).setView([LAT, LON], MAP_MAX_ZOOM);
+    L.tileLayer(ESRI_REST + "World_Street_Map/MapServer/tile/{z}/{y}/{x}", {
+      maxZoom: MAP_MAX_ZOOM,
+      attribution: "&copy; Esri &middot; HERE, Garmin, OpenStreetMap contributors",
+    }).addTo(map);
+    // 팝업은 처음부터 열지 않는다. 지도가 작아서 열어두면 시청·서울역 같은 지명을 그대로
+    // 가려버린다. 위치 설명은 카드 위 안내 문장에 이미 있으므로, 팝업은 마커를 눌렀을 때만.
     L.marker([LAT, LON]).addTo(map)
-      .bindPopup("서울 — 이 정보판이 보여주는 위치").openPopup();
+      .bindPopup("서울 — 이 정보판이 보여주는 위치");
     // 초기 레이아웃 계산 시점에 컨테이너 크기가 아직 확정 안 됐을 수 있어
     // (지난 버전에서 실제로 줌이 어긋나 화면이 훨씬 넓게 보이는 문제가 있었음) 한 번 더 보정한다.
     requestAnimationFrame(() => map.invalidateSize());

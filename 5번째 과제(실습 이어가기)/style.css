@@ -378,7 +378,7 @@ body{
   paint-order:stroke;stroke:rgba(8,14,28,.85);stroke-width:4px;stroke-linejoin:round;
 }
 
-/* ---- 지도 카드 (Leaflet + Esri World Street Map, 구글맵과 비슷한 톤의 무료·무키 타일) ----
+/* ---- 지도 카드 (Leaflet + Esri World Street Map, 구글맵과 비슷한 무료·무키 타일) ----
    .current-card와 같은 "리퀴드 글래스" 톤(대각선 하이라이트 + 안쪽 광택 + 등장 애니메이션)을
    맞춰서 두 카드가 한 세트로 보이게 한다. */
 .map-card{
@@ -418,9 +418,16 @@ body{
   overflow:hidden;
   border:1px solid var(--card-border);
 }
-/* Esri 타일 자체가 이미 밝고 정돈된 배색이라(구글맵과 비슷한 팔레트) 반전 없이 그대로 쓴다.
-   컨테이너 배경만 카드 로딩 중 대비용으로 살짝 어둡게. */
-.leaflet-container{background:#1e293b;font-family:inherit;}
+/* 지도 타일은 filter로 어둡게 만들지 않고 원래 배색 그대로 쓴다. 카드가 다크라 밝은 지도가
+   튀어 보일 수 있지만, 반전시키면 한글 지명·도로 색이 뭉개져서 "알아보기 쉬운 지도"라는
+   목적 자체가 사라진다. 대신 테두리와 라운드로 카드 안에 앉힌다.
+   컨테이너 배경(타일 로딩 중 잠깐 보이는 색)은 leaflet.css 기본값이 #ddd라 흰 판이
+   번쩍인다. style.css가 leaflet.css보다 먼저 로드되므로 !important로 눌러준다. */
+.leaflet-container{background:#1e293b !important;font-family:inherit;}
+/* Leaflet 1.9의 leaflet.css는 타일 이음새를 감추려고 타일에 mix-blend-mode:plus-lighter를
+   걸어둔다. 흰 배경 위에서는 티가 안 나지만, 여기처럼 어두운 컨테이너 위에 얹으면 타일 색이
+   배경과 "더해져서" 색이 들뜬다. 타일 원래 색을 그대로 보여줘야 하므로 블렌딩을 끈다. */
+#map .leaflet-tile{mix-blend-mode:normal !important;}
 
 /* ---- Leaflet 기본 UI(팝업·줌 버튼·저작권 표시)를 사이트 톤에 맞춘다.
    손 안 대면 흰색 박스 그대로 튀어나와서 지도만 다른 사이트처럼 보인다. ---- */
