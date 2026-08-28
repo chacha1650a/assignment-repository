@@ -33,20 +33,43 @@ body{
   transition:background 1.2s ease;
   background:linear-gradient(160deg,#0a0f1e,#131c31 55%,#0a0f1e);
 }
-.sky::before{ /* 은은하게 흘러다니는 빛 덩어리 */
+/* 배경이 "단색이라 눈이 아프다"는 피드백(2026-08-28)으로 깊이감을 3겹으로 나눠 넣었다.
+   ①흘러다니는 색 덩어리(::before) ②가장자리 비네트 ③미세한 노이즈(둘 다 ::after).
+   셋 다 .sky의 자식이라 tone-* 색이 바뀌어도 그 위에 그대로 얹힌다. */
+.sky::before{ /* ① 은은하게 흘러다니는 빛 덩어리 — 흰색 단색 대신 색을 섞어 깊이를 준다 */
   content:"";
   position:absolute;
-  inset:-20%;
+  inset:-12%;
+  z-index:-1; /* .sky가 z-index:0으로 쌓임 맥락을 만들어서, 음수는 배경 위·자식 아래에 깔린다 */
   background:
-    radial-gradient(circle at 20% 25%, rgba(255,255,255,.10), transparent 45%),
-    radial-gradient(circle at 80% 75%, rgba(255,255,255,.08), transparent 50%);
-  background-size:180% 180%, 180% 180%;
-  animation:drift 24s ease-in-out infinite;
+    radial-gradient(circle at 18% 20%, rgba(56,189,248,.30), transparent 46%),
+    radial-gradient(circle at 84% 24%, rgba(167,139,250,.26), transparent 48%),
+    radial-gradient(circle at 70% 82%, rgba(45,212,191,.20), transparent 48%),
+    radial-gradient(circle at 26% 84%, rgba(96,165,250,.18), transparent 46%);
+  animation:drift 34s ease-in-out infinite;
+  will-change:transform;
 }
+/* 이전에는 background-position을 움직였는데, background-size가 190%라 덩어리 대부분이
+   화면 밖에 머물러서 아무리 진하게 올려도 화면에는 거의 안 보였다. transform으로 바꾸니
+   덩어리가 제자리(요소의 18%/84% 지점)에 있으면서 천천히 흐른다. 합성만 하면 돼서 더 가볍다. */
 @keyframes drift{
-  0%{background-position:0% 0%, 100% 100%;}
-  50%{background-position:100% 50%, 0% 50%;}
-  100%{background-position:0% 0%, 100% 100%;}
+  0%,100%{transform:translate3d(0,0,0) scale(1);}
+  33%{transform:translate3d(2.5%,-2%,0) scale(1.09);}
+  66%{transform:translate3d(-2.5%,2%,0) scale(1.05);}
+}
+/* ②③ 가장자리를 살짝 어둡게(시선을 가운데로) + 아주 고운 노이즈.
+   노이즈가 핵심이다 — 넓은 면적의 어두운 그라데이션은 8비트 색 단계 때문에 줄무늬(밴딩)가
+   생기고, 그게 "눈이 아픈" 주범이다. 알갱이를 얇게 얹으면 단계가 흩어져 매끄러워 보인다. */
+.sky::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
+  background:
+    radial-gradient(ellipse 120% 85% at 50% 0%, transparent 45%, rgba(0,0,0,.42) 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");
+  background-size:auto, 180px 180px;
 }
 /* 시간대·날씨별 하늘 톤 — 2026-08-28 전부 진한 다크로 재조정.
    원래는 낮이면 밝은 하늘색이 됐는데, 유리 카드·위성사진과 톤이 안 맞아서 어둡게 통일했다.
