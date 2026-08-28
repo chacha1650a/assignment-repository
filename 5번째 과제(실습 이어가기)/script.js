@@ -84,7 +84,7 @@
       "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
       {
         maxZoom: 18,
-        attribution: "Tiles &copy; Esri — Source: Esri, HERE, Garmin, USGS, OpenStreetMap contributors",
+        attribution: "&copy; Esri &middot; OpenStreetMap contributors",
       }
     ).addTo(map);
     L.marker([LAT, LON]).addTo(map)

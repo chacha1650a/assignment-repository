@@ -123,8 +123,17 @@ API 조사(웹 검색) 후 **Leaflet + Esri World Street Map**을 선택 — 이
      반투명 배경뿐이라 옆의 기온 카드와 톤이 안 맞았음. 대각선 광택·안쪽 하이라이트·
      card-in 애니메이션을 그대로 복사해 두 카드가 "한 세트"로 보이게 함.
 - 웹폰트 로드·적용 확인(`document.fonts.check`), 콘솔 에러 0건, 기존 기능 회귀 없음
-  확인(로컬 서버). 스크린샷은 이번엔 브라우저 도구 제약으로 못 찍어서 DOM/computed style로만
-  확인함 — 실제 화면 느낌은 사용자가 직접 열어서 봐야 함.
+  확인(로컬 서버).
+- **사용자 피드백으로 지도 UI 추가 수정**: 스크린샷으로 "지도 UI가 불친절하다"는 지적을
+  받음 — 실제로 Leaflet 기본 팝업(흰 박스)·줌 버튼·저작권 표시를 하나도 안 건드려서 카드
+  톤과 안 맞았음. `.leaflet-popup-content-wrapper` 등에 다크 테마 스타일 추가.
+  **주의**: `leaflet.css`가 `style.css`보다 나중에 로드돼서, 동일 우선순위면 Leaflet 기본
+  스타일이 이긴다 — 그래서 팝업·줌·저작권 관련 규칙은 `!important`가 필요하다(1차 시도에서
+  `!important` 없이 넣었더니 실제로 흰 배경 그대로 남아있어서 원인 찾음). 저작권 표시 문구도
+  너무 길어서(`Esri, HERE, Garmin, USGS, OpenStreetMap contributors`) `© Esri · OpenStreetMap
+  contributors`로 축약(`script.js`의 `attribution` 옵션).
+- 스크린샷으로 최종 확인: 팝업 다크 배경, 줌 버튼 유리질 톤, 저작권 표시 축약·다크 배경 모두
+  반영됨. 콘솔 에러 0건.
 
 ## 다음 단계 (To-do)
 
