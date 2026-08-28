@@ -79,9 +79,21 @@
         위성사진 타일을 API 키 없이 그대로 불러온다.</p>
       <div id="map" aria-label="서울 위치 지도"></div>
     </section>
-    <!-- 다음 개선 예정: 기온 그래프를 이 아래에 추가 (지도와 같은 세로 열) -->
   </div>
   </div><!-- /.board-grid -->
+
+  <section class="chart-card" id="chartCard">
+    <div class="chart-head">
+      <h2>오늘의 기온 변화</h2>
+      <span class="chart-range" id="chartRange">불러오는 중…</span>
+    </div>
+    <p class="hint">Open-Meteo 시간별 예보(KST 0시~23시). 밝은 점이 현재 시각입니다.</p>
+    <div class="chart-wrap">
+      <svg id="tempChart" class="temp-chart" viewBox="0 0 720 220"
+        role="img" aria-label="오늘의 시간별 기온 변화 그래프"></svg>
+      <p class="chart-empty" id="chartEmpty">기온 변화 자료를 불러오지 못했습니다.</p>
+    </div>
+  </section>
 
   <details class="test-card">
     <summary>개발자 테스트 — 장애 모의실험</summary>

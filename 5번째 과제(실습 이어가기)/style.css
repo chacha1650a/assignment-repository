@@ -314,6 +314,70 @@ body{
   gap:16px; /* 지도 아래 기온 그래프가 들어올 자리 (다음 개선) */
 }
 
+/* ---- 오늘의 기온 변화 그래프 (하단 전체 폭, 외부 라이브러리 없이 인라인 SVG) ---- */
+.chart-card{
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  z-index:1;
+  padding:16px 18px 14px;
+  border-radius:20px;
+  background:
+    linear-gradient(155deg, rgba(255,255,255,.14), rgba(255,255,255,.03) 32%, transparent 60%),
+    rgba(38,50,72,.52);
+  border:1px solid rgba(255,255,255,.16);
+  backdrop-filter:blur(22px) saturate(180%);
+  -webkit-backdrop-filter:blur(22px) saturate(180%);
+  box-shadow:
+    0 20px 50px rgba(0,0,0,.32),
+    inset 0 1px 0 rgba(255,255,255,.28),
+    inset 0 0 60px rgba(255,255,255,.03);
+  animation:card-in .5s ease .18s both;
+}
+.chart-card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  background:linear-gradient(115deg, rgba(255,255,255,.13) 0%, transparent 28%);
+  pointer-events:none;
+}
+.chart-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.chart-head h2{margin:0;font-size:1rem;}
+.chart-range{color:var(--muted);font-size:0.82rem;font-variant-numeric:tabular-nums;}
+.chart-card .hint{margin:2px 0 8px;font-size:0.78rem;}
+.chart-wrap{position:relative;}
+/* viewBox 비율을 그대로 유지해야 라벨·숫자가 늘어나지 않는다 (preserveAspectRatio 기본값 사용) */
+.temp-chart{width:100%;height:auto;aspect-ratio:720/220;display:block;overflow:visible;}
+/* display:block 이 hidden 속성을 덮어써서, 자료가 없을 때도 빈 SVG가 자리를 차지했었다 */
+.temp-chart[hidden]{display:none;}
+.chart-empty{
+  margin:0;
+  padding:38px 0;
+  text-align:center;
+  color:var(--muted);
+  font-size:0.85rem;
+}
+/* SVG 내부 요소들 — 인라인 style 대신 여기서 한 번에 테마를 잡는다 */
+.c-grid{stroke:rgba(148,163,184,.18);stroke-width:1;}
+.c-ylabel{
+  fill:var(--muted);font-size:11px;text-anchor:end;dominant-baseline:middle;
+  font-variant-numeric:tabular-nums;
+}
+.c-xlabel{fill:var(--muted);font-size:11px;text-anchor:middle;}
+.c-line{
+  fill:none;stroke:var(--accent);stroke-width:2.5;
+  stroke-linecap:round;stroke-linejoin:round;
+  filter:drop-shadow(0 2px 6px rgba(56,189,248,.45));
+}
+.c-nowline{stroke:rgba(255,255,255,.22);stroke-width:1;stroke-dasharray:3 4;}
+.c-nowdot{fill:#fff;stroke:var(--accent);stroke-width:3;}
+.c-nowlabel{
+  fill:var(--text);font-size:12px;font-weight:700;text-anchor:middle;
+  font-variant-numeric:tabular-nums;
+  paint-order:stroke;stroke:rgba(8,14,28,.85);stroke-width:4px;stroke-linejoin:round;
+}
+
 /* ---- 지도 카드 (Leaflet + Esri World Street Map, 구글맵과 비슷한 톤의 무료·무키 타일) ----
    .current-card와 같은 "리퀴드 글래스" 톤(대각선 하이라이트 + 안쪽 광택 + 등장 애니메이션)을
    맞춰서 두 카드가 한 세트로 보이게 한다. */

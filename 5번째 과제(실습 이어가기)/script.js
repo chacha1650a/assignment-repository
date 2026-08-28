@@ -6,7 +6,8 @@
   const TIMEZONE = "Asia/Seoul";
   const API_URL =
     `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}` +
-    `&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weathercode,is_day&timezone=${encodeURIComponent(TIMEZONE)}`;
+    `&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weathercode,is_day` +
+    `&hourly=temperature_2m&forecast_days=1&timezone=${encodeURIComponent(TIMEZONE)}`;
 
   // WMO weathercode -> 표시용 상태 (실제 날씨에 맞춰 하늘 배경·이모지가 바뀜)
   function weatherToSky(code, isDay) {
@@ -48,6 +49,9 @@
   const $skyEmoji2 = document.getElementById("skyEmoji2");
   const $pageFlash = document.getElementById("pageFlash");
   const $boardRoot = document.getElementById("boardRoot");
+  const $tempChart = document.getElementById("tempChart");
+  const $chartRange = document.getElementById("chartRange");
+  const $chartEmpty = document.getElementById("chartEmpty");
 
   // ---- 조회 결과에 따라 화면 전체가 반응하는 연출 ----
   function pageReact(kind) {
@@ -190,6 +194,86 @@
     $currentCard.classList.remove("zone-dry", "zone-humid");
   }
 
+  // ---- 오늘의 기온 변화 그래프 (외부 차트 라이브러리 없이 인라인 SVG로 직접 그림) ----
+  // hourly 자료는 습도와 같은 취급: 없거나 형식이 달라도 기온 조회 자체는 실패시키지 않는다.
+  const CHART = { w: 720, h: 220, padL: 44, padR: 16, padT: 18, padB: 30 };
+
+  function renderChart(hourly, unit) {
+    const valid = hourly
+      && Array.isArray(hourly.time) && Array.isArray(hourly.temp)
+      && hourly.time.length === hourly.temp.length
+      && hourly.temp.some(v => typeof v === "number" && Number.isFinite(v));
+
+    // 주의: SVG 요소에는 `el.hidden = true` 가 속성으로 반영되지 않는다(HTMLElement 전용 IDL).
+    // 그래서 CSS `[hidden]` 선택자가 안 걸려 빈 차트가 자리를 차지했었다 — setAttribute 로 직접 건다.
+    if (!valid) {
+      $tempChart.innerHTML = "";
+      $tempChart.setAttribute("hidden", "");
+      $chartEmpty.hidden = false;
+      $chartRange.textContent = "자료 없음";
+      return;
+    }
+    $tempChart.removeAttribute("hidden");
+    $chartEmpty.hidden = true;
+
+    // 결측치(null)는 건너뛰고 유효한 점만 사용
+    const pts = hourly.time
+      .map((t, i) => ({ t, v: hourly.temp[i], hour: Number(String(t).slice(11, 13)) }))
+      .filter(p => typeof p.v === "number" && Number.isFinite(p.v));
+
+    const vals = pts.map(p => p.v);
+    const min = Math.min(...vals), max = Math.max(...vals);
+    // 위아래로 약간 여백을 줘서 선이 테두리에 붙지 않게. 평평한 그래프면 임의로 ±1도 폭 확보.
+    const span = max - min < 1 ? 1 : max - min;
+    const lo = min - span * 0.15, hi = max + span * 0.15;
+
+    const { w, h, padL, padR, padT, padB } = CHART;
+    const plotW = w - padL - padR, plotH = h - padT - padB;
+    const x = i => padL + (plotW * i) / Math.max(1, pts.length - 1);
+    const y = v => padT + plotH * (1 - (v - lo) / (hi - lo));
+
+    const line = pts.map((p, i) => `${i === 0 ? "M" : "L"}${x(i).toFixed(1)},${y(p.v).toFixed(1)}`).join("");
+    const area = `${line}L${x(pts.length - 1).toFixed(1)},${padT + plotH}L${padL},${padT + plotH}Z`;
+
+    // 가로 눈금선 + y축 라벨 (최저/중간/최고 3줄이면 충분)
+    const ticks = [lo + (hi - lo) * 0.1, (lo + hi) / 2, hi - (hi - lo) * 0.1];
+    const grid = ticks.map(v => {
+      const yy = y(v).toFixed(1);
+      return `<line x1="${padL}" y1="${yy}" x2="${w - padR}" y2="${yy}" class="c-grid"/>` +
+        `<text x="${padL - 8}" y="${yy}" class="c-ylabel">${v.toFixed(1)}°</text>`;
+    }).join("");
+
+    // x축 라벨은 3시간 간격으로만 (24개 다 찍으면 겹친다)
+    const xlabels = pts.map((p, i) =>
+      p.hour % 3 === 0
+        ? `<text x="${x(i).toFixed(1)}" y="${h - padB + 18}" class="c-xlabel">${p.hour}시</text>`
+        : ""
+    ).join("");
+
+    // 현재 시각과 가장 가까운 점을 강조
+    const nowHour = Number(new Intl.DateTimeFormat("en-GB", {
+      timeZone: TIMEZONE, hour12: false, hour: "2-digit",
+    }).format(new Date()));
+    let ni = pts.findIndex(p => p.hour === nowHour);
+    if (ni < 0) ni = pts.length - 1;
+    const nowDot =
+      `<line x1="${x(ni).toFixed(1)}" y1="${padT}" x2="${x(ni).toFixed(1)}" y2="${padT + plotH}" class="c-nowline"/>` +
+      `<circle cx="${x(ni).toFixed(1)}" cy="${y(pts[ni].v).toFixed(1)}" r="5" class="c-nowdot"/>` +
+      `<text x="${x(ni).toFixed(1)}" y="${(y(pts[ni].v) - 12).toFixed(1)}" class="c-nowlabel">${pts[ni].v}${unit || "°C"}</text>`;
+
+    $tempChart.innerHTML =
+      `<defs><linearGradient id="cfill" x1="0" y1="0" x2="0" y2="1">
+         <stop offset="0%" stop-color="#38bdf8" stop-opacity=".38"/>
+         <stop offset="100%" stop-color="#38bdf8" stop-opacity="0"/>
+       </linearGradient></defs>` +
+      grid +
+      `<path d="${area}" fill="url(#cfill)"/>` +
+      `<path d="${line}" class="c-line"/>` +
+      xlabels + nowDot;
+
+    $chartRange.textContent = `최저 ${min.toFixed(1)}° · 최고 ${max.toFixed(1)}°`;
+  }
+
   function renderRecords() {
     const records = getRecords();
     $recordsCount.textContent = `(${records.length}건)`;
@@ -273,6 +357,10 @@
         // 습도는 없거나 형식이 달라도 기온 조회 자체는 실패시키지 않는다 (renderHumidity가 안전 처리)
         humidity: typeof data.current.relative_humidity_2m === "number"
           ? data.current.relative_humidity_2m : undefined,
+        // 시간별 기온도 마찬가지로 선택 항목 — 없으면 그래프만 "자료 없음"이 된다
+        hourly: data.hourly && Array.isArray(data.hourly.time) && Array.isArray(data.hourly.temperature_2m)
+          ? { time: data.hourly.time, temp: data.hourly.temperature_2m }
+          : undefined,
       };
     } catch (e) {
       if (e.name === "AbortError") throw { type: "timeout" };
@@ -303,6 +391,7 @@
       setStatus("ok", "정상");
       renderValue({ value: result.value, unit: result.unit, time: now, source: result.source, humidity: result.humidity }, false);
       if (result.weathercode !== undefined) applySky(result.weathercode, result.isDay);
+      renderChart(result.hourly, result.unit);
       $lastGoodAt.textContent = now;
       setLastGood({ ...result, time: now });
       saveRecordIfNew(record);
@@ -315,11 +404,13 @@
       const lastGood = getLastGood();
       if (lastGood) {
         renderValue(lastGood, true);
+        renderChart(lastGood.hourly, lastGood.unit); // 그래프도 마지막 정상값 기준으로 유지
         $lastGoodAt.textContent = lastGood.time;
         setStatus("stale", (ERROR_LABEL[kind] || "오류") + " · 오래된 데이터 표시 중");
         pageReact("stale");
       } else {
         renderEmpty("정상값 없음 — 다시 시도해 주세요.");
+        renderChart(null); // 정상값이 없으면 그래프도 지어내지 않는다
         $lastGoodAt.textContent = "—";
         pageReact("error");
       }
