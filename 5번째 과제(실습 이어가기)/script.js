@@ -73,18 +73,19 @@
   $sourceLink.href = API_URL;
   $sourceLink.textContent = "Open-Meteo 원자료 (JSON) 열기";
 
-  // ---- 지도 (Leaflet + Esri World Street Map — API 키 없이 무료 공개 타일) ----
+  // ---- 지도 (Leaflet + Esri World Imagery 위성사진 — API 키 없이 무료 공개 타일) ----
   // 위치는 정보판이 보여주는 서울 좌표로 고정, 인터랙션은 확대/축소·이동 정도만.
-  // Esri의 전통적인 REST 타일 서비스(server.arcgisonline.com)는 계정·키 없이 쓸 수 있고,
-  // 라벨·POI가 정리돼 있어 원본 OSM 표준 타일보다 구글맵에 가까운 깔끔한 느낌을 준다.
+  // Esri의 전통적인 REST 타일 서비스(server.arcgisonline.com)는 계정·키 없이 쓸 수 있다.
+  // 일반 지도(World_Street_Map)에서 위성사진(World_Imagery)으로 바꾼 이유: 어두운 실사
+  // 이미지가 다크 글래스 카드와 톤이 맞고, "실제 그 자리"를 보여줘서 임팩트가 크다.
   function initMap() {
     if (typeof L === "undefined") return; // CDN 로드 실패해도 나머지 정보판은 정상 동작
     const map = L.map("map", { scrollWheelZoom: false }).setView([LAT, LON], 13);
     L.tileLayer(
-      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
       {
         maxZoom: 18,
-        attribution: "&copy; Esri &middot; OpenStreetMap contributors",
+        attribution: "&copy; Esri &middot; Maxar, Earthstar Geographics",
       }
     ).addTo(map);
     L.marker([LAT, LON]).addTo(map)

@@ -48,14 +48,17 @@ body{
   50%{background-position:100% 50%, 0% 50%;}
   100%{background-position:0% 0%, 100% 100%;}
 }
-/* 시간대·날씨별 하늘 톤 */
-.sky.tone-day-clear{background:linear-gradient(160deg,#1a5fb4,#4a9be0 55%,#8fd0ee);}
-.sky.tone-day-cloud{background:linear-gradient(160deg,#3a4a63,#6b7d99 55%,#9aa9c0);}
-.sky.tone-day-rain{background:linear-gradient(160deg,#22303f,#3d5164 55%,#5b7086);}
-.sky.tone-day-snow{background:linear-gradient(160deg,#3c4a5c,#7c93a8 55%,#c7d6e2);}
-.sky.tone-day-storm{background:linear-gradient(160deg,#181e2b,#2c3547 55%,#40495c);}
+/* 시간대·날씨별 하늘 톤 — 2026-08-28 전부 진한 다크로 재조정.
+   원래는 낮이면 밝은 하늘색이 됐는데, 유리 카드·위성사진과 톤이 안 맞아서 어둡게 통일했다.
+   톤 전환 로직(applySky)은 그대로 살아 있어 회귀 검사 #10은 여전히 통과하고,
+   날씨별 차이는 아주 은은한 색조 변화로만 남긴다. */
+.sky.tone-day-clear{background:linear-gradient(160deg,#0b1224,#16233f 55%,#1d2f52);}
+.sky.tone-day-cloud{background:linear-gradient(160deg,#0c111e,#171f32 55%,#212c44);}
+.sky.tone-day-rain{background:linear-gradient(160deg,#080e18,#121b2b 55%,#1a2537);}
+.sky.tone-day-snow{background:linear-gradient(160deg,#0d131f,#1a2436 55%,#26334a);}
+.sky.tone-day-storm{background:linear-gradient(160deg,#06090f,#10151f 55%,#171d2a);}
 .sky.tone-night-clear{background:linear-gradient(160deg,#050a18,#0e1830 55%,#182648);}
-.sky.tone-night-cloud{background:linear-gradient(160deg,#0a0f1c,#182236 55%,#26324a);}
+.sky.tone-night-cloud{background:linear-gradient(160deg,#0a0f1c,#161f31 55%,#1f2940);}
 .sky.tone-night-rain{background:linear-gradient(160deg,#060a14,#101a29 55%,#1c2a3c);}
 
 .sky-emoji{
@@ -159,10 +162,12 @@ body{
   overflow:hidden;
   /* 유리 사선 하이라이트 위에, 하늘 톤과 무관하게 카드를 또렷하게 갈라주는
      균일한 어두운 바탕을 한 겹 깔아준다 (맑은 날 하늘색 위에서도 경계가 살도록) */
+  /* 배경을 다크로 고정한 뒤로는 카드가 배경보다 "밝아야" 떠 보인다
+     (밝은 하늘 위에 얹던 시절엔 반대로 어두운 판을 깔았었다) */
   background:
-    linear-gradient(155deg, rgba(255,255,255,.18), rgba(255,255,255,.02) 32%, transparent 60%),
-    rgba(8,14,28,.46);
-  border:1px solid rgba(255,255,255,.32);
+    linear-gradient(155deg, rgba(255,255,255,.16), rgba(255,255,255,.03) 32%, transparent 60%),
+    rgba(38,50,72,.52);
+  border:1px solid rgba(255,255,255,.16);
   border-radius:20px;
   padding:24px;
   backdrop-filter:blur(22px) saturate(180%);
@@ -321,9 +326,9 @@ body{
   padding:16px 18px 18px;
   border-radius:20px;
   background:
-    linear-gradient(155deg, rgba(255,255,255,.14), rgba(255,255,255,.02) 32%, transparent 60%),
-    rgba(8,14,28,.46);
-  border:1px solid rgba(255,255,255,.24);
+    linear-gradient(155deg, rgba(255,255,255,.14), rgba(255,255,255,.03) 32%, transparent 60%),
+    rgba(38,50,72,.52);
+  border:1px solid rgba(255,255,255,.16);
   backdrop-filter:blur(22px) saturate(180%);
   -webkit-backdrop-filter:blur(22px) saturate(180%);
   box-shadow:
