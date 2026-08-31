@@ -8,11 +8,13 @@
   :root{
     --bg1:#fff7f5; --bg2:#f2e4e4;
     --card-bg:#fffaf5;
+    --ink:#6b5454;
   }
   @media (prefers-color-scheme: dark){
     :root{
       --bg1:#2a2327; --bg2:#171316;
       --card-bg:#231e1b;
+      --ink:#f1e4e4;
     }
   }
   *{ box-sizing:border-box; }
@@ -27,7 +29,8 @@
     position:relative; width:100%; height:100%; aspect-ratio:614/740;
     background:var(--card-bg);
   }
-  canvas{ width:100%; height:100%; display:block; cursor:pointer; }
+  canvas{ width:100%; height:100%; display:block; cursor:grab; }
+  canvas.grabbing{ cursor:grabbing; }
 </style>
 </head>
 <body>
@@ -55,6 +58,7 @@ const INK_COL  = '#9c7c7c';
 const COLS = 12, ROWS = 15;
 const CW = TW/COLS, CH = TH/ROWS;
 const NX = COLS+1, NY = ROWS+1;
+const SIGMA = 92, MAXPULL = 190;
 
 /* ---------- 캔버스 ---------- */
 const cv = document.getElementById('cv');
@@ -75,6 +79,9 @@ let alphaMap = null;
 let happy = 0, blink = 0, nextBlink = 2 + Math.random()*3;
 let pointer = { x:W/2, y:H/2, inside:false }, lastMove = null;
 const hearts = [];
+
+let dragging = false, grabX = 0, grabY = 0, pullX = 0, pullY = 0;
+let maxPulled = 0, dragStartT = 0;
 
 /* ---------- 낮잠 모드 ---------- */
 const NAP_DELAY = 27000;    // 27초 무입력 -> 낮잠
@@ -218,23 +225,74 @@ function drawHeart(c, x, y, s, a, rot){
   c.fill(); c.restore();
 }
 
-/* ---------- 입력: 볼 쓰다듬기만 ---------- */
+/* ---------- 입력: 쓰다듬기 + 말랑이처럼 잡아당기기 + 클릭 ---------- */
+cv.addEventListener('pointerdown', (e) => {
+  markActive();
+  const p = toCanvas(e);
+  const { v, dist } = nearestVertex(p.x, p.y);
+  if (!v || dist > 50 || !v.solid) return; // 몸 바깥은 무시
+
+  try { cv.setPointerCapture(e.pointerId); } catch (err) {}
+  dragging = true; cv.classList.add('grabbing');
+  grabX = p.x; grabY = p.y; pullX = pullY = 0; maxPulled = 0;
+  dragStartT = performance.now();
+  for (const u of verts){
+    const d2 = (u.ox-v.ox)*(u.ox-v.ox) + (u.oy-v.oy)*(u.oy-v.oy);
+    u.w = Math.exp(-d2/(2*SIGMA*SIGMA));
+  }
+  e.preventDefault();
+});
+
 cv.addEventListener('pointermove', (e) => {
   const p = toCanvas(e);
   pointer.x = p.x; pointer.y = p.y; pointer.inside = true;
   markActive();
-  const { v, dist } = nearestVertex(p.x, p.y);
-  if (v && v.solid && dist < 44 && lastMove){
-    const d = Math.hypot(p.x-lastMove.x, p.y-lastMove.y);
-    if (d < 90){
-      happy = Math.min(1, happy + d*0.0024);
-      if (happy > 0.22 && Math.random() < d*0.012) spawnHeart(p.x, p.y);
+
+  if (dragging){
+    let dx = p.x-grabX, dy = p.y-grabY;
+    const len = Math.hypot(dx, dy);
+    if (len > MAXPULL){ dx = dx/len*MAXPULL; dy = dy/len*MAXPULL; }
+    pullX = dx; pullY = dy;
+    maxPulled = Math.max(maxPulled, Math.hypot(dx, dy));
+  } else {
+    const { v, dist } = nearestVertex(p.x, p.y);
+    if (v && v.solid && dist < 44 && lastMove){
+      const d = Math.hypot(p.x-lastMove.x, p.y-lastMove.y);
+      if (d < 90){
+        happy = Math.min(1, happy + d*0.0024);
+        if (happy > 0.22 && Math.random() < d*0.012) spawnHeart(p.x, p.y);
+      }
     }
   }
   lastMove = p;
-}, { passive:true });
+});
 
 cv.addEventListener('pointerleave', () => { pointer.inside = false; lastMove = null; });
+
+function endDrag(){
+  if (!dragging) return;
+  dragging = false;
+  cv.classList.remove('grabbing');
+  for (const v of verts) v.w = 0;
+  const heldMs = performance.now() - dragStartT;
+  const tapPoint = meshPoint(300, 220);
+
+  if (maxPulled < 20 && heldMs < 400){
+    // 톡 건드리는 클릭 -> 다이어리 대사 요청
+    happy = Math.min(1, happy + 0.12);
+    spawnHeart(tapPoint.x, tapPoint.y - 20);
+    try { window.parent.postMessage({ type:'mochi:clicked' }, '*'); } catch (err) {}
+  } else if (maxPulled > 30){
+    // 말랑말랑 잡아당기기 -> 통통 튕기며 하트
+    happy = Math.min(1, happy + Math.min(0.4, maxPulled/300));
+    const hp = meshPoint(grabX+pullX, grabY+pullY);
+    for (let i=0;i<3;i++) spawnHeart(hp.x+(Math.random()-0.5)*30, hp.y);
+  }
+  maxPulled = 0; pullX = pullY = 0;
+}
+cv.addEventListener('pointerup', endDrag);
+cv.addEventListener('pointercancel', endDrag);
+window.addEventListener('blur', endDrag);
 
 /* ---------- 루프 ---------- */
 let prev = performance.now();
@@ -288,6 +346,8 @@ function frame(now){
 
     // 골골 진동
     if (happy > 0.35) ty += Math.sin(t*46 + v.ox*0.05)*0.8*happy;
+
+    if (dragging && v.w > 0.001){ tx += v.w*pullX; ty += v.w*pullY; }
 
     tx += PAD; ty += PAD;
 

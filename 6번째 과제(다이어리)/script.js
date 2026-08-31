@@ -137,6 +137,9 @@ const habitError = $('habitError');
 const habitList = $('habitList');
 const weekPeriod = $('weekPeriod');
 const weekBody = $('weekBody');
+const charFrame = $('charFrame');
+const mochiBubble = $('mochiBubble');
+const mochiBubbleText = $('mochiBubbleText');
 
 /* ---------- 상단 오늘 날짜 ---------- */
 topToday.textContent = `${today.getFullYear()}년 ${today.getMonth()+1}월 ${today.getDate()}일 (${DOW[today.getDay()]})`;
@@ -529,6 +532,72 @@ resetAllBtn.addEventListener('click', () => {
   renderEditor();
   renderDDay();
   renderWeek();
+});
+
+/* ---------- 모찌 대사 (캐릭터 클릭 시 일기 내용 기반 한마디) ---------- */
+const USER_NAME = '대훈';
+
+function currentStreak(){
+  let d = new Date(today);
+  if (!entries[dateKey(d)]) d.setDate(d.getDate() - 1);
+  let streak = 0;
+  while (entries[dateKey(d)]){
+    streak++;
+    d.setDate(d.getDate() - 1);
+  }
+  return streak;
+}
+
+const MOOD_LINES = {
+  great: `오늘 최고의 하루였다면서요? 저도 덩달아 신나요, ${USER_NAME}님!`,
+  good: `오늘 기분 좋았다니 다행이에요, ${USER_NAME}님.`,
+  soso: `그냥 그런 날도 있는 거죠. 내일은 더 나을 거예요, ${USER_NAME}님.`,
+  sad: `오늘 좀 힘들었나봐요... 제가 옆에 있을게요, ${USER_NAME}님.`,
+  angry: `오늘 화나는 일 있었어요? 저한테 실컷 얘기해도 돼요.`
+};
+
+function pickMochiLine(){
+  const candidates = [];
+  const keys = Object.keys(entries).sort();
+  const entry = entries[todayKey()];
+
+  if (keys.length === 0){
+    candidates.push(`${USER_NAME}님, 아직 일기가 하나도 없어요! 오늘 처음 써볼까요?`);
+  } else if (!entry){
+    candidates.push(`${USER_NAME}님, 오늘 일기 아직 안 쓰셨어요~ 저 기다리고 있어요!`);
+  } else {
+    if (entry.mood && MOOD_LINES[entry.mood]) candidates.push(MOOD_LINES[entry.mood]);
+    if (entry.habits && entry.habits.length > 0){
+      const h = entry.habits[Math.floor(Math.random() * entry.habits.length)];
+      candidates.push(`오늘 ${h.item} ${h.value}${h.unit} 하셨다고 적어주셨네요, 대단해요!`);
+    }
+  }
+
+  const streak = currentStreak();
+  if (streak >= 2) candidates.push(`벌써 ${streak}일째 기록 중이시네요, ${USER_NAME}님! 완전 습관이 됐어요.`);
+
+  if (keys.length > 0){
+    const diffDays = Math.round((today - keyToDate(keys[0])) / 86400000) + 1;
+    candidates.push(`우리 함께한 지 D+${diffDays}이에요, ${USER_NAME}님.`);
+  }
+
+  candidates.push(`오늘 하루도 고생 많았어요, ${USER_NAME}님.`);
+  candidates.push(`저 쓰다듬어주는 거 진짜 좋아요, 헤헤.`);
+
+  return candidates[Math.floor(Math.random() * candidates.length)];
+}
+
+let bubbleHideTimer = null;
+function showMochiBubble(text){
+  mochiBubbleText.textContent = text;
+  mochiBubble.classList.add('show');
+  clearTimeout(bubbleHideTimer);
+  bubbleHideTimer = setTimeout(() => mochiBubble.classList.remove('show'), 3600);
+}
+
+window.addEventListener('message', (e) => {
+  if (!e.data || e.data.type !== 'mochi:clicked') return;
+  showMochiBubble(pickMochiLine());
 });
 
 /* ---------- 초기 렌더 ---------- */
