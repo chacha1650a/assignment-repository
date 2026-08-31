@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>모찌의 일기장</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <h1>🐾 모찌의 일기장</h1>
+    <div class="today" id="topToday"></div>
+  </header>
+
+  <div class="data-bar">
+    <div class="data-bar-left">
+      <span class="schema-badge" id="schemaBadge">데이터 형식 v1</span>
+      <span class="data-status" id="dataStatus"></span>
+    </div>
+    <div class="data-bar-right">
+      <button id="exportBtn" class="ghost small">내보내기</button>
+      <button id="importBtn" class="ghost small">가져오기</button>
+      <input type="file" id="importFile" accept="application/json" hidden>
+      <button id="resetAllBtn" class="ghost small danger">전체 삭제</button>
+    </div>
+  </div>
+  <div class="data-error" id="dataError"></div>
+
+  <div class="top-row">
+    <div class="card char-box">
+      <iframe id="charFrame" src="character.html" title="모찌"></iframe>
+    </div>
+    <div class="card dday-box">
+      <div class="dday-label" id="ddayLabel">첫 일기를 써보세요</div>
+      <div class="dday-num" id="ddayNum"></div>
+      <div class="dday-sub" id="ddaySub"></div>
+    </div>
+  </div>
+
+  <section class="card crud-card">
+    <div class="crud-inner">
+      <div class="calendar-card">
+        <div class="cal-head">
+          <button id="calPrev" aria-label="이전 달">‹</button>
+          <span id="calLabel">2026년 8월</span>
+          <button id="calNext" aria-label="다음 달">›</button>
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+      </div>
+
+      <div class="editor-card">
+        <div class="editor-head">
+          <button id="dayPrev" class="nav-btn" aria-label="전날">‹</button>
+          <div class="editor-date" id="editorDate">8월 31일 월요일</div>
+          <button id="dayNext" class="nav-btn" aria-label="다음날">›</button>
+          <button id="jumpToday">오늘</button>
+        </div>
+
+        <div class="mood-picker" id="moodPicker">
+          <button class="mood-btn" data-mood="great"><span class="emoji">😆</span><span class="label">최고</span></button>
+          <button class="mood-btn" data-mood="good"><span class="emoji">🙂</span><span class="label">좋음</span></button>
+          <button class="mood-btn" data-mood="soso"><span class="emoji">😐</span><span class="label">그냥</span></button>
+          <button class="mood-btn" data-mood="sad"><span class="emoji">😢</span><span class="label">슬픔</span></button>
+          <button class="mood-btn" data-mood="angry"><span class="emoji">😠</span><span class="label">화남</span></button>
+        </div>
+
+        <textarea id="entryText" placeholder="오늘 하루는 어땠나요? 모찌에게 이야기해주세요."></textarea>
+
+        <div class="habit-section">
+          <div class="habit-title">📋 오늘의 습관 기록</div>
+          <div class="habit-add">
+            <input id="habitItem" placeholder="항목 (예: 운동)" maxlength="20">
+            <input id="habitValue" type="number" placeholder="값" step="any">
+            <input id="habitUnit" placeholder="단위 (예: 분)" maxlength="10">
+            <button id="habitAddBtn" class="ghost small">추가</button>
+          </div>
+          <div class="habit-error" id="habitError"></div>
+          <ul class="habit-list" id="habitList"></ul>
+        </div>
+
+        <div class="editor-actions">
+          <span class="save-hint" id="saveHint"></span>
+          <button id="deleteBtn" class="ghost">삭제</button>
+          <button id="saveBtn" class="primary">저장</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card week-card">
+    <div class="week-head">
+      <span class="week-title">🗓 이번 주 요약</span>
+      <span class="week-period" id="weekPeriod"></span>
+    </div>
+    <div class="week-body" id="weekBody"></div>
+  </section>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
