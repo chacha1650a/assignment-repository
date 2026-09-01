@@ -221,22 +221,26 @@
 <section class="pagebreak">
   <div class="sec-num">05</div>
   <h2>검사 10개 — 전부 실제 화면으로 확인</h2>
-  <p class="lead">작업을 시작하기 전에 harness.md에 10개를 먼저 못박아 두고, 기능이 끝난 뒤가 아니라
-    변경할 때마다 다시 확인했습니다. 아래는 최종 확인 결과입니다.</p>
+  <p class="lead">작업을 시작하기 전에 harness.md에 10개를 <b>고유 ID·입력·기대값</b>과 함께 먼저
+    못박아 두고, 기능이 끝난 뒤가 아니라 변경할 때마다 다시 확인했습니다. 아래 「AI B」 열은
+    인계 문서만 받은 새 세션이 <b>독립적으로 재현</b>한 결과입니다.</p>
 
   <table>
-    <tr><th style="width:8mm">#</th><th>검사 항목</th><th style="width:14mm">결과</th></tr>
-    <tr><td>1</td><td>정상 조회 시 습도(%)가 기온과 함께 표시된다</td><td class="ok">통과</td></tr>
-    <tr><td>2</td><td>습도는 정수 % 형식이다</td><td class="ok">통과</td></tr>
-    <tr><td>3</td><td>「다시 시도」 시 습도도 함께 갱신된다</td><td class="ok">통과</td></tr>
-    <tr><td>4</td><td>최초 로드 후 placeholder가 아닌 실제 값이 채워진다</td><td class="ok">통과</td></tr>
-    <tr><td>5</td><td>오프라인 모의 시 습도도 오류/오래된 데이터를 반영한다</td><td class="ok">통과</td></tr>
-    <tr><td>6</td><td>응답 형식 변경 모의 시 화면이 죽지 않는다</td><td class="ok">통과</td></tr>
-    <tr><td>7</td><td>정상값이 전혀 없을 때 습도도 <code>—</code>가 된다</td><td class="ok">통과</td></tr>
-    <tr><td>8</td><td>기존 기온·출처 링크·조회 시각이 그대로 동작한다</td><td class="ok">통과</td></tr>
-    <tr><td>9</td><td>날짜별 기록 중복 방지와 어제 대비 비교가 그대로 동작한다</td><td class="ok">통과</td></tr>
-    <tr><td>10</td><td>장애 5종 버튼과 하늘 배경 반응이 그대로 동작한다</td><td class="ok">통과</td></tr>
+    <tr><th style="width:18mm">ID</th><th>검사 항목(기대값)</th><th style="width:14mm">AI A</th><th style="width:14mm">AI B</th></tr>
+    <tr><td>T05-C01</td><td>정상 조회 시 습도(%)가 기온과 함께 표시된다</td><td class="ok">통과</td><td class="ok">통과</td></tr>
+    <tr><td>T05-C02</td><td>습도는 정수 % 형식이다</td><td class="ok">통과</td><td class="ok">통과</td></tr>
+    <tr><td>T05-C03</td><td>「다시 시도」 시 습도도 함께 갱신된다</td><td class="ok">통과</td><td class="ok">통과</td></tr>
+    <tr><td>T05-C04</td><td>최초 로드 후 placeholder가 아닌 실제 값이 채워진다</td><td class="ok">통과</td><td class="ok">통과</td></tr>
+    <tr><td>T05-C05</td><td>오프라인 모의 시 습도도 오류/오래된 데이터를 반영한다</td><td class="ok">통과</td><td class="ok">통과</td></tr>
+    <tr><td>T05-C06</td><td>응답 형식 변경 모의 시 화면이 죽지 않는다</td><td class="ok">통과</td><td class="ok">통과</td></tr>
+    <tr><td>T05-C07</td><td>정상값이 전혀 없을 때 습도도 <code>—</code>가 된다</td><td class="ok">통과</td><td class="ok">통과</td></tr>
+    <tr><td>T05-C08</td><td>기존 기온·출처 링크·조회 시각이 그대로 동작한다</td><td class="ok">통과</td><td class="ok">통과</td></tr>
+    <tr><td>T05-C09</td><td>날짜별 기록 중복 방지와 어제 대비 비교가 그대로 동작한다</td><td class="ok">통과</td><td class="ok">통과</td></tr>
+    <tr><td>T05-C10</td><td>장애 5종 버튼과 하늘 배경 반응이 그대로 동작한다</td><td class="ok">통과</td><td class="ok">통과</td></tr>
   </table>
+  <p>각 검사의 <b>입력(재현 행동)</b>과 <b>관찰 가능한 기대값</b> 전문은
+    <code>harness.md</code> 카드 1에, AI B의 재현 기록은
+    <code>작업 기록/AI-B-검증로그.md</code>에 있습니다.</p>
 
   <h3>추가로 확인한 것</h3>
   <table>
