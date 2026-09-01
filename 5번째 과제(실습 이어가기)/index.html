@@ -102,58 +102,71 @@
        문서가 아니라 이 화면에 있어야 하는 항목이라 정보판 안에 넣었다. -->
   <section class="ai-card" id="aiCard">
     <h2>두 AI에 나눠 맡긴 결과</h2>
-    <p class="hint">같은 과제를 AI 두 곳에 맡겨보고 무엇이 갈렸는지 정리한 것입니다.
-      결론부터 적자면 <strong>능력보다 작업 환경의 차이가 컸습니다.</strong>
-      아래 기준은 다음에 AI를 고를 때 쓰려고 뽑았습니다.</p>
+    <p class="hint">같은 과제를 <strong>분리된 두 세션</strong>에 나눠 맡겼습니다.
+      AI B는 <strong>이전 대화 맥락 없이 인계 문서만 받고</strong> 이어받은 세션입니다.
+      "기억이 사라져도 저장소와 인계 문서만으로 이어갈 수 있는가"를 시험한 것입니다.</p>
 
     <div class="ai-table-wrap">
       <table class="ai-table">
-        <caption class="sr-only">AI A와 AI B의 작업 환경과 결과 비교</caption>
+        <caption class="sr-only">AI A와 AI B의 작업 조건과 결과 비교</caption>
         <thead>
           <tr>
             <th scope="col">항목</th>
-            <th scope="col">AI A — Claude</th>
-            <th scope="col">AI B — Gemini</th>
+            <th scope="col">AI A</th>
+            <th scope="col">AI B</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <th scope="row">맡은 역할</th>
-            <td>코드 구현</td>
-            <td>자료 조사, 작업 단계 정리</td>
+            <td>기능 구현 · 배포</td>
+            <td>인계받아 검사 재현·검증</td>
           </tr>
           <tr>
-            <th scope="row">작업 환경</th>
-            <td>저장소를 직접 읽고 쓰는 도구</td>
-            <td class="ai-limit">채팅 화면 — 파일을 읽지도 쓰지도 못함</td>
+            <th scope="row">받은 입력</th>
+            <td>과제 원문 + 사용자와의 대화</td>
+            <td>인계 문서 + harness.md만 — 대화 전문 없음</td>
+          </tr>
+          <tr>
+            <th scope="row">이전 맥락</th>
+            <td>있음 (연속 세션)</td>
+            <td>없음</td>
           </tr>
           <tr>
             <th scope="row">저장소에 남은 것</th>
-            <td>커밋 14건, 코드 3개 파일 +400줄</td>
-            <td class="ai-limit">없음 — 답을 사람이 옮겨 적어야 하는 구조</td>
+            <td>커밋 17건, 코드 3개 파일 +568줄 −31줄</td>
+            <td>검증 로그 1건 (코드 수정 0줄)</td>
           </tr>
           <tr>
-            <th scope="row">도움이 된 것</th>
-            <td>검사 10개를 통과하는 구현까지 완료</td>
-            <td>작업을 단계로 쪼개 정리해 순서를 잡는 데 도움</td>
+            <th scope="row">검사 10개 결과</th>
+            <td>10개 통과하는 구현 완성</td>
+            <td>10개 전부 독립 재현·통과</td>
+          </tr>
+          <tr>
+            <th scope="row">도구 호출 수</th>
+            <td class="ai-limit">약 28회 — 상한 15회 초과</td>
+            <td class="ai-limit">48회 — 상한 15회 초과</td>
           </tr>
           <tr>
             <th scope="row">어긋난 것</th>
             <td>화면에 반영되지 않은 CSS를 스크린샷만 믿고 판단</td>
-            <td>저장소를 볼 수 없어 구조를 추측 — 서버·DB가 있다고 전제</td>
+            <td>T05-C07 재현 시 새로고침해 한 번 헛짚음</td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <p class="ai-foot"><strong>둘 다 틀렸습니다.</strong> 차이는 틀린 것이 기록으로 남아
-      되짚을 수 있었느냐였습니다. 한쪽은 커밋에 남았고, 한쪽은 채팅 기록에만 남았습니다.</p>
+    <p class="ai-foot"><strong>인계는 성공했고, 문서의 빈틈도 하나 드러났습니다.</strong>
+      AI B는 검사 10개를 전부 재현했지만, 그 과정에서 인계 문서에
+      「새로고침하지 말 것」이 빠져 있어 한 번 헛짚었습니다.
+      쓴 사람에게는 당연해서 안 적은 것이 인계받는 쪽에는 함정이 됩니다 —
+      <strong>인계 문서는 맥락 없는 세션에 실제로 건네봐야 완성됩니다.</strong></p>
 
     <h3>다음에 AI를 고를 때의 기준</h3>
     <ol class="ai-criteria">
-      <li><strong>일감을 볼 수 있는 자리에 있는가.</strong> 코드를 볼 수 없는 AI에게 코드
-        작업을 맡기면 추측할 수밖에 없다. 이번 차이는 대부분 여기서 왔다 — 같은 AI라도
-        저장소에 붙여 놓았다면 결과가 달랐을 것이다.</li>
+      <li><strong>일감을 볼 수 있는 자리에 있는가.</strong> 저장소를 읽고 쓸 수 있는
+        세션과 그렇지 않은 세션은 같은 모델이라도 결과가 갈린다. 파일을 열어볼 수단이
+        없으면 프로젝트 구조를 추측할 수밖에 없다. 모델을 고르기 전에 자리를 먼저 봐야 한다.</li>
       <li><strong>추측인지 확인인지 구분해서 말하는가.</strong> 추측 자체는 문제가 아니고,
         추측을 확인한 것처럼 말하는 것이 문제다. 걸러내는 데 시간이 든다.</li>
       <li><strong>근거를 실제 이름으로 대는가.</strong> 「습도를 표시했다」가 아니라
