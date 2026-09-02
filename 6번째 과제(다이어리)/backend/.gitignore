@@ -1,0 +1,6 @@
+node_modules/
+diary.db
+diary.db-journal
+diary.db-wal
+diary.db-shm
+.env

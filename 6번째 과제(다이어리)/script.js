@@ -90,12 +90,43 @@ function loadStore(){
   return { schemaVersion: CURRENT_SCHEMA, entries: {}, migrated:false };
 }
 
-let store = loadStore();
-let schemaVersion = store.schemaVersion;
-let entries = store.entries;
-let justMigrated = store.migrated;
+let schemaVersion = CURRENT_SCHEMA;
+let entries = {};
+let justMigrated = false;
 
 function saveEntries(){ persist(schemaVersion, entries); }
+
+/* ---------- 백엔드 연결 (선택 사항: 없으면 로컬 저장만 사용) ---------- */
+const API_CONFIG_KEY = 'mochiDiary.apiConfig.v1';
+function loadApiConfig(){
+  try { return JSON.parse(localStorage.getItem(API_CONFIG_KEY) || 'null'); }
+  catch (e) { return null; }
+}
+function saveApiConfig(cfg){
+  try { localStorage.setItem(API_CONFIG_KEY, JSON.stringify(cfg)); } catch (e) {}
+}
+function clearApiConfig(){
+  try { localStorage.removeItem(API_CONFIG_KEY); } catch (e) {}
+}
+let apiConfig = loadApiConfig();
+function isServerMode(){
+  return !!(apiConfig && apiConfig.baseUrl && apiConfig.apiKey);
+}
+async function apiFetch(path, options){
+  options = options || {};
+  const headers = Object.assign(
+    { 'Content-Type': 'application/json', 'X-Api-Key': apiConfig.apiKey },
+    options.headers || {}
+  );
+  const res = await fetch(apiConfig.baseUrl.replace(/\/$/, '') + path, Object.assign({}, options, { headers }));
+  if (!res.ok){
+    let message = `서버 오류 (${res.status})`;
+    try { const body = await res.json(); if (body && body.message) message = body.message; } catch (e) {}
+    throw new Error(message);
+  }
+  if (res.status === 204) return null;
+  return res.json();
+}
 
 /* ---------- 상태 ---------- */
 const today = todayDate();
@@ -140,6 +171,13 @@ const weekBody = $('weekBody');
 const charFrame = $('charFrame');
 const mochiBubble = $('mochiBubble');
 const mochiBubbleText = $('mochiBubbleText');
+const serverToggleBtn = $('serverToggleBtn');
+const serverPanel = $('serverPanel');
+const serverUrlInput = $('serverUrl');
+const serverKeyInput = $('serverKey');
+const serverSaveBtn = $('serverSaveBtn');
+const serverDisconnectBtn = $('serverDisconnectBtn');
+const serverStatusText = $('serverStatusText');
 
 /* ---------- 상단 오늘 날짜 ---------- */
 topToday.textContent = `${today.getFullYear()}년 ${today.getMonth()+1}월 ${today.getDate()}일 (${DOW[today.getDay()]})`;
@@ -157,6 +195,53 @@ function clearDataError(){
   dataError.textContent = '';
   dataError.classList.remove('show');
 }
+
+/* ---------- 서버 연결 패널 ---------- */
+function renderServerStatus(text, ok){
+  serverStatusText.textContent = text;
+  serverStatusText.classList.toggle('ok', !!ok);
+  serverStatusText.classList.toggle('err', text && !ok);
+}
+if (isServerMode()){
+  serverUrlInput.value = apiConfig.baseUrl;
+  serverKeyInput.value = apiConfig.apiKey;
+}
+serverToggleBtn.addEventListener('click', () => {
+  serverPanel.hidden = !serverPanel.hidden;
+});
+serverSaveBtn.addEventListener('click', async () => {
+  const baseUrl = serverUrlInput.value.trim().replace(/\/$/, '');
+  const apiKey = serverKeyInput.value.trim();
+  if (!baseUrl || !apiKey){
+    renderServerStatus('주소와 API 키를 모두 입력해주세요.', false);
+    return;
+  }
+  renderServerStatus('연결 확인 중...', false);
+  const testConfig = { baseUrl, apiKey };
+  try {
+    const res = await fetch(baseUrl + '/api/entries', { headers: { 'X-Api-Key': apiKey } });
+    if (!res.ok){
+      if (res.status === 401){ renderServerStatus('API 키가 올바르지 않아요.', false); return; }
+      renderServerStatus(`서버 오류 (${res.status})`, false);
+      return;
+    }
+  } catch (e){
+    renderServerStatus('서버에 연결할 수 없어요. 주소를 확인해주세요.', false);
+    return;
+  }
+  apiConfig = testConfig;
+  saveApiConfig(apiConfig);
+  renderServerStatus('연결됨 — 서버에 저장돼요', true);
+  await initData();
+});
+serverDisconnectBtn.addEventListener('click', () => {
+  apiConfig = null;
+  clearApiConfig();
+  serverUrlInput.value = '';
+  serverKeyInput.value = '';
+  renderServerStatus('로컬 모드로 전환했어요 (이 브라우저에만 저장)', true);
+  initData();
+});
 
 /* ---------- D-Day (첫 일기 작성일 기준) ---------- */
 function renderDDay(){
@@ -234,6 +319,16 @@ calNext.addEventListener('click', () => {
 /* ---------- 에디터 (기분 + 텍스트) ---------- */
 let currentMood = null;
 
+// 저장/삭제/습관추가/습관삭제가 겹쳐서 서버에 순서 뒤바뀐 채로 도착하는 것을 막는 잠금.
+// (예: "습관 추가"가 서버에 반영되기 전에 "저장"을 눌러 옛 습관 목록으로 덮어써버리는 경우 방지)
+let entryOpBusy = false;
+async function withEntryLock(fn){
+  if (entryOpBusy) return;
+  entryOpBusy = true;
+  try { await fn(); }
+  finally { entryOpBusy = false; }
+}
+
 function renderEditor(){
   const d = keyToDate(selectedKey);
   editorDate.textContent = `${d.getMonth()+1}월 ${d.getDate()}일 ${DOW[d.getDay()]}요일`;
@@ -283,7 +378,7 @@ dayNext.addEventListener('click', () => {
 });
 jumpToday.addEventListener('click', () => selectDate(todayKey()));
 
-saveBtn.addEventListener('click', () => {
+saveBtn.addEventListener('click', () => withEntryLock(async () => {
   const text = entryText.value.trim();
   const existing = entries[selectedKey];
   const habits = existing ? existing.habits : [];
@@ -293,29 +388,51 @@ saveBtn.addEventListener('click', () => {
     return;
   }
 
-  entries[selectedKey] = { mood: currentMood, text, habits, updatedAt: new Date().toISOString() };
-  saveEntries();
+  if (isServerMode()){
+    try {
+      const saved = await apiFetch(`/api/entries/${selectedKey}`, {
+        method: 'PUT',
+        body: JSON.stringify({ mood: currentMood, text, habits })
+      });
+      if (saved && saved.deleted) delete entries[selectedKey];
+      else entries[selectedKey] = { mood: saved.mood, text: saved.text, habits: saved.habits, updatedAt: saved.updatedAt };
+    } catch (e){
+      saveHint.textContent = `저장 실패: ${e.message}`;
+      return;
+    }
+  } else {
+    entries[selectedKey] = { mood: currentMood, text, habits, updatedAt: new Date().toISOString() };
+    saveEntries();
+  }
 
   saveHint.textContent = '저장했어요 💕';
   renderCalendar();
   renderDDay();
   renderWeek();
-});
+}));
 
-deleteBtn.addEventListener('click', () => {
+deleteBtn.addEventListener('click', () => withEntryLock(async () => {
   if (!entries[selectedKey]){
     saveHint.textContent = '삭제할 일기가 없어요.';
     return;
   }
   if (!confirm('이 날의 일기와 습관 기록을 모두 삭제할까요?')) return;
-  delete entries[selectedKey];
-  saveEntries();
+
+  if (isServerMode()){
+    try { await apiFetch(`/api/entries/${selectedKey}`, { method: 'DELETE' }); }
+    catch (e){ saveHint.textContent = `삭제 실패: ${e.message}`; return; }
+    delete entries[selectedKey];
+  } else {
+    delete entries[selectedKey];
+    saveEntries();
+  }
+
   renderEditor();
   renderCalendar();
   renderDDay();
   renderWeek();
   saveHint.textContent = '삭제했어요.';
-});
+}));
 
 /* ---------- 습관 기록 ---------- */
 function renderHabitList(){
@@ -341,7 +458,7 @@ function renderHabitList(){
   }
 }
 
-habitAddBtn.addEventListener('click', () => {
+habitAddBtn.addEventListener('click', () => withEntryLock(async () => {
   const item = habitItemInput.value.trim();
   const value = Number(habitValueInput.value);
   const unit = habitUnitInput.value.trim();
@@ -356,12 +473,27 @@ habitAddBtn.addEventListener('click', () => {
   }
   habitError.textContent = '';
 
-  if (!entries[selectedKey]){
-    entries[selectedKey] = { mood: null, text: '', habits: [], updatedAt: new Date().toISOString() };
+  const existing = entries[selectedKey];
+  const baseMood = existing ? existing.mood : null;
+  const baseText = existing ? existing.text : '';
+  const newHabit = { id: genId(), item: item.slice(0,20), value, unit: unit.slice(0,10) };
+  const newHabits = (existing ? existing.habits : []).concat([newHabit]);
+
+  if (isServerMode()){
+    try {
+      const saved = await apiFetch(`/api/entries/${selectedKey}`, {
+        method: 'PUT',
+        body: JSON.stringify({ mood: baseMood, text: baseText, habits: newHabits })
+      });
+      entries[selectedKey] = { mood: saved.mood, text: saved.text, habits: saved.habits, updatedAt: saved.updatedAt };
+    } catch (e){
+      habitError.textContent = `저장 실패: ${e.message}`;
+      return;
+    }
+  } else {
+    entries[selectedKey] = { mood: baseMood, text: baseText, habits: newHabits, updatedAt: new Date().toISOString() };
+    saveEntries();
   }
-  entries[selectedKey].habits.push({ id: genId(), item: item.slice(0,20), value, unit: unit.slice(0,10) });
-  entries[selectedKey].updatedAt = new Date().toISOString();
-  saveEntries();
 
   habitItemInput.value = '';
   habitValueInput.value = '';
@@ -372,22 +504,39 @@ habitAddBtn.addEventListener('click', () => {
   renderCalendar();
   renderDDay();
   renderWeek();
-});
+}));
 
 habitList.addEventListener('click', (e) => {
   const btn = e.target.closest('.habit-del');
   if (!btn) return;
+  withEntryLock(async () => {
   const entry = entries[selectedKey];
   if (!entry) return;
-  entry.habits = entry.habits.filter((h) => h.id !== btn.dataset.id);
-  if (!entry.text && !entry.mood && entry.habits.length === 0){
-    delete entries[selectedKey];
+  const newHabits = entry.habits.filter((h) => h.id !== btn.dataset.id);
+
+  if (isServerMode()){
+    try {
+      const saved = await apiFetch(`/api/entries/${selectedKey}`, {
+        method: 'PUT',
+        body: JSON.stringify({ mood: entry.mood, text: entry.text, habits: newHabits })
+      });
+      if (saved && saved.deleted) delete entries[selectedKey];
+      else entries[selectedKey] = { mood: saved.mood, text: saved.text, habits: saved.habits, updatedAt: saved.updatedAt };
+    } catch (e){
+      habitError.textContent = `삭제 실패: ${e.message}`;
+      return;
+    }
+  } else {
+    entry.habits = newHabits;
+    if (!entry.text && !entry.mood && entry.habits.length === 0) delete entries[selectedKey];
+    saveEntries();
   }
-  saveEntries();
+
   renderHabitList();
   renderCalendar();
   renderDDay();
   renderWeek();
+  });
 });
 
 /* ---------- 주간 요약 (월요일~일요일, 잘못된 값/날짜 방어) ---------- */
@@ -470,7 +619,7 @@ importFile.addEventListener('change', () => {
   if (!file) return;
 
   const reader = new FileReader();
-  reader.onload = () => {
+  reader.onload = async () => {
     let parsed;
     try { parsed = JSON.parse(reader.result); }
     catch (e){
@@ -501,17 +650,29 @@ importFile.addEventListener('change', () => {
 
     if (!confirm(`이 파일에서 ${count}개의 날짜 기록을 찾았어요. 가져오면 지금 있는 기록을 덮어써요. 계속할까요?`)) return;
 
-    entries = sanitized;
-    schemaVersion = CURRENT_SCHEMA;
-    justMigrated = false;
-    saveEntries();
+    if (isServerMode()){
+      try {
+        const result = await apiFetch('/api/import', { method: 'POST', body: JSON.stringify({ entries: sanitized }) });
+        count = result.imported;
+        await initData();
+      } catch (e){
+        showDataError(`가져오기 실패: ${e.message}`);
+        return;
+      }
+    } else {
+      entries = sanitized;
+      schemaVersion = CURRENT_SCHEMA;
+      justMigrated = false;
+      saveEntries();
+      renderSchemaBadge();
+      renderCalendar();
+      renderEditor();
+      renderDDay();
+      renderWeek();
+    }
+
     clearDataError();
-    renderSchemaBadge();
     dataStatus.textContent = `가져오기 완료 (${count}건)`;
-    renderCalendar();
-    renderEditor();
-    renderDDay();
-    renderWeek();
   };
   reader.onerror = () => {
     showDataError('가져오기 실패: 파일을 읽을 수 없어요. 기존 기록은 그대로예요.');
@@ -519,12 +680,18 @@ importFile.addEventListener('change', () => {
   reader.readAsText(file);
 });
 
-resetAllBtn.addEventListener('click', () => {
+resetAllBtn.addEventListener('click', async () => {
   if (!confirm('정말 모든 일기·습관 기록을 삭제할까요? 되돌릴 수 없어요.')) return;
+
+  if (isServerMode()){
+    try { await apiFetch('/api/entries', { method: 'DELETE' }); }
+    catch (e){ showDataError(`전체 삭제 실패: ${e.message}`); return; }
+  }
+
   entries = {};
   schemaVersion = CURRENT_SCHEMA;
   justMigrated = false;
-  saveEntries();
+  if (!isServerMode()) saveEntries();
   clearDataError();
   renderSchemaBadge();
   dataStatus.textContent = '전체 삭제 완료';
@@ -600,10 +767,34 @@ window.addEventListener('message', (e) => {
   showMochiBubble(pickMochiLine());
 });
 
-/* ---------- 초기 렌더 ---------- */
-renderSchemaBadge();
-renderCalendar();
-renderEditor();
-renderDDay();
-renderWeek();
+/* ---------- 데이터 불러오기 + 초기 렌더 ---------- */
+async function initData(){
+  if (isServerMode()){
+    try {
+      const data = await apiFetch('/api/entries');
+      entries = data.entries || {};
+      schemaVersion = data.schemaVersion || CURRENT_SCHEMA;
+      justMigrated = false;
+      renderServerStatus('연결됨 — 서버에 저장돼요', true);
+    } catch (e){
+      renderServerStatus(`서버 연결 실패 (${e.message}) — 로컬 기록으로 표시 중`, false);
+      const store = loadStore();
+      entries = store.entries;
+      schemaVersion = store.schemaVersion;
+      justMigrated = store.migrated;
+    }
+  } else {
+    const store = loadStore();
+    entries = store.entries;
+    schemaVersion = store.schemaVersion;
+    justMigrated = store.migrated;
+  }
+
+  renderSchemaBadge();
+  renderCalendar();
+  renderEditor();
+  renderDDay();
+  renderWeek();
+}
+initData();
 })();

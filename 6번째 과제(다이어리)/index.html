@@ -18,6 +18,7 @@
     <div class="data-bar-left">
       <span class="schema-badge" id="schemaBadge">데이터 형식 v1</span>
       <span class="data-status" id="dataStatus"></span>
+      <button id="serverToggleBtn" class="ghost small">🔌 서버 연결</button>
     </div>
     <div class="data-bar-right">
       <button id="exportBtn" class="ghost small">내보내기</button>
@@ -25,6 +26,13 @@
       <input type="file" id="importFile" accept="application/json" hidden>
       <button id="resetAllBtn" class="ghost small danger">전체 삭제</button>
     </div>
+  </div>
+  <div class="server-panel" id="serverPanel" hidden>
+    <input id="serverUrl" placeholder="백엔드 주소 (예: https://mochi-diary-backend.onrender.com)">
+    <input id="serverKey" type="password" placeholder="API 키">
+    <button id="serverSaveBtn" class="primary small">연결</button>
+    <button id="serverDisconnectBtn" class="ghost small">로컬 모드로</button>
+    <span class="server-status" id="serverStatusText"></span>
   </div>
   <div class="data-error" id="dataError"></div>
 

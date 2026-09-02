@@ -207,6 +207,22 @@ button.danger:hover{ background:rgba(194,90,82,.1); }
 }
 .data-status{ font-size:12px; color:var(--accent); font-weight:700; }
 .data-bar-right{ display:flex; gap:8px; }
+
+.server-panel{
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  padding:10px 12px; margin:-4px 0 14px;
+  background:var(--chip-bg); border:1px solid var(--line); border-radius:12px;
+}
+.server-panel[hidden]{ display:none; }
+.server-panel input{
+  flex:1; min-width:170px; border:1px solid var(--line); border-radius:10px;
+  padding:7px 10px; font-size:13px; font-family:inherit; color:var(--ink);
+  background:var(--card-bg); outline:none;
+}
+.server-panel input:focus{ border-color:var(--accent); }
+.server-status{ font-size:12px; font-weight:700; color:var(--ink-soft); flex-basis:100%; }
+.server-status.ok{ color:#3f9d63; }
+.server-status.err{ color:#c25a52; }
 .data-error{
   display:none; font-size:12.5px; color:#c25a52; background:rgba(194,90,82,.08);
   border:1px solid rgba(194,90,82,.3); border-radius:10px; padding:8px 12px;
