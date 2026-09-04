@@ -41,6 +41,8 @@ npm start
 ## API 요약
 
 모든 `/api/*` 요청은 `X-Api-Key` 헤더에 위에서 설정한 API_KEY를 실어 보내야 해요 (`/api/health` 제외).
+`API_KEY` 환경변수에 쉼표로 여러 값을 넣으면(`real-key,verification-key`) 둘 다 유효한 키로 인정돼요.
+과제 검증용으로 별도 키를 하나 더 공개하고 싶을 때 이렇게 쓰면 실제 사용 키는 노출하지 않을 수 있어요.
 
 | Method | Path | 설명 |
 | --- | --- | --- |

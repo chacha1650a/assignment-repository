@@ -5,7 +5,8 @@ const path = require('path');
 const { DatabaseSync } = require('node:sqlite'); // Node 22+ 내장 모듈 (네이티브 빌드 불필요)
 
 const PORT = process.env.PORT || 3000;
-const API_KEY = process.env.API_KEY || '';
+// 쉼표로 여러 키를 등록할 수 있어요 (예: 실제 사용 키,검증용 공개 키)
+const API_KEYS = (process.env.API_KEY || '').split(',').map(s => s.trim()).filter(Boolean);
 const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'diary.db');
 const CURRENT_SCHEMA = 2;
 
@@ -60,11 +61,11 @@ function rowToEntry(row) {
 
 /* ---------- 인증 (간단한 API 키) ---------- */
 function requireApiKey(req, res, next) {
-  if (!API_KEY) {
+  if (API_KEYS.length === 0) {
     return res.status(500).json({ error: 'server_misconfigured', message: '서버에 API_KEY 환경변수가 설정돼 있지 않아요.' });
   }
   const key = req.header('X-Api-Key');
-  if (key !== API_KEY) {
+  if (!key || !API_KEYS.includes(key)) {
     return res.status(401).json({ error: 'unauthorized', message: 'API 키가 올바르지 않아요.' });
   }
   next();
@@ -158,5 +159,5 @@ app.post('/api/import', requireApiKey, (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`모찌 일기장 백엔드 실행 중: http://localhost:${PORT}`);
-  if (!API_KEY) console.warn('⚠ API_KEY가 설정되지 않았어요. .env 파일을 만들어 API_KEY=원하는비밀값 을 넣어주세요.');
+  if (API_KEYS.length === 0) console.warn('⚠ API_KEY가 설정되지 않았어요. .env 파일을 만들어 API_KEY=원하는비밀값 을 넣어주세요.');
 });
