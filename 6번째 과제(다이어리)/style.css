@@ -8,8 +8,8 @@
   --shadow-sm:0 4px 14px rgba(120,80,80,.12);
   --chip-bg:rgba(255,255,255,.6);
   --paper-bg:#fffdf7;
-  --rule-line:rgba(160,124,124,.20);
-  --rule-margin:rgba(232,130,122,.38);
+  --rule-line:rgba(160,124,124,.14);
+  --rule-margin:rgba(232,130,122,.32);
   --grain:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScxNjAnIGhlaWdodD0nMTYwJz48ZmlsdGVyIGlkPSduJz48ZmVUdXJidWxlbmNlIHR5cGU9J2ZyYWN0YWxOb2lzZScgYmFzZUZyZXF1ZW5jeT0nMC44NScgbnVtT2N0YXZlcz0nMicgc3RpdGNoVGlsZXM9J3N0aXRjaCcvPjxmZUNvbG9yTWF0cml4IHR5cGU9J3NhdHVyYXRlJyB2YWx1ZXM9JzAnLz48L2ZpbHRlcj48cmVjdCB3aWR0aD0nMTYwJyBoZWlnaHQ9JzE2MCcgZmlsdGVyPSd1cmwoI24pJyBvcGFjaXR5PScwLjA1Jy8+PC9zdmc+");
 }
 @media (prefers-color-scheme: dark){
@@ -23,8 +23,8 @@
     --shadow-sm:0 4px 14px rgba(0,0,0,.35);
     --chip-bg:rgba(255,255,255,.08);
     --paper-bg:#2b2320;
-    --rule-line:rgba(255,255,255,.12);
-    --rule-margin:rgba(242,168,154,.32);
+    --rule-line:rgba(255,255,255,.08);
+    --rule-margin:rgba(242,168,154,.26);
   }
 }
 
@@ -56,27 +56,30 @@ body{
 }
 
 .top-row{
-  position:relative;
   display:flex; gap:16px; align-items:stretch; margin-bottom:18px;
 }
+/* 말풍선이 top-row 전체 기준 좌상단에 떠서 D-Day 카드 쪽까지 침범해 보이던 것을,
+   모찌 캐릭터 카드 폭 안에서만(위쪽 겹침) 뜨도록 캐릭터와 한 묶음(char-wrap)으로 옮겼습니다.
+   완전히 박스 위로 띄우면 페이지 상단 바와 겹쳐서, 박스 상단 안쪽에 살짝 겹치게 뒀습니다. */
+.char-wrap{ position:relative; flex:0 0 150px; display:flex; }
 .mochi-bubble{
-  position:absolute; top:10px; left:10px; z-index:5;
-  max-width:min(300px, 65%);
-  transform:scale(.92); transform-origin:top left;
+  position:absolute; top:8px; left:50%; z-index:5;
+  width:max-content; max-width:132px;
+  transform:translateX(-50%) scale(.92); transform-origin:top center;
   background:var(--card-bg); color:var(--ink);
   border:1px solid var(--line); border-radius:14px;
-  padding:9px 14px; font-size:12.5px; font-weight:700; line-height:1.4;
+  padding:8px 10px; font-size:11.5px; font-weight:700; line-height:1.35; text-align:center;
   box-shadow:var(--shadow-sm);
   opacity:0; pointer-events:none;
   transition:opacity .2s ease, transform .2s ease;
 }
 .mochi-bubble::after{
-  content:""; position:absolute; left:20px; bottom:-6px;
+  content:""; position:absolute; left:50%; bottom:-6px; margin-left:-6px;
   width:12px; height:12px; background:var(--card-bg);
   border-right:1px solid var(--line); border-bottom:1px solid var(--line);
   transform:rotate(45deg);
 }
-.mochi-bubble.show{ opacity:1; transform:scale(1); }
+.mochi-bubble.show{ opacity:1; transform:translateX(-50%) scale(1); }
 
 .char-box{
   width:150px; flex:0 0 150px; padding:0; overflow:hidden;
@@ -94,7 +97,8 @@ body{
 
 @media (max-width:520px){
   .top-row{ flex-direction:column; }
-  .char-box{ width:100%; flex:0 0 auto; max-width:220px; margin:0 auto; }
+  .char-wrap{ width:100%; flex:0 0 auto; max-width:220px; margin:0 auto; justify-content:center; }
+  .char-box{ width:100%; flex:0 0 auto; }
 }
 
 .crud-inner{
@@ -163,8 +167,10 @@ body{
   flex:1; min-height:220px; resize:vertical; border:1px solid var(--line);
   border-radius:16px; font-family:inherit; color:var(--ink); outline:none;
   font-size:15px; line-height:28px;
-  padding:8px 18px 12px 46px;
+  padding:9px 18px 12px 46px;
   background-color:var(--paper-bg);
+  /* 줄노트 눈금과 글자가 겹쳐 보여 피로하다는 실사용 피드백으로,
+     결(grain) 질감은 빼고 눈금 색도 더 옅게 낮췄습니다 (카드 배경에는 grain 유지). */
   background-image:
     linear-gradient(to right,
       transparent 0, transparent 37px,
@@ -172,10 +178,8 @@ body{
       transparent 38px, transparent 100%),
     repeating-linear-gradient(to bottom,
       transparent 0, transparent 27px,
-      var(--rule-line) 27px, var(--rule-line) 28px),
-    var(--grain);
-  background-size:auto, auto, 160px 160px;
-  background-attachment:local, local, local;
+      var(--rule-line) 27px, var(--rule-line) 28px);
+  background-attachment:local, local;
 }
 #entryText:focus{ border-color:var(--accent); }
 #entryText::placeholder{ color:var(--ink-soft); }
