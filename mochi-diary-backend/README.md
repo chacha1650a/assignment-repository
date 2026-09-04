@@ -1,12 +1,16 @@
 # 모찌 일기장 백엔드
 
-Express + SQLite(`node:sqlite`, Node 22+ 내장이라 별도 설치/빌드 필요 없음)로 만든 아주 작은 API 서버예요.
-GitHub Pages는 정적 파일만 서빙하기 때문에, 이 백엔드는 **따로 호스팅**해야 프론트엔드(`index.html`)에서 연결할 수 있어요.
+`6번째 과제(다이어리)`(모찌의 일기장)용 백엔드예요.
+Express + SQLite(`node:sqlite`, Node 22+ 내장이라 별도 설치/빌드 필요 없음)로 만든 아주 작은 API 서버입니다.
+GitHub Pages는 정적 파일만 서빙하기 때문에, 이 백엔드는 **따로 호스팅**해야 프론트엔드(`6번째 과제(다이어리)/index.html`)에서 연결할 수 있어요.
+
+> **폴더 위치가 저장소 루트인 이유**: Render는 Root Directory·Build Command 입력값을 `^[A-Za-z0-9-_./]*$` 로 검사해서
+> 한글·괄호가 들어간 경로(`6번째 과제(다이어리)/backend`)를 아예 받지 않아요. 그래서 배포용으로 영문 경로에 따로 두었습니다.
 
 ## 로컬에서 실행해보기
 
 ```bash
-cd backend
+cd mochi-diary-backend
 npm install
 cp .env.example .env   # .env를 열어서 API_KEY를 원하는 값으로 바꾸세요
 npm start
@@ -17,7 +21,7 @@ npm start
 ## Render.com에 배포하기 (무료)
 
 1. https://render.com 가입 후 **New +** → **Web Service**
-2. 이 GitHub 저장소를 연결하고, **Root Directory**를 `6번째 과제(다이어리)/backend` 로 지정
+2. 이 GitHub 저장소를 연결하고, **Root Directory**를 `mochi-diary-backend` 로 지정
 3. 설정값:
    - **Runtime**: Node
    - **Build Command**: `npm install`
