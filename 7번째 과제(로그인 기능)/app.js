@@ -236,8 +236,15 @@ function showLogin(message){
   me = null;
   entries = {};
   ruleChanges = [];
+  settings = { question:'', metric:'', unit:'', calcRule:'', planRule:'' };
+  selectedKey = todayKey();
   appView.hidden = true;
   authView.hidden = false;
+  whoAmI.textContent = '';
+  dataStatus.textContent = '';
+  // 화면을 가리는 것만으로는 부족하다. 앞사람의 기록이 숨겨진 채로 DOM에 남아 있으면
+  // 개발자 도구로 읽을 수 있으므로, 비운 상태로 다시 그려서 실제로 지운다.
+  try { renderAll(); } catch (e) {}
   if (location.hash) history.replaceState(null, '', location.pathname + location.search);
   if (message) showAuthMsg(message, false);
 }
