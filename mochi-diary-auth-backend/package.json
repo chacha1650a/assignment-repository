@@ -1,0 +1,20 @@
+{
+  "name": "mochi-diary-auth-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "모찌의 일기장 2 — 로그인/회원가입이 붙은 백엔드 (Express + SQLite + bcryptjs)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2"
+  }
+}

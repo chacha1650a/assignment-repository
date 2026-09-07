@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>모찌의 일기장 2 — 로그인</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ===== 로그인 화면 (첫 화면. 로그인 전에는 이 화면만 보인다) ===== -->
+<div class="auth-wrap" id="authView">
+  <div class="auth-card">
+    <h1 class="auth-title">🐾 모찌의 일기장</h1>
+    <p class="auth-sub">내 일기는 로그인한 뒤에만 보여요.</p>
+
+    <div class="auth-tabs">
+      <button id="tabLogin" class="auth-tab active">로그인</button>
+      <button id="tabSignup" class="auth-tab">가입하기</button>
+    </div>
+
+    <form class="auth-form" id="authForm" autocomplete="on">
+      <label class="auth-label" for="authEmail">이메일</label>
+      <input id="authEmail" type="email" autocomplete="username" placeholder="mochi@example.com" required>
+
+      <label class="auth-label" for="authPassword">비밀번호</label>
+      <input id="authPassword" type="password" autocomplete="current-password" placeholder="8자 이상" required>
+
+      <p class="auth-hint" id="signupHint" hidden>비밀번호는 8자 이상이어야 해요. 서버에는 bcrypt로 되돌릴 수 없게 바꿔서 저장돼요.</p>
+
+      <button class="primary auth-submit" id="authSubmit" type="submit">로그인</button>
+      <div class="auth-msg" id="authMsg"></div>
+    </form>
+
+    <details class="auth-server">
+      <summary>서버 주소 바꾸기 (보통 건드릴 필요 없어요)</summary>
+      <input id="serverUrl" placeholder="https://...onrender.com">
+      <div class="auth-server-actions">
+        <button id="serverSaveBtn" class="ghost small" type="button">저장</button>
+        <button id="serverResetBtn" class="ghost small" type="button">기본값으로</button>
+      </div>
+      <div class="auth-server-status" id="serverStatus"></div>
+    </details>
+  </div>
+</div>
+
+<!-- ===== 일기 화면 (로그인 뒤에만 보인다) ===== -->
+<div class="app" id="appView" hidden>
+  <header class="topbar">
+    <h1>🐾 모찌의 일기장</h1>
+    <div class="topbar-right">
+      <span class="today" id="topToday"></span>
+      <span class="who" id="whoAmI"></span>
+      <button id="logoutBtn" class="ghost small">로그아웃</button>
+    </div>
+  </header>
+
+  <div class="data-bar">
+    <div class="data-bar-left">
+      <span class="schema-badge" id="ownerBadge">내 계정의 기록만 보임</span>
+      <span class="data-status" id="dataStatus"></span>
+    </div>
+    <div class="data-bar-right">
+      <button id="exportBtn" class="ghost small">내보내기</button>
+      <button id="pwBtn" class="ghost small">비밀번호 변경</button>
+      <button id="deleteAccountBtn" class="ghost small danger">계정 삭제</button>
+    </div>
+  </div>
+  <div class="data-error" id="dataError"></div>
+
+  <!-- 비밀번호 변경 -->
+  <div class="pw-panel" id="pwPanel" hidden>
+    <input id="pwCurrent" type="password" placeholder="현재 비밀번호" autocomplete="current-password">
+    <input id="pwNew" type="password" placeholder="새 비밀번호 (8자 이상)" autocomplete="new-password">
+    <button id="pwSaveBtn" class="primary small">바꾸기</button>
+    <span class="pw-status" id="pwStatus"></span>
+  </div>
+
+  <div class="top-row">
+    <div class="char-wrap">
+      <div class="mochi-bubble" id="mochiBubble"><span id="mochiBubbleText"></span></div>
+      <div class="card char-box">
+        <iframe id="charFrame" src="character.html" title="모찌"></iframe>
+      </div>
+    </div>
+    <div class="card dday-box">
+      <div class="dday-label" id="ddayLabel">첫 일기를 써보세요</div>
+      <div class="dday-num" id="ddayNum"></div>
+      <div class="dday-sub" id="ddaySub"></div>
+    </div>
+  </div>
+
+  <!-- 1일차에 한 번만 정하는 실험 설정 -->
+  <section class="card setup-card">
+    <div class="setup-head">
+      <span class="setup-title">🔬 이번 5일의 실험 설정</span>
+      <button id="setupToggle" class="ghost small">펼치기</button>
+    </div>
+    <div class="setup-summary" id="setupSummary"></div>
+    <div class="setup-body" id="setupBody" hidden>
+      <label class="setup-label">답하려는 질문 (한 문장)</label>
+      <input id="cfgQuestion" placeholder="예: 아침에 공부를 시작하면 하루 공부 시간이 늘어날까?">
+      <div class="setup-row">
+        <div>
+          <label class="setup-label">관찰 지표 (습관 항목 이름과 똑같이)</label>
+          <input id="cfgMetric" placeholder="예: 공부">
+        </div>
+        <div>
+          <label class="setup-label">단위</label>
+          <input id="cfgUnit" placeholder="예: 분">
+        </div>
+      </div>
+      <label class="setup-label">계산 규칙</label>
+      <input id="cfgCalcRule" placeholder="예: 그날 '공부' 항목 값을 모두 더해 하루 합계로 본다">
+      <label class="setup-label">지금의 계획 규칙</label>
+      <input id="cfgPlanRule" placeholder="예: 저녁 먹은 뒤에 공부를 시작한다">
+      <button id="cfgSaveBtn" class="primary small">설정 저장</button>
+      <span class="setup-status" id="cfgStatus"></span>
+    </div>
+  </section>
+
+  <section class="card crud-card">
+    <div class="crud-inner">
+      <div class="calendar-card">
+        <div class="cal-head">
+          <button id="calPrev" aria-label="이전 달">‹</button>
+          <span id="calLabel"></span>
+          <button id="calNext" aria-label="다음 달">›</button>
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+      </div>
+
+      <div class="editor-card">
+        <div class="editor-head">
+          <button id="dayPrev" class="nav-btn" aria-label="전날">‹</button>
+          <div class="editor-date" id="editorDate"></div>
+          <button id="dayNext" class="nav-btn" aria-label="다음날">›</button>
+          <button id="jumpToday">오늘</button>
+        </div>
+
+        <div class="mood-picker" id="moodPicker">
+          <button class="mood-btn" data-mood="great"><span class="emoji">😆</span><span class="label">최고</span></button>
+          <button class="mood-btn" data-mood="good"><span class="emoji">🙂</span><span class="label">좋음</span></button>
+          <button class="mood-btn" data-mood="soso"><span class="emoji">😐</span><span class="label">그냥</span></button>
+          <button class="mood-btn" data-mood="sad"><span class="emoji">😢</span><span class="label">슬픔</span></button>
+          <button class="mood-btn" data-mood="angry"><span class="emoji">😠</span><span class="label">화남</span></button>
+        </div>
+
+        <textarea id="entryText" placeholder="오늘 하루는 어땠나요? 모찌에게 이야기해주세요."></textarea>
+
+        <div class="habit-section">
+          <div class="habit-title">📋 오늘의 습관 기록</div>
+          <div class="habit-add">
+            <input id="habitItem" placeholder="항목 (예: 공부)" maxlength="20">
+            <input id="habitValue" type="number" placeholder="값" step="any">
+            <input id="habitUnit" placeholder="단위 (예: 분)" maxlength="10">
+            <button id="habitAddBtn" class="ghost small">추가</button>
+          </div>
+          <div class="habit-error" id="habitError"></div>
+          <ul class="habit-list" id="habitList"></ul>
+        </div>
+
+        <div class="editor-actions">
+          <span class="save-hint" id="saveHint"></span>
+          <button id="deleteBtn" class="ghost">삭제</button>
+          <button id="saveBtn" class="primary">저장</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 지표 요약 (합계·평균) -->
+  <section class="card metric-card">
+    <div class="week-head">
+      <span class="week-title">📊 지표 요약</span>
+      <span class="week-period" id="metricPeriod"></span>
+    </div>
+    <div class="metric-body" id="metricBody"></div>
+    <table class="metric-table" id="metricTable"></table>
+  </section>
+
+  <section class="card week-card">
+    <div class="week-head">
+      <span class="week-title">🗓 이번 주 요약</span>
+      <span class="week-period" id="weekPeriod"></span>
+    </div>
+    <div class="week-body" id="weekBody"></div>
+  </section>
+
+  <!-- 계획 규칙 변경 기록 -->
+  <section class="card rule-card">
+    <div class="week-head">
+      <span class="week-title">🔁 계획 규칙 변경 기록</span>
+      <button id="ruleToggle" class="ghost small">규칙 바꾸기</button>
+    </div>
+    <div class="rule-form" id="ruleForm" hidden>
+      <label class="setup-label">바꾸기 전 규칙</label>
+      <input id="ruleBefore" placeholder="지금 규칙이 자동으로 들어와요">
+      <label class="setup-label">바꾼 뒤 규칙</label>
+      <input id="ruleAfter" placeholder="예: 아침에 일어나자마자 공부를 시작한다">
+      <label class="setup-label">바꾼 이유</label>
+      <input id="ruleReason" placeholder="예: 1·2일차 모두 저녁에 미뤄서 목표를 못 채웠다">
+      <label class="setup-label">무엇을 보고 바꿨나 (어느 날 기록)</label>
+      <input id="ruleBasedOn" placeholder="예: 1일차(2026-09-01), 2일차(2026-09-02) 기록">
+      <button id="ruleSaveBtn" class="primary small">규칙 변경 기록하기</button>
+      <span class="setup-status" id="ruleStatus"></span>
+    </div>
+    <div class="rule-list" id="ruleList"></div>
+  </section>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

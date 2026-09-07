@@ -1,0 +1,7 @@
+node_modules/
+diary-auth.db
+diary-auth.db-journal
+diary-auth.db-wal
+diary-auth.db-shm
+.env
+server.log
