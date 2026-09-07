@@ -1,0 +1,31 @@
+# Render Blueprint — 7번째 과제(로그인 기능)의 인증 백엔드 배포 설정
+#
+# Render 대시보드에서 New + → Blueprint → 이 저장소를 고르면
+# 아래 설정대로 서비스가 자동으로 만들어집니다.
+#
+# SESSION_SECRET 은 generateValue: true 라서 Render가 임의의 긴 값을 직접 만들어
+# 서비스 환경변수에만 넣어 줍니다. 저장소에는 그 값이 남지 않습니다.
+#
+# 주의: free 플랜은 디스크가 영구 저장이 아니라, 다시 배포하면 diary-auth.db 가
+# 초기화됩니다(계정과 일기가 함께 사라집니다). 과제 제출·검증 용도로는 충분하지만
+# 오래 쓰려면 유료 디스크나 관리형 DB로 옮겨야 합니다.
+
+services:
+  - type: web
+    name: mochi-diary-auth-backend
+    runtime: node
+    plan: free
+    region: singapore
+    rootDir: mochi-diary-auth-backend
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: SESSION_SECRET
+        generateValue: true      # Render가 만들어 넣어 줌 (git에는 안 들어감)
+      - key: SESSION_TTL_HOURS
+        value: "12"
+      - key: BCRYPT_ROUNDS
+        value: "12"
+      - key: NODE_VERSION
+        value: "22.11.0"

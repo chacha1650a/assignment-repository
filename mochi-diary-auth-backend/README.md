@@ -38,6 +38,23 @@ npm start
 
 ## Render.com에 배포 (무료)
 
+### 방법 A — Blueprint (권장, 설정 입력이 없음)
+
+저장소 루트에 [`render.yaml`](../render.yaml) 이 있어서, Render가 Root Directory·빌드 명령·환경변수를 알아서 읽습니다.
+
+1. https://render.com 에 GitHub 계정으로 로그인
+2. **New +** → **Blueprint**
+3. `chacha1650a/assignment-repository` 저장소를 고르고 **Connect**
+4. `render.yaml` 을 읽어 `mochi-diary-auth-backend` 서비스가 잡히면 **Apply** (또는 **Deploy Blueprint**)
+5. 3~5분 뒤 `https://mochi-diary-auth-backend.onrender.com` 이 생깁니다
+
+`SESSION_SECRET` 은 `generateValue: true` 로 되어 있어 **Render가 임의의 긴 값을 직접 만들어 넣습니다.**
+직접 입력할 필요도 없고, 그 값이 저장소에 남지도 않습니다.
+
+배포가 됐는지는 `https://<주소>/api/health` 가 `{"ok":true}` 를 주는지로 확인합니다.
+
+### 방법 B — 손으로 설정하기
+
 1. https://render.com → **New +** → **Web Service** → 이 GitHub 저장소 연결
 2. **Root Directory**: `mochi-diary-auth-backend`
 3. **Runtime**: Node / **Build Command**: `npm install` / **Start Command**: `npm start`
@@ -45,8 +62,10 @@ npm start
    - `SESSION_SECRET` = 아무도 못 맞출 긴 랜덤 문자열 (위 명령으로 만든 값)
    - (선택) `SESSION_TTL_HOURS` = `12`, `BCRYPT_ROUNDS` = `12`
    - `PORT` 는 Render가 알아서 넣어 줍니다.
-5. 배포되면 `https://xxxx.onrender.com` 주소가 생깁니다. 이 주소를
-   `7번째 과제(로그인 기능)/app.js` 의 `DEFAULT_API_BASE` 상수에 넣고 커밋하세요.
+5. 배포되면 `https://xxxx.onrender.com` 주소가 생깁니다.
+
+> **배포 뒤 할 일**: 서비스 이름을 `mochi-diary-auth-backend` 로 만들었다면 화면 쪽은 고칠 것이 없습니다.
+> 다른 이름으로 만들었다면 `7번째 과제(로그인 기능)/app.js` 의 `DEFAULT_API_BASE` 상수를 그 주소로 바꿔 커밋하세요.
 
 > `SESSION_SECRET` 은 **절대 저장소에 커밋하지 마세요.** `.env` 는 `.gitignore` 에 들어 있고,
 > 저장소에는 `.env.example` 의 자리표시자만 있습니다. 브라우저 코드에도 이 값은 들어가지 않습니다.
