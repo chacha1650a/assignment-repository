@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>과제 제출 보고서 — 모찌의 일기장 2 (로그인)</title>
+<style>
+  @page { size: A4; margin: 16mm 15mm 18mm; }
+  @page :first { margin: 0; }
+
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    font-family:"Malgun Gothic","맑은 고딕","Apple SD Gothic Neo",sans-serif;
+    color:#1c2333; font-size:10pt; line-height:1.65;
+    -webkit-print-color-adjust:exact; print-color-adjust:exact;
+  }
+
+  /* ---- 표지 ---- */
+  .cover{
+    height:297mm; page-break-after:always;
+    background:linear-gradient(160deg,#2a1f1c,#3f2b26 55%,#5a382f);
+    color:#f3e9e4; padding:46mm 22mm 22mm; position:relative;
+  }
+  .cover .kicker{ font-size:10.5pt; letter-spacing:.08em; color:#f2a89a; margin-bottom:10mm; }
+  .cover h1{ font-size:34pt; margin:0 0 4mm; letter-spacing:-.02em; }
+  .cover .sub{ font-size:13pt; color:#e4d3cd; line-height:1.5; margin:0 0 14mm; max-width:130mm; }
+  .cover .meta{ position:absolute; left:22mm; bottom:24mm; font-size:10pt; color:#c9b3ab; line-height:2; }
+  .cover .meta b{ color:#f3e9e4; font-weight:600; display:inline-block; min-width:24mm; }
+  .cover .url{ color:#f2a89a; }
+
+  /* ---- 본문 ---- */
+  section{ page-break-inside:avoid; margin-bottom:9mm; }
+  .sec-num{ font-size:9pt; color:#b3453a; letter-spacing:.1em; font-weight:700; }
+  h2{ font-size:15pt; margin:1mm 0 3mm; letter-spacing:-.01em; }
+  h3{ font-size:11pt; margin:5mm 0 2mm; color:#1c2333; }
+  p{ margin:0 0 2.5mm; }
+  ul,ol{ margin:0 0 3mm; padding-left:5mm; }
+  li{ margin-bottom:1.4mm; }
+  strong{ color:#111827; }
+  code{ font-family:Consolas,monospace; font-size:9pt; background:#fdeeec; color:#96271d;
+        padding:0 1mm; border-radius:2px; }
+  .lead{ color:#64708a; margin-bottom:4mm; }
+
+  table{ border-collapse:collapse; width:100%; font-size:9pt; margin:2mm 0 3mm; }
+  th,td{ border:1px solid #dfe3ee; padding:1.8mm 2.4mm; text-align:left; vertical-align:top; }
+  th{ background:#fbf1ef; font-weight:600; }
+  td.ok{ color:#047857; font-weight:600; }
+  td.bad{ color:#b91c1c; font-weight:600; }
+  td.lim{ color:#64708a; }
+
+  .note{ border-left:3px solid #b3453a; background:#fdf6f5; padding:2.5mm 4mm; margin:3mm 0;
+         font-size:9.5pt; }
+  .warn{ border-left:3px solid #d97706; background:#fffaf0; padding:2.5mm 4mm; margin:3mm 0;
+         font-size:9.5pt; }
+
+  pre{ font-family:Consolas,monospace; font-size:8.2pt; line-height:1.5;
+       background:#f7f8fb; border:1px solid #e3e7f0; border-radius:2mm;
+       padding:2.5mm 3mm; margin:2mm 0 3mm; white-space:pre-wrap; word-break:break-all; }
+  pre .in{ color:#1d4ed8; }
+  pre .out{ color:#047857; }
+  pre .no{ color:#b91c1c; }
+
+  figure{ margin:0 0 5mm; page-break-inside:avoid; }
+  figure img{ width:100%; border:1px solid #dfe3ee; border-radius:2mm; display:block; }
+  figcaption{ font-size:8.5pt; color:#64708a; margin-top:1.5mm; }
+  .pagebreak{ page-break-before:always; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="kicker">SKT 알레프 A반 · 7번째 과제</div>
+  <h1>모찌의 일기장 2</h1>
+  <p class="sub">6번째 과제의 다이어리에 가입·로그인을 붙여 내 기록을 나만 볼 수 있게 만들고,
+    "막았다"는 문장 대신 <strong>막히는 장면(요청과 응답)</strong>을 남긴 기록.
+    그리고 그 잠긴 앱을 5일 동안 쓰면서 3일차 전에 계획 규칙을 하나만 바꿔 본 실험<br>과제 제출 보고서</p>
+  <div class="meta">
+    <div><b>제출자</b> 김대훈</div>
+    <div><b>제출일</b> 2026년 9월 8일</div>
+    <div><b>결과물</b> <span class="url">chacha1650a.github.io/assignment-repository/7번째 과제(로그인 기능)/index.html</span></div>
+    <div><b>소스</b> <span class="url">github.com/chacha1650a/assignment-repository</span></div>
+    <div><b>인증 서버</b> <span class="url">mochi-diary-auth-backend.onrender.com</span></div>
+  </div>
+</div>
+
+<section>
+  <div class="sec-num">01</div>
+  <h2>무엇을 만들었나</h2>
+  <p class="lead">6번째 과제에서 만든 <strong>모찌의 일기장</strong>을 그대로 이어받아,
+    저장소를 "브라우저 / 공용 API 키 서버"에서 <strong>"내 계정 전용 서버"</strong>로 바꿨습니다.
+    6번은 키 하나를 아는 사람이면 누구나 같은 기록을 읽고 썼지만, 7번은 계정마다 자료가 갈립니다.</p>
+
+  <table>
+    <tr><th style="width:13mm">카드</th><th style="width:44mm">요구사항</th><th>구현</th></tr>
+    <tr><td>1</td><td>인증 방식 선택과 이유, 가입·로그인·로그아웃</td><td>직접 구현 + <code>bcryptjs 3.0.3</code>. 인증 서비스(Firebase)·JWT·쿠키 세션을 검토하고 고르지 않은 이유를 2절에 기록</td></tr>
+    <tr><td>2</td><td>비밀번호를 되돌릴 수 없게 보관</td><td>bcrypt(반복 12회). 같은 비밀번호로 만든 두 계정의 저장값이 서로 다른 것을 DB를 열어 확인(4절)</td></tr>
+    <tr><td>3</td><td>로그인 상태 유지와 로그아웃 시 실제 차단</td><td>서버에 저장하는 세션 토큰. DB에는 원문이 아니라 <code>HMAC-SHA256(토큰, SESSION_SECRET)</code>만 저장. 12시간 만료, 로그아웃·비밀번호 변경 시 서버가 즉시 취소</td></tr>
+    <tr><td>4</td><td>남의 자료 차단(읽기·수정·삭제, 양방향)</td><td>모든 조회에 <code>WHERE user_id = ?</code>. 남의 기록 id로 접근하면 403이 아니라 <strong>404</strong>. 거절 앞뒤로 건수·내용이 그대로임을 확인(4절)</td></tr>
+    <tr><td>5</td><td>설명서 6항목 + 잠긴 앱으로 5일 사용, 3일차 전 규칙 1개 변경</td><td>설명서를 6항목으로 나눠 작성(⑥ 포함). 2026-09-01~05 기록, 09-02 22:10(KST)에 계획 규칙 변경(6절)</td></tr>
+  </table>
+
+  <div class="note">
+    <strong>6번 과제 백엔드는 한 줄도 고치지 않았습니다.</strong> 6번 제출물이 지금도 그대로
+    열려야 하기 때문에, 7번용 인증 서버는 <code>mochi-diary-auth-backend/</code>라는
+    별도 폴더·별도 서비스로 새로 만들어 배포했습니다.
+    이어받은 6번 최종 commit은 <code>f8d15118</code>(2026-09-04)입니다.
+  </div>
+</section>
+
+<section class="pagebreak">
+  <div class="sec-num">02</div>
+  <h2>무엇으로 붙였고, 왜 그걸 골랐나</h2>
+
+  <table>
+    <tr><th style="width:36mm">맡긴 일</th><th style="width:26mm">무엇으로</th><th>이름과 버전</th></tr>
+    <tr><td>비밀번호 되돌릴 수 없게 만들기</td><td>라이브러리</td><td><strong>bcryptjs 3.0.3</strong> (알고리즘 bcrypt, 반복 12회)</td></tr>
+    <tr><td>사람을 알아보기</td><td>직접 구현</td><td>서버 저장 세션 토큰 — <code>node:crypto</code> <code>randomBytes(32)</code> + HMAC-SHA256</td></tr>
+    <tr><td>웹 서버 / CORS / 환경변수</td><td>라이브러리</td><td>express 4.22.2 · cors 2.8.6 · dotenv 16.6.1</td></tr>
+    <tr><td>데이터베이스</td><td>Node 내장</td><td><code>node:sqlite</code> (Node 22.13 이상 내장, 네이티브 빌드 불필요)</td></tr>
+  </table>
+
+  <h3>비밀번호에 bcrypt를 고른 이유</h3>
+  <p>한 문장으로: <strong>비밀번호를 다루는 부분은 직접 만들면 반드시 어딘가 틀리기 때문에,
+    오래 검증된 표준을 그대로 쓰고 싶었습니다.</strong></p>
+  <ul>
+    <li>계정마다 다른 <strong>소금값(salt)을 알아서 붙여 줍니다.</strong> 제가 salt를 만들고 붙이고 꺼내는 코드를 짜면 그 자리에서 실수가 납니다.</li>
+    <li><strong>일부러 느립니다(반복 12회).</strong> 훔쳐 간 사람이 빠르게 다 대입해 보는 것을 어렵게 합니다.</li>
+    <li>비교도 <code>bcrypt.compareSync</code>에 맡겼습니다. 문자열을 <code>===</code>로 비교하면 걸린 시간으로 정답을 알아내는 공격이 가능한데, 라이브러리가 그 부분까지 처리합니다.</li>
+    <li><code>bcryptjs</code>는 순수 자바스크립트라 <strong>네이티브 빌드가 필요 없어</strong> 무료 배포 환경에서 빌드가 깨지지 않습니다.</li>
+  </ul>
+
+  <h3>함께 검토했지만 고르지 않은 것</h3>
+  <table>
+    <tr><th style="width:38mm">검토한 것</th><th>고르지 않은 이유</th></tr>
+    <tr><td>Firebase Authentication (인증 서비스)</td><td>가입·로그인은 편해지지만 <strong>"남의 자료가 안 열린다"를 만드는 소스가 내 코드에 남지 않아</strong>, 이 과제가 요구하는 "어디를 고쳤나 / 무엇이 거절을 만드나"를 보일 수가 없었음</td></tr>
+    <tr><td>JWT (<code>jsonwebtoken</code>)</td><td>서명만 맞으면 통과시키는 구조라 <strong>로그아웃해도 만료 전까지 그 토큰이 계속 통함.</strong> 통과 기준(로그아웃 뒤 거절)을 만들려면 결국 서버에 취소 목록이 필요해, 처음부터 서버 세션이 단순했음</td></tr>
+    <tr><td>express-session + 쿠키</td><td>화면은 GitHub Pages, 서버는 Render로 <strong>주소가 달라</strong> 크로스 사이트 쿠키를 써야 하는데, 요즘 브라우저가 이를 막는 경우가 많아 심사자 환경에서 로그인이 안 될 위험이 컸음</td></tr>
+    <tr><td>SHA-256 한 번만 걸어 저장</td><td>빠른 것이 장점인 해시라 <strong>오히려 다 대입해 보기 좋음.</strong> 비밀번호 보관에는 일부러 느린 함수를 써야 한다고 판단</td></tr>
+    <tr><td>argon2 / scrypt / PBKDF2</td><td>argon2는 네이티브 빌드가 필요해 무료 배포에서 자주 깨지고, scrypt·PBKDF2는 salt 생성·저장 형식을 직접 설계해야 해서 "직접 만들지 않는다"는 원칙에서 멀어짐</td></tr>
+  </table>
+</section>
+
+<section class="pagebreak">
+  <div class="sec-num">03</div>
+  <h2>어디를 어떻게 고쳤나</h2>
+
+  <h3>데이터베이스가 달라진 지점 — 주인이 생겼다</h3>
+  <pre>6번:  entries(date PRIMARY KEY, mood, text, habits, updated_at)
+      -&gt; 날짜 하나에 기록 하나. <span class="no">누구 것인지 적는 칸 자체가 없음</span>
+
+7번:  users(id, email, email_lower UNIQUE, password_hash, created_at)
+      sessions(id, user_id, token_hash UNIQUE, created_at, expires_at, revoked_at)
+      entries(id, <span class="out">user_id</span>, date, ..., UNIQUE(user_id, date))
+      settings(user_id PRIMARY KEY, question, metric, unit, calc_rule, plan_rule)
+      rule_changes(id, user_id, changed_at, before_rule, after_rule, reason, based_on)
+      -&gt; user_id 는 전부 users(id) 를 가리키고 ON DELETE CASCADE</pre>
+
+  <h3>네 흐름이 소스의 어디를 지나는가</h3>
+  <table>
+    <tr><th style="width:18mm">흐름</th><th>지나는 자리</th></tr>
+    <tr><td>가입</td><td>화면 <code>app.js:195</code>(폼 제출) → <code>app.js:29</code>(<code>api()</code>) → <code>server.js:192</code>(형식·8자 검사, 중복 이메일 409) → <code>server.js:111</code>(<code>hashPassword</code>) → <code>server.js:125</code>(<code>issueSession</code>) → <code>app.js:245</code>(<code>enterApp</code>)</td></tr>
+    <tr><td>로그인</td><td><code>app.js:195</code> → <code>server.js:220</code> → <strong><code>server.js:226~231</code></strong>(계정 없음과 비번 틀림을 <strong>한 갈래로 합쳐</strong> 같은 응답) → <code>server.js:114</code>(<code>verifyPassword</code>) → <code>server.js:125</code>(토큰·만료 발급)</td></tr>
+    <tr><td>로그아웃</td><td><code>app.js:296</code> → <code>server.js:236</code> → <strong><code>server.js:134</code></strong>(<code>revokeSession</code> — 서버에서 끊음) → <code>app.js:235</code>(<code>showLogin</code>)</td></tr>
+    <tr><td>자료 조회</td><td><code>app.js:269</code>(<code>loadAll</code>) → <code>app.js:29~33</code>(Authorization 헤더 부착) → <strong><code>server.js:145</code>(<code>requireAuth</code>)</strong> → <code>server.js:262</code>(목록, <code>user_id</code> 조건) 또는 <code>server.js:303</code>(<code>findOwnEntry</code>) → 401이면 <code>app.js:255</code>(<code>guard</code>)가 로그인 화면으로</td></tr>
+  </table>
+
+  <h3>거절을 만들어 내는 소스 — 핵심 세 곳</h3>
+  <pre><span class="out">// 1) server.js:145 — 로그인 안 했으면 여기서 끝난다</span>
+function requireAuth(req, res, next) {
+  const token = header.startsWith('Bearer ') ? header.slice(7).trim() : '';
+  if (!token) return res.status(401)...
+  const row = db.prepare('SELECT * FROM sessions WHERE token_hash = ?').get(hashToken(token));
+  if (!row || row.revoked_at) return res.status(401)...      <span class="out">// 로그아웃/비번변경으로 끊긴 토큰</span>
+  if (new Date(row.expires_at).getTime() &lt;= Date.now()) return res.status(401)...  <span class="out">// 만료</span>
+  req.user = user;   <span class="no">// 주소·헤더·본문에 뭐라고 적혀 있든, 계정은 여기서만 정해진다</span>
+}
+
+<span class="out">// 2) server.js:262 — 목록에도 반드시 주인 조건이 붙는다</span>
+db.prepare('SELECT * FROM entries WHERE user_id = ? ORDER BY date').all(req.user.id);
+
+<span class="out">// 3) server.js:303 — 한 건을 다룰 때. 주인이 아니면 "없는 것"이 된다</span>
+function findOwnEntry(userId, id) {
+  return db.prepare('SELECT * FROM entries WHERE id = ? AND user_id = ?').get(Number(id), userId) || null;
+}</pre>
+
+  <p>세 번째가 <strong>읽기·수정·삭제 세 경로 모두에서 가장 먼저 호출</strong>됩니다
+    (<code>server.js:309 / 315 / 322</code>). 특히 수정은 주인 확인을 통과한 뒤에야 저장 함수를 부르기 때문에,
+    거절된 요청은 데이터베이스를 한 글자도 건드리지 않습니다.</p>
+
+  <div class="note">
+    <strong>화면에서 막은 것이 아닙니다.</strong> 화면은 일기 영역을 <code>hidden</code>으로 시작하고
+    토큰이 있어도 서버에 <code>GET /api/auth/me</code>를 먼저 물어보지만, 이것은 편의일 뿐입니다.
+    개발자 도구로 <code>appView.hidden = false</code>를 강제로 풀어도 화면은 비어 있습니다 —
+    데이터가 서버에서 오지 않기 때문입니다.
+  </div>
+</section>
+
+<section class="pagebreak">
+  <div class="sec-num">04</div>
+  <h2>안 열리는 것을 확인한 기록</h2>
+  <p class="lead">"막았습니다"라는 문장은 근거가 아니라고 해서, 실제로 요청을 보내 받은 응답을 그대로 옮겼습니다.
+    아래는 요약이고, 전체 요청·응답은 저장소의 <code>증거/</code> 폴더에 세 개 파일로 있습니다.
+    비밀번호는 <code>********</code>, 토큰은 앞 8글자만 남기고 <code>…생략</code>으로 가렸습니다.</p>
+
+  <table>
+    <tr><th style="width:52mm">증거 파일</th><th>무엇을 확인했나</th></tr>
+    <tr><td><code>증거/확인 기록.md</code></td><td>1차 — 계정 A·B·C로 로컬 서버에서 전 항목 확인(628줄)</td></tr>
+    <tr><td><code>증거/테스트 계정 검증 기록.md</code></td><td>2차 — 테스트 계정을 새로 만들어 화면까지 눌러 가며 재확인. 이 과정에서 문제를 하나 찾아 고침(5절)</td></tr>
+    <tr><td><code>증거/배포 서버 검증 기록.md</code></td><td>3차 — <strong>배포된 서버</strong>에 같은 확인. 심사자가 밟는 경로(Pages 화면 → Render 서버)까지 브라우저로 확인</td></tr>
+  </table>
+
+  <h3>확인 1 — 로그인하지 않고 자료를 부르면</h3>
+  <pre><span class="in">GET /api/entries</span>  (토큰 없음)          → <span class="no">401 {"error":"unauthorized","message":"로그인이 필요해요."}</span>
+<span class="in">GET /api/entries</span>  (지어낸 토큰)        → <span class="no">401 {"error":"unauthorized", ...}</span>
+<span class="in">GET /api/entries</span>  (로그인한 토큰)      → <span class="out">200</span> 내 5일 기록</pre>
+  <p>브라우저에서 <code>index.html#/diary</code>를 직접 쳐도 화면이 서버에 물어보고 위 401을 받아
+    <strong>로그인 화면</strong>을 보여줍니다.</p>
+
+  <h3>확인 2 — 로그아웃 뒤 같은 값으로 다시 요청하면</h3>
+  <pre><span class="in">GET /api/entries</span>  Authorization: Bearer tu3WrPOR…생략   → <span class="out">200</span> 5일 기록
+<span class="in">POST /api/auth/logout</span>  (같은 토큰)                    → <span class="out">200 {"loggedOut":true}</span>
+<span class="in">GET /api/entries</span>  Authorization: Bearer tu3WrPOR…생략   → <span class="no">401 {"error":"unauthorized"}</span></pre>
+  <p>주소도 방식도 보낸 토큰도 같고, <strong>달라진 것은 사이에 로그아웃을 했다는 것뿐</strong>입니다.
+    브라우저에서만 지운 것이 아니라 서버의 <code>sessions</code> 행에 <code>revoked_at</code>이 찍힙니다.
+    비밀번호를 바꿨을 때도 같습니다(변경 전 200 → 변경 후 같은 요청이 401).</p>
+
+  <h3>확인 3 — 남의 자료 읽기·수정·삭제 (양방향)</h3>
+  <table>
+    <tr><th style="width:26mm">방향</th><th style="width:44mm">요청</th><th>응답</th></tr>
+    <tr><td>A → B 읽기</td><td><code>GET /api/entries/6</code> (A 토큰)</td><td class="bad">404 그런 기록이 없어요.</td></tr>
+    <tr><td>A → B 수정</td><td><code>PUT /api/entries/6</code> (A 토큰)</td><td class="bad">404</td></tr>
+    <tr><td>A → B 삭제</td><td><code>DELETE /api/entries/6</code> (A 토큰)</td><td class="bad">404</td></tr>
+    <tr><td><strong>주인이 부르면</strong></td><td><code>GET /api/entries/6</code> (B 토큰)</td><td class="ok">200 B의 기록</td></tr>
+    <tr><td>B → A 읽기 / 수정 / 삭제</td><td><code>GET·PUT·DELETE /api/entries/1</code> (B 토큰)</td><td class="bad">셋 다 404</td></tr>
+  </table>
+  <p><strong>403이 아니라 404를 쓴 이유</strong>: 403은 "있긴 한데 너는 안 돼"라고 알려주는 셈이라
+    남의 기록 id가 실제로 있다는 사실이 새어 나갑니다. 404는 그것조차 알려주지 않습니다.</p>
+  <p><strong>거절 앞뒤로 반대편이 그대로인지</strong>: A가 B를 건드리기 전 B는 2건, 건드린 뒤에도 2건이었고
+    응답 JSON을 통째로 비교해도 <strong>한 글자도 다르지 않았습니다.</strong> 반대 방향도 5건 → 5건, 내용 동일.
+    새로 생긴 기록도 없습니다.</p>
+
+  <h3>확인 4 — 주소·헤더·본문에 남의 계정을 적어 보내면</h3>
+  <pre><span class="in">GET /api/entries?userId=2</span>            (A 토큰) → <span class="out">200</span> 돌아온 id [1,2,3,4,5] <span class="out">= A 것뿐</span>
+<span class="in">GET /api/entries</span>  X-User-Id: 2       (A 토큰) → <span class="out">200</span> 돌아온 id [1,2,3,4,5] <span class="out">= A 것뿐</span>
+<span class="in">PUT /api/entries/date/2026-09-06</span>    본문 {"userId":2,"user_id":2,...}
+                                        → <span class="out">200</span> <span class="out">A의</span> 2026-09-06 으로 저장. B 목록에는 그 날짜 없음</pre>
+  <p>서버는 주소·헤더·본문의 계정 번호를 <strong>읽는 코드 자체가 없습니다.</strong>
+    계정은 <code>requireAuth</code>가 토큰에서 정한 <code>req.user.id</code> 하나뿐입니다.</p>
+
+  <h3>확인 5 — 목록 격리와 비밀번호 보관</h3>
+  <p>같은 주소·같은 방식(<code>GET /api/entries</code>)에 토큰만 바꿔 불렀습니다.
+    A는 <code>[1,2,3,4,5]</code>, B는 <code>[6,7]</code> — <strong>겹치는 id 0개.</strong></p>
+  <p>저장된 비밀번호는 <code>users</code> 테이블을 그대로 열어봤습니다.
+    <strong>두 계정은 똑같은 비밀번호로 만들었습니다.</strong></p>
+  <pre>id=1  email=mochi-a@example.com
+password_hash=$2b$12$TaYWqBoF5TXHLWxJHj.2HONopQcwQ6okhZ2XRnudmbjQfbxKBMl8.
+id=2  email=mochi-b@example.com
+password_hash=$2b$12$WUjpgjt2mZMN5e6wBRVZjOX7x.7xEF2TUnZ7AcwZhP5IsjUWseVO.</pre>
+  <ul>
+    <li>입력한 글자는 어디에도 보이지 않습니다.</li>
+    <li><strong>같은 비밀번호인데 저장값이 서로 다릅니다</strong> — bcrypt가 계정마다 다른 소금값을 붙이기 때문(<code>$2b$12$</code> 뒤 22글자).</li>
+    <li>서버 로그 전체를 뒤져도 비밀번호 원문은 <strong>한 건도 없습니다.</strong> 로그에는 시각·방식·경로·상태 코드만 남깁니다(<code>server.js:184</code>).</li>
+  </ul>
+
+  <table>
+    <tr><th style="width:52mm">곁들여 확인한 것</th><th>결과</th></tr>
+    <tr><td>같은 이메일로 두 번 가입</td><td class="bad">409 email_taken (<code>email_lower</code> UNIQUE)</td></tr>
+    <tr><td>아이디 맞고 비번만 틀림 / 아이디 자체가 없음</td><td class="ok">둘 다 401 + "이메일 또는 비밀번호가 올바르지 않아요." (문자열까지 동일)</td></tr>
+    <tr><td>토큰 만료</td><td class="ok">발급 12시간 뒤 401 session_expired. <code>sessions.expires_at</code>에 기록</td></tr>
+    <tr><td>토큰이 주소에 실리는가</td><td class="ok">아니요. 항상 Authorization 헤더. 주소에 실어 보내면 무시됨</td></tr>
+    <tr><td>비밀키가 브라우저 코드·배포 파일·Git에 있는가</td><td class="ok">아니요. Render가 <code>generateValue</code>로 만들어 서비스 환경변수에만 넣음. 나도 그 값을 본 적이 없음</td></tr>
+    <tr><td>계정 삭제</td><td class="ok">계정 삭제 후 사용자 행 0개, 주인 없는 일기 행 0개 (CASCADE)</td></tr>
+  </table>
+</section>
+
+<section class="pagebreak">
+  <div class="sec-num">05</div>
+  <h2>검증하면서 찾아서 고친 것 2건</h2>
+  <p class="lead">둘 다 "될 것"이라고 생각하고 넘어갔다가, 실제로 눌러보고 배포해보고 나서 드러난 것입니다.</p>
+
+  <h3>① 로그아웃했는데 앞사람 기록이 화면(DOM)에 남아 있었다</h3>
+  <table>
+    <tr><th style="width:22mm">항목</th><th>내용</th></tr>
+    <tr><td>증상</td><td>로그아웃하면 일기 화면이 <code>hidden</code>으로 가려지긴 하는데, <strong>이전에 그려 둔 내용이 숨겨진 채 그대로 남아</strong> 있었음. 로그아웃 직후 숨은 영역을 읽어보니 달력 점 5개, 지표 요약 "공부 합계 285분", 일기 본문이 그대로 있었음</td></tr>
+    <tr><td>왜 문제인가</td><td>서버는 이미 제대로 막혀 있었지만(토큰이 끊겨 새 자료는 못 가져옴), <strong>공용 컴퓨터에서 로그아웃한 뒤 다음 사람이 개발자 도구를 열면 앞사람이 방금 보던 일기 글이 읽혔음.</strong> 과제 문서의 "화면에서 안 보이게 하는 것은 막은 것이 아니다"에 정확히 걸리는 경우</td></tr>
+    <tr><td>원인</td><td><code>app.js</code>의 <code>showLogin()</code>이 상태 변수만 비우고 <strong>화면을 다시 그리지 않았음</strong></td></tr>
+    <tr><td>수정</td><td>상태를 비운 뒤 <code>renderAll()</code>을 불러 빈 상태로 다시 그리도록 함. 계정 표시·일기 입력칸도 함께 비움</td></tr>
+    <tr><td>확인</td><td>고친 뒤 같은 방법으로 재확인 — 숨은 달력 점 <strong>0개</strong>, 지표 요약·규칙 변경·계정 표시·입력칸 모두 빈 상태. <strong>배포본에서도 동일하게 확인</strong></td></tr>
+  </table>
+
+  <h3>② 첫 배포가 실패했다 — 내가 박아둔 Node 버전 때문</h3>
+  <table>
+    <tr><th style="width:22mm">항목</th><th>내용</th></tr>
+    <tr><td>증상</td><td>Render Blueprint 첫 배포가 <strong>Failed deploy</strong>로 끝남</td></tr>
+    <tr><td>원인</td><td><code>render.yaml</code>에 <code>NODE_VERSION: "22.11.0"</code>을 넣었는데, <code>node:sqlite</code>는 <strong>22.13.0 이전에는 <code>--experimental-sqlite</code> 플래그가 있어야</strong> 쓸 수 있음. 그래서 <code>require('node:sqlite')</code>가 <code>ERR_UNKNOWN_BUILTIN_MODULE</code>로 바로 죽어 서버가 뜨지 못했음. <strong>내 로컬은 Node 24라 이 문제가 드러나지 않았음</strong></td></tr>
+    <tr><td>확인</td><td>버전별로 직접 돌려봄 — 22.11.0 <span style="color:#b91c1c">실패</span> / 22.13.0 · 22.20.0 · 24.19.0 <span style="color:#047857">성공</span></td></tr>
+    <tr><td>수정</td><td><code>NODE_VERSION</code>을 22.20.0으로 올리고, <code>package.json</code>의 <code>engines.node</code>도 실제 최소값 <code>&gt;=22.13.0</code>으로 정정. 같은 실수가 반복되지 않게 <code>render.yaml</code>·<code>server.js</code>·README에 이유를 적음</td></tr>
+    <tr><td>확인</td><td>22.20.0으로 서버를 실제로 띄워 health 200, 가입 201, 로그인 목록 200, 기록 저장 200, 로그아웃 뒤 401까지 확인한 뒤 재배포</td></tr>
+  </table>
+</section>
+
+<section class="pagebreak">
+  <div class="sec-num">06</div>
+  <h2>잠긴 앱으로 5일 — 3일차 전에 규칙 하나를 바꿔 봄</h2>
+
+  <h3>1일차에 한 번만 정하고 끝까지 바꾸지 않은 것</h3>
+  <table>
+    <tr><th style="width:34mm">항목</th><th>정한 값</th></tr>
+    <tr><td>답하려는 질문</td><td><strong>공부를 아침에 시작하면 하루 공부 시간이 늘어날까?</strong></td></tr>
+    <tr><td>관찰 지표 / 단위</td><td><strong>공부</strong> / <strong>분</strong></td></tr>
+    <tr><td>계산 규칙</td><td>그날 기록 중 <code>공부</code> 항목의 값을 <strong>모두 더해</strong> 하루 값으로 본다</td></tr>
+    <tr><td>1일차의 계획 규칙</td><td>저녁을 먹은 뒤에 공부를 시작한다</td></tr>
+  </table>
+
+  <h3>값을 다룰 때의 규칙</h3>
+  <table>
+    <tr><th style="width:30mm">상황</th><th>어떻게 하나</th></tr>
+    <tr><td>값이 빠졌을 때</td><td>0으로 채우지 않고 "없음"으로 두며 <strong>평균의 분모에서도 뺀다.</strong> 0으로 채우면 "안 한 날"과 "적는 걸 잊은 날"이 구분되지 않기 때문</td></tr>
+    <tr><td>값이 중복될 때</td><td>같은 날 같은 항목이 여러 줄이면 지우지 않고 <strong>모두 더한다</strong> (오전·오후로 나눠 적은 것으로 봄)</td></tr>
+    <tr><td>값이 유난히 튈 때</td><td><strong>빼지 않고 그대로 쓴다.</strong> 대신 표의 "비고"에 <code>!</code>를 붙여 눈에만 띄게 함. 5일짜리에서 튀는 값을 빼면 남는 게 거의 없음</td></tr>
+    <tr><td>반올림</td><td>화면의 합계·평균은 <strong>소수 셋째 자리에서 반올림</strong>(둘째 자리까지 표시). 저장되는 원본 값은 반올림하지 않음</td></tr>
+    <tr><td>주 시작 요일</td><td><strong>월요일</strong> (월~일)</td></tr>
+  </table>
+
+  <h3>5일 기록 (Asia/Seoul 기준)</h3>
+  <table>
+    <tr><th style="width:14mm">회차</th><th style="width:22mm">날짜</th><th style="width:10mm">요일</th><th style="width:18mm">공부(분)</th><th>그날의 기록</th></tr>
+    <tr><td>1일차</td><td>2026-09-01</td><td>화</td><td>40</td><td>저녁 먹고 시작하려다 계속 미뤄서 밤 10시에 겨우 앉았다.</td></tr>
+    <tr><td>2일차</td><td>2026-09-02</td><td>수</td><td>25</td><td>또 저녁 뒤로 미뤘고 졸려서 금방 접었다. 이틀 다 목표 60분에 못 미쳤다.</td></tr>
+    <tr><td colspan="5" style="background:#fdf6f5"><strong>⇩ 2026-09-02 22:10 (KST) — 여기서 계획 규칙을 하나만 바꿈</strong></td></tr>
+    <tr><td>3일차</td><td>2026-09-03</td><td>목</td><td>75</td><td>아침에 일어나자마자 앉았더니 오히려 오래 갔다.</td></tr>
+    <tr><td>4일차</td><td>2026-09-04</td><td>금</td><td>90</td><td>아침에 바로 시작. 오늘이 제일 길었다.</td></tr>
+    <tr><td>5일차</td><td>2026-09-05</td><td>토</td><td>55</td><td>아침에 약속이 있어 늦게 시작했지만 그래도 앞 이틀보다는 길었다.</td></tr>
+  </table>
+
+  <h3>계획 규칙 변경 (2일차 기록 뒤 · 3일차 기록 앞)</h3>
+  <table>
+    <tr><th style="width:30mm">항목</th><th>내용</th></tr>
+    <tr><td>바꾼 시각</td><td><strong>2026-09-02 22:10 (KST)</strong> — 저장값 <code>2026-09-02T13:10:00.000Z</code></td></tr>
+    <tr><td>바꾸기 전 규칙</td><td>저녁을 먹은 뒤에 공부를 시작한다</td></tr>
+    <tr><td>바꾼 뒤 규칙</td><td>아침에 일어나자마자 공부를 시작한다</td></tr>
+    <tr><td>바꾼 이유</td><td>1일차·2일차 모두 저녁으로 미루다가 목표 60분을 못 채웠다. <strong>시작 시각만</strong> 바꿔서 하루 공부 시간이 달라지는지 보려고</td></tr>
+    <tr><td>무엇을 보고 바꿨나</td><td>1일차(2026-09-01) 40분, 2일차(2026-09-02) 25분 기록</td></tr>
+  </table>
+  <p>바꾼 것은 <strong>계획 규칙 하나뿐</strong>입니다. 질문·지표·단위·계산 규칙은 그대로 두었습니다.
+    이 기록은 앱 안의 <strong>계획 규칙 변경 기록</strong>(<code>rule_changes</code> 표)에 남아 있습니다.</p>
+
+  <h3>규칙 변경 전후 비교 — 같은 지표 · 같은 단위 · 같은 계산 규칙</h3>
+  <table>
+    <tr><th style="width:34mm"></th><th style="width:18mm">날 수</th><th style="width:34mm">값</th><th>평균</th></tr>
+    <tr><td>바꾸기 전 (1~2일차)</td><td>2일</td><td>40, 25</td><td><strong>32.5분</strong></td></tr>
+    <tr><td>바꾼 뒤 (3~5일차)</td><td>3일</td><td>75, 90, 55</td><td><strong>73.33분</strong></td></tr>
+    <tr><td><strong>차이</strong></td><td></td><td></td><td><strong>+40.83분</strong></td></tr>
+  </table>
+
+  <div class="warn">
+    <strong>늘긴 했지만 결론을 내리기엔 부족합니다.</strong> 5일은 너무 짧고,
+    3~5일차가 목·금·토라 요일 자체의 영향(주말에 시간이 많다)과 섞여 있습니다.
+    5일차가 55분으로 떨어진 것도 "아침에 약속이 있었다"는 그날 사정이지 규칙 때문이 아닙니다.
+    그래서 이 비교는 <strong>"아침 시작이 나쁘지 않아 보인다" 정도까지만</strong> 말할 수 있습니다.
+  </div>
+
+  <h3>화면에 보이는 합계·평균을 손으로 더해 맞춰 보기</h3>
+  <pre>화면 표시:  공부 합계 <span class="out">285분</span> · 기록한 5일 평균 <span class="out">57분</span>
+           규칙 변경 전 2일 평균 <span class="out">32.5분</span> → 변경 후 3일 평균 <span class="out">73.33분</span> (+40.83분)
+
+손 계산:   40 + 25 + 75 + 90 + 55 = <span class="out">285</span>        → 화면 285분   <span class="out">같음</span>
+           285 / 5 = <span class="out">57</span>                        → 화면 57분    <span class="out">같음</span>
+           (40 + 25) / 2 = <span class="out">32.5</span>                → 화면 32.5분  <span class="out">같음</span>
+           (75 + 90 + 55) / 3 = <span class="out">73.333…</span>        → 화면 73.33분 <span class="out">같음</span> (셋째 자리 반올림)</pre>
+
+  <h3>내보내기와 계정 삭제</h3>
+  <ul>
+    <li><strong>내보내기</strong> — <code>GET /api/export</code>로 설정·규칙 변경·일기 전부가 <strong>JSON 파일 하나</strong>로 내려받아집니다. 실제 내려받은 파일을 <code>증거/내보낸 파일 예시.json</code>에 넣어 두었습니다. <strong>비밀번호 해시와 토큰은 들어 있지 않습니다.</strong></li>
+    <li><strong>계정 삭제</strong> — 누르면 "계정을 지우면 이 계정의 일기·습관 기록·규칙 변경 기록이 함께 영구 삭제돼요. 되돌릴 수 없어요."라고 먼저 알려주고, 두 번 확인한 뒤 지웁니다. 실제로 자료도 함께 지워지는지 일회용 계정으로 확인했습니다.</li>
+  </ul>
+</section>
+
+<section class="pagebreak">
+  <div class="sec-num">07</div>
+  <h2>아직 못 막은 것</h2>
+  <p class="lead">다 막았다고 적는 것보다 못 막은 것을 적는 쪽이 정직하다고 해서, 감추지 않고 그대로 적습니다.</p>
+
+  <table>
+    <tr><th style="width:40mm">못 막은 것</th><th>왜 위험한가 / 지금 상태</th></tr>
+    <tr><td><strong>① 무차별 대입</strong> (가장 큰 구멍)</td><td>로그인 요청 횟수에 아무 제한이 없어 비밀번호를 계속 넣어볼 수 있음. bcrypt 12회가 속도를 크게 늦추긴 하지만 짧거나 흔한 비밀번호면 결국 뚫림. 계정 잠금도 없어 공격이 시작돼도 본인이 알 방법이 없음. <strong>시도 횟수 제한·실패 알림을 넣어야 하는데 시간이 모자랐음</strong></td></tr>
+    <tr><td><strong>② 비밀번호 재설정 없음</strong></td><td>잊으면 되찾을 방법이 없음(로그인 상태에서 바꾸는 것만 됨). 급히 붙이다 "이메일만 맞으면 바꿔 준다" 같은 위험한 방식이 되기 쉬운 지점이라 아예 없다고 적어 둠</td></tr>
+    <tr><td><strong>③ 토큰을 localStorage에 둠</strong></td><td>XSS가 생기면 그 스크립트가 토큰을 읽어 감. 훔치면 비밀번호를 몰라도 남의 일기를 다 볼 수 있고 만료가 12시간이라 그만큼 피해 창이 열림. 값을 넣을 때 <code>innerHTML</code> 대신 <code>textContent</code>를 쓰도록 정리했지만 이건 예방이지 방어가 아님. <code>HttpOnly</code> 쿠키를 쓰려면 화면·서버 주소가 달라 크로스 사이트 쿠키 문제에 걸림</td></tr>
+    <tr><td><strong>④ 2단계 인증 없음</strong></td><td>비밀번호 하나만 맞으면 들어옴. 새 나가면 그걸로 끝</td></tr>
+    <tr><td><strong>⑤ 접속 기록(감사 로그) 없음</strong></td><td>누가 로그인에 실패·성공했는지 남지 않음. 누가 내 계정을 두드렸는지, 언제 뚫렸는지 나중에 알 수 없음</td></tr>
+    <tr><td><strong>⑥ 이메일 확인 절차 없음</strong></td><td>남의 이메일 주소로도 가입 가능. 지금은 메일을 보내지 않아 피해가 없지만, 비밀번호 재설정을 붙이면 곧바로 문제가 됨</td></tr>
+    <tr><td><strong>⑦ 무료 배포의 저장 한계</strong><br>— 실제로 겪음</td><td>Render 무료 플랜은 디스크가 영구 저장이 아니라, <strong>15분 넘게 요청이 없어 잠들었다 깨어나면 계정과 일기가 통째로 사라짐.</strong> 추측이 아니라 재봤음 — 계정과 5일 기록을 넣고 <strong>20분간 요청을 전혀 보내지 않은 뒤</strong> 로그인하니 <code>401 invalid_credentials</code>. 재배포도 코드 변경도 없었음. 유료 디스크나 관리형 DB(Neon·Supabase 등)로 옮겨야 하는데 기한 안에 못 함</td></tr>
+  </table>
+
+  <div class="note">
+    <strong>⑦은 인증이 뚫린 것이 아니라 호스팅의 저장 한계입니다.</strong> 가입·로그인은 언제나 되므로,
+    심사하시는 분이 직접 계정을 만들어 확인하시는 데에는 지장이 없습니다.
+    제 5일 기록은 이 보고서와 증거 파일에 그대로 남아 있습니다.
+  </div>
+</section>
+
+<section class="pagebreak">
+  <div class="sec-num">08</div>
+  <h2>AI와 나</h2>
+
+  <table>
+    <tr><th style="width:30mm">구분</th><th>내용</th></tr>
+    <tr><td><strong>AI에게 맡긴 일</strong></td><td>인증 백엔드(<code>server.js</code>) 전체 코드 — 계정·세션·일기 표 설계, bcryptjs 적용, 세션 발급·취소·만료, 주인 확인(<code>requireAuth</code>, <code>findOwnEntry</code>). 6번의 <code>script.js</code>를 서버 호출 방식으로 옮긴 <code>app.js</code>, 로그인 화면 마크업·CSS. 그리고 <strong>확인 기록을 손으로 옮겨 적는 대신 실제로 요청을 보내 응답을 그대로 받아 적고 비밀값을 가려 주는 스크립트</strong> — 제출한 요청·응답이 지어낸 것이 아니라 진짜 서버가 답한 것이 되도록 하기 위해서</td></tr>
+    <tr><td><strong>내가 직접 판단한 일</strong></td><td>① 인증 서비스를 쓰지 않고 직접 붙이기로 한 것(어디를 고쳤는지 보여야 하므로) ② 남의 자료 요청을 403이 아니라 <strong>404</strong>로 돌려주기로 한 것 ③ 6번 백엔드를 고치지 않고 새 폴더로 분리해 6번 제출물을 살려 둔 것 ④ 5일 실험의 질문·지표와, 3일차 전에 바꿀 것을 "시작 시각 하나"로 좁힌 것 ⑤ 못 막은 것 7가지를 감추지 않고 그대로 적기로 한 것</td></tr>
+    <tr><td><strong>AI 제안을 따르지 않은 일</strong></td><td>AI는 처음에 <strong>JWT(<code>jsonwebtoken</code>)</strong>로 붙이자고 했습니다. 코드가 짧고 서버에 세션 표가 필요 없다는 이유였습니다. 따르지 않았습니다. JWT는 서명만 맞으면 통과시켜 <strong>로그아웃해도 만료 전까지 그 토큰이 계속 통하는데</strong>, 이 과제의 통과 기준은 "로그아웃 뒤 같은 값으로 요청하면 거절된다"입니다. 그걸 만들려면 어차피 서버에 취소 목록을 둬야 하니, 처음부터 서버 세션이 더 단순하고 정직하다고 판단해 방식을 바꾸게 했습니다</td></tr>
+  </table>
+
+  <div class="note">
+    <strong>AI가 만든 것을 그대로 믿지 않으려고 검증을 세 번 나눠서 했습니다.</strong>
+    1차(로컬), 2차(테스트 계정을 새로 만들어 화면까지), 3차(배포본).
+    2차에서 로그아웃 뒤 DOM에 기록이 남는 문제를, 3차 직전에 배포 실패 원인을 찾았습니다(5절).
+    한 번만 확인하고 넘어갔다면 둘 다 놓쳤을 것입니다.
+  </div>
+</section>
+
+<section class="pagebreak">
+  <div class="sec-num">부록 A</div>
+  <h2>화면 증거</h2>
+  <figure>
+    <img src="증거/화면-01-첫화면은 로그인.png" alt="">
+    <figcaption>결과물 주소를 열었을 때의 첫 화면. 주소 뒤에 <code>#/diary</code>를 직접 붙여
+      일기 화면으로 바로 들어가려 해도 이 로그인 화면이 나옵니다. 비밀번호 칸은
+      <code>type="password"</code>라 입력해도 화면에 글자가 보이지 않습니다.</figcaption>
+  </figure>
+  <figure>
+    <img src="증거/화면-02-로그인 뒤 내 기록.png" alt="">
+    <figcaption>로그인한 뒤 보이는 내 기록. 오른쪽 위에 로그인한 계정이 표시되고,
+      달력에 5일치 점이 찍혀 있습니다. 실험 설정(질문·지표·단위·계산 규칙·계획 규칙),
+      지표 요약(합계 285분 · 평균 57분, 규칙 변경 전후 비교), 계획 규칙 변경 기록이
+      한 화면에 보입니다. 이 화면은 로그인하지 않으면 만들어지지 않습니다.</figcaption>
+  </figure>
+</section>
+
+<section class="pagebreak">
+  <div class="sec-num">부록 B</div>
+  <h2>제출 주소와 공개 범위</h2>
+  <table>
+    <tr><th style="width:30mm">항목</th><th>내용</th></tr>
+    <tr><td>결과물</td><td><code>chacha1650a.github.io/assignment-repository/7번째 과제(로그인 기능)/index.html</code><br>계정 없이 새 시크릿 창에서 열리며, <strong>첫 화면은 로그인 화면</strong></td></tr>
+    <tr><td>소스</td><td><code>github.com/chacha1650a/assignment-repository</code> — 화면은 <code>7번째 과제(로그인 기능)/</code>, 서버는 <code>mochi-diary-auth-backend/</code></td></tr>
+    <tr><td>인증 서버</td><td><code>mochi-diary-auth-backend.onrender.com</code> (Render 무료, <code>render.yaml</code> Blueprint 배포). 화면에 기본값으로 들어 있어 심사자가 입력할 것이 없음</td></tr>
+    <tr><td>이어받은 6번</td><td>6번 최종 commit <code>f8d15118a03925b8a1e9a7d1b9574263bb65a733</code> (2026-09-04). 같은 저장소·같은 브랜치라 7번 커밋의 조상으로 포함됨</td></tr>
+    <tr><td>공개 범위</td><td>로그인 화면까지는 누구나. <strong>기록은 로그인한 본인만.</strong> 심사자는 직접 가입해 확인하며, 그 계정에는 내 기록이 한 건도 보이지 않는 것이 정상</td></tr>
+    <tr><td>저장 위치</td><td>Render에 배포한 자체 백엔드의 SQLite. 계정별로 <code>user_id</code>가 붙어 분리됨. 로컬 모드는 없앰(브라우저가 아니라 서버가 소유권을 책임져야 하므로)</td></tr>
+    <tr><td>비밀값 취급</td><td>제출물 어디에도 비밀번호·토큰·비밀키 원문 없음. 비밀번호는 <code>********</code>, 토큰은 앞 8글자만 남기고 <code>…생략</code>. <code>SESSION_SECRET</code>은 Render가 생성해 서비스 환경변수에만 존재하며 <code>.env</code>는 <code>.gitignore</code> 처리</td></tr>
+  </table>
+
+  <div class="warn">
+    <strong>심사하시는 분께.</strong> 제 계정으로 로그인하실 필요가 없습니다.
+    아무 이메일로 새로 가입하시면 되고, 그 계정에 제 기록이 하나도 보이지 않는 것이 이 과제의 요점입니다.
+    무료 서버라 15분 이상 아무도 쓰지 않으면 잠들어서 <strong>첫 로그인 요청만 30~60초 걸릴 수 있습니다.</strong>
+    자세한 절차는 <code>검증 안내서.md</code>에 4줄로 정리해 두었습니다.
+  </div>
+</section>
+
+</body>
+</html>
