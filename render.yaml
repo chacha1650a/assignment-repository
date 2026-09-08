@@ -27,5 +27,8 @@ services:
         value: "12"
       - key: BCRYPT_ROUNDS
         value: "12"
+      # node:sqlite 는 Node 22.13.0 부터 플래그 없이 쓸 수 있다.
+      # 22.11.0 으로 두면 require('node:sqlite') 가 ERR_UNKNOWN_BUILTIN_MODULE 로
+      # 죽어서 배포가 실패한다(실제로 한 번 겪었다).
       - key: NODE_VERSION
-        value: "22.11.0"
+        value: "22.20.0"

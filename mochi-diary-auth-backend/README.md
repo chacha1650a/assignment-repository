@@ -17,7 +17,7 @@
 | 웹 서버 | express | 4.22.2 |
 | CORS | cors | 2.8.6 |
 | 환경변수 | dotenv | 16.6.1 |
-| DB | `node:sqlite` (Node 22+ 내장) | — |
+| DB | `node:sqlite` (Node **22.13.0 이상** 내장) | — |
 | 세션 토큰 | `node:crypto` `randomBytes(32)` + HMAC-SHA256 | — |
 
 ## 로컬에서 실행
@@ -32,6 +32,10 @@ npm start
 ```
 
 `http://localhost:3100/api/health` 가 `{"ok":true}` 를 주면 정상입니다.
+
+> **Node 버전 주의**: `node:sqlite` 는 **Node 22.13.0 부터** 플래그 없이 쓸 수 있습니다.
+> 그보다 낮은 22.x 에서는 `require('node:sqlite')` 가 `ERR_UNKNOWN_BUILTIN_MODULE` 로 죽습니다.
+> `render.yaml` 의 `NODE_VERSION` 을 22.11.0 으로 뒀다가 첫 배포가 이 이유로 실패했고, 22.20.0 으로 올려 해결했습니다.
 
 화면 쪽은 `7번째 과제(로그인 기능)/index.html` 을 아무 정적 서버로 띄운 뒤,
 로그인 화면 아래 **서버 주소 바꾸기** 에 `http://localhost:3100` 을 넣고 저장하면 됩니다.

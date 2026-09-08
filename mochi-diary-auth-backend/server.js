@@ -4,7 +4,8 @@ const cors = require('cors');
 const path = require('path');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
-const { DatabaseSync } = require('node:sqlite'); // Node 22+ 내장 (네이티브 빌드 불필요)
+const { DatabaseSync } = require('node:sqlite'); // Node 22.13+ 내장 (네이티브 빌드 불필요)
+// 22.13.0 미만에서는 --experimental-sqlite 플래그가 있어야 하고, 없으면 이 줄에서 바로 죽는다.
 
 const PORT = process.env.PORT || 3100;
 const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'diary-auth.db');
