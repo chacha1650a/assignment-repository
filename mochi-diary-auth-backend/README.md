@@ -1,12 +1,7 @@
 # 모찌 일기장 2 — 로그인이 붙은 백엔드
 
-`7번째 과제(로그인 기능)` 의 서버입니다. **Express + Postgres + bcryptjs** 로 만든 작은 API 서버로,
+`7번째 과제(로그인 기능)` 의 서버입니다. **Express + SQLite(`node:sqlite`) + bcryptjs** 로 만든 작은 API 서버로,
 가입·로그인·로그아웃과 **계정별 자료 분리**를 담당합니다.
-
-> **2026-09-09 저장소를 SQLite → Postgres로 옮겼습니다.** Render 무료 플랜은 디스크가 영구 저장이 아니라서,
-> 서비스가 15분 넘게 쉬었다가 재시작하면 `node:sqlite` 파일이 통째로 초기화되는 걸 실제로 겪었습니다
-> (증거: `증거/배포 서버 검증 기록.md` 0-0). DB를 Render 밖(Neon 같은 관리형 Postgres)으로 빼서
-> 이 문제 자체를 없앴습니다. API 경로·요청/응답 형식은 전혀 안 바뀌었고, 프런트(`app.js`)도 고칠 게 없습니다.
 
 > **6번 과제 백엔드(`mochi-diary-backend/`)와는 별개입니다.** 6번은 로그인 없이 공용 API 키 하나로 쓰는 구조이고,
 > 그 제출물이 지금도 그대로 열려야 해서 손대지 않았습니다. 이 폴더는 7번 과제용으로 새로 만든 것입니다.
@@ -22,49 +17,39 @@
 | 웹 서버 | express | 4.22.2 |
 | CORS | cors | 2.8.6 |
 | 환경변수 | dotenv | 16.6.1 |
-| DB | Postgres (드라이버 `pg`) — Neon 등 무료 관리형 인스턴스에 연결 | pg 8.23.0 |
+| DB | `node:sqlite` (Node **22.13.0 이상** 내장) | — |
 | 세션 토큰 | `node:crypto` `randomBytes(32)` + HMAC-SHA256 | — |
 
 ## 로컬에서 실행
-
-로컬에도 Postgres가 하나 필요합니다 (Docker `postgres:16` 컨테이너, 또는 그냥 Neon 무료 프로젝트를 로컬 개발용으로 써도 됩니다).
 
 ```bash
 cd mochi-diary-auth-backend
 npm install
 cp .env.example .env
-# .env 를 열어 두 값을 채우세요:
-#   DATABASE_URL   = postgres://사용자:비밀번호@호스트:5432/데이터베이스이름
-#   SESSION_SECRET = node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))" 로 만든 긴 랜덤 값
+# .env 를 열어 SESSION_SECRET 을 긴 랜덤 값으로 바꾸세요:
+#   node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"
 npm start
 ```
 
-`http://localhost:3100/api/health` 가 `{"ok":true}` 를 주면 정상입니다. 처음 뜰 때 `CREATE TABLE IF NOT EXISTS` 로
-테이블을 알아서 만드므로, 빈 데이터베이스만 있으면 됩니다.
+`http://localhost:3100/api/health` 가 `{"ok":true}` 를 주면 정상입니다.
+
+> **Node 버전 주의**: `node:sqlite` 는 **Node 22.13.0 부터** 플래그 없이 쓸 수 있습니다.
+> 그보다 낮은 22.x 에서는 `require('node:sqlite')` 가 `ERR_UNKNOWN_BUILTIN_MODULE` 로 죽습니다.
+> `render.yaml` 의 `NODE_VERSION` 을 22.11.0 으로 뒀다가 첫 배포가 이 이유로 실패했고, 22.20.0 으로 올려 해결했습니다.
 
 화면 쪽은 `7번째 과제(로그인 기능)/index.html` 을 아무 정적 서버로 띄운 뒤,
 로그인 화면 아래 **서버 주소 바꾸기** 에 `http://localhost:3100` 을 넣고 저장하면 됩니다.
 
-## 0. 먼저 Postgres를 하나 만들기 (Neon, 무료)
-
-Render 서비스 자체는 디스크가 영구 저장이 아니므로, DB는 Render 밖의 관리형 Postgres에 둡니다.
-
-1. https://neon.tech 에서 무료 계정 생성 (GitHub 로그인 가능)
-2. **New Project** → 리전은 아무 곳이나 (가까운 곳 권장) → 프로젝트 이름 아무거나
-3. 만들어지면 대시보드에 나오는 **Connection string** 을 복사 (`postgres://사용자:비밀번호@...neon.tech/디비이름?sslmode=require` 형태)
-4. 이 문자열은 비밀번호가 들어있는 값이라 **코드나 커밋에는 절대 넣지 않고**, 아래 Render 환경변수에만 붙여 넣습니다.
-
 ## Render.com에 배포 (무료)
 
-### 방법 A — Blueprint (설정 입력이 거의 없음)
+### 방법 A — Blueprint (권장, 설정 입력이 없음)
 
 저장소 루트에 [`render.yaml`](../render.yaml) 이 있어서, Render가 Root Directory·빌드 명령·환경변수를 알아서 읽습니다.
 
 1. https://render.com 에 GitHub 계정으로 로그인
 2. **New +** → **Blueprint**
 3. `chacha1650a/assignment-repository` 저장소를 고르고 **Connect**
-4. `render.yaml` 을 읽어 `mochi-diary-auth-backend` 서비스가 잡히면, `DATABASE_URL` 입력칸에 위에서 복사한
-   Neon 연결 문자열을 붙여 넣고 **Apply** (또는 **Deploy Blueprint**)
+4. `render.yaml` 을 읽어 `mochi-diary-auth-backend` 서비스가 잡히면 **Apply** (또는 **Deploy Blueprint**)
 5. 3~5분 뒤 `https://mochi-diary-auth-backend.onrender.com` 이 생깁니다
 
 `SESSION_SECRET` 은 `generateValue: true` 로 되어 있어 **Render가 임의의 긴 값을 직접 만들어 넣습니다.**
@@ -72,27 +57,28 @@ Render 서비스 자체는 디스크가 영구 저장이 아니므로, DB는 Ren
 
 배포가 됐는지는 `https://<주소>/api/health` 가 `{"ok":true}` 를 주는지로 확인합니다.
 
-### 방법 B — 손으로 설정하기 (이미 만든 서비스에 나중에 DB만 옮길 때도 이 방법)
+### 방법 B — 손으로 설정하기
 
-1. https://render.com → 이미 만든 `mochi-diary-auth-backend` 서비스 → **Environment** 탭
-2. 환경변수 추가/수정 — **여기가 중요합니다**:
-   - `DATABASE_URL` = Neon에서 복사한 연결 문자열 (`postgres://...`)
-   - `SESSION_SECRET` = 아무도 못 맞출 긴 랜덤 문자열 (기존에 이미 있다면 그대로 둠)
+1. https://render.com → **New +** → **Web Service** → 이 GitHub 저장소 연결
+2. **Root Directory**: `mochi-diary-auth-backend`
+3. **Runtime**: Node / **Build Command**: `npm install` / **Start Command**: `npm start`
+4. **Environment** 탭에서 환경변수 추가 — **여기가 중요합니다**:
+   - `SESSION_SECRET` = 아무도 못 맞출 긴 랜덤 문자열 (위 명령으로 만든 값)
    - (선택) `SESSION_TTL_HOURS` = `12`, `BCRYPT_ROUNDS` = `12`
    - `PORT` 는 Render가 알아서 넣어 줍니다.
-3. **Save Changes** → 자동으로 재배포됩니다.
+5. 배포되면 `https://xxxx.onrender.com` 주소가 생깁니다.
 
 > **배포 뒤 할 일**: 서비스 이름을 `mochi-diary-auth-backend` 로 만들었다면 화면 쪽은 고칠 것이 없습니다.
 > 다른 이름으로 만들었다면 `7번째 과제(로그인 기능)/app.js` 의 `DEFAULT_API_BASE` 상수를 그 주소로 바꿔 커밋하세요.
 
-> `SESSION_SECRET`·`DATABASE_URL` 은 **절대 저장소에 커밋하지 마세요.** `.env` 는 `.gitignore` 에 들어 있고,
-> 저장소에는 `.env.example` 의 자리표시자만 있습니다. 브라우저 코드에도 이 값들은 들어가지 않습니다.
+> `SESSION_SECRET` 은 **절대 저장소에 커밋하지 마세요.** `.env` 는 `.gitignore` 에 들어 있고,
+> 저장소에는 `.env.example` 의 자리표시자만 있습니다. 브라우저 코드에도 이 값은 들어가지 않습니다.
 
-### ⚠ 무료 플랜의 한계 (남아있는 것)
+### ⚠ 무료 플랜의 한계
 
-- Render 웹 서비스가 15분 정도 요청이 없으면 잠들고, 다음 첫 요청이 30~60초 걸립니다 (콜드스타트).
-  **이건 응답이 느려지는 것뿐이고, 데이터는 안 사라집니다** — DB가 Render 서비스와 분리된 Neon에 있기 때문입니다.
-- Neon 무료 프로젝트도 오래 쓰지 않으면(보통 몇 달 단위) 정리될 수 있습니다. 과제 제출·검증 기간에는 문제없는 수준입니다.
+- 15분 정도 요청이 없으면 잠들고, 다음 첫 요청이 30~60초 걸립니다.
+- **디스크가 영구 저장이 아니라, 다시 배포하면 `diary-auth.db` 가 초기화됩니다** (계정과 일기가 함께 사라집니다).
+  오래 쓰려면 유료 Persistent Disk나 Postgres 같은 관리형 DB로 옮겨야 합니다.
 
 ## 5일 기록을 배포 서버의 내 계정에 다시 넣기
 

@@ -6,11 +6,9 @@
 # SESSION_SECRET 은 generateValue: true 라서 Render가 임의의 긴 값을 직접 만들어
 # 서비스 환경변수에만 넣어 줍니다. 저장소에는 그 값이 남지 않습니다.
 #
-# DATABASE_URL 은 sync: false 라서 Render가 자동으로 채우지 않고, 만드는 사람이
-# Neon 같은 관리형 Postgres에서 발급받은 연결 문자열을 직접 붙여 넣어야 합니다.
-# (2026-09-09: Render 무료 플랜 디스크가 재시작마다 초기화되는 걸 실제로 겪은 뒤,
-#  SQLite 파일 대신 관리형 Postgres로 옮겼습니다. 이제 이 서비스 자체는 재시작해도
-#  데이터가 사라지지 않습니다 — DB가 Render 밖에 있으니까요.)
+# 주의: free 플랜은 디스크가 영구 저장이 아니라, 다시 배포하면 diary-auth.db 가
+# 초기화됩니다(계정과 일기가 함께 사라집니다). 과제 제출·검증 용도로는 충분하지만
+# 오래 쓰려면 유료 디스크나 관리형 DB로 옮겨야 합니다.
 
 services:
   - type: web
@@ -29,5 +27,8 @@ services:
         value: "12"
       - key: BCRYPT_ROUNDS
         value: "12"
-      - key: DATABASE_URL
-        sync: false             # Neon 등에서 받은 postgres://... 연결 문자열을 직접 입력
+      # node:sqlite 는 Node 22.13.0 부터 플래그 없이 쓸 수 있다.
+      # 22.11.0 으로 두면 require('node:sqlite') 가 ERR_UNKNOWN_BUILTIN_MODULE 로
+      # 죽어서 배포가 실패한다(실제로 한 번 겪었다).
+      - key: NODE_VERSION
+        value: "22.20.0"

@@ -1,12 +1,14 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
-const db = require('./db'); // Postgres (node-postgres). 예전엔 node:sqlite였는데,
-// Render 무료 플랜의 디스크가 재시작 때마다 초기화되는 걸 확인하고 관리형 Postgres(Neon 등)로 옮겼다.
+const { DatabaseSync } = require('node:sqlite'); // Node 22.13+ 내장 (네이티브 빌드 불필요)
+// 22.13.0 미만에서는 --experimental-sqlite 플래그가 있어야 하고, 없으면 이 줄에서 바로 죽는다.
 
 const PORT = process.env.PORT || 3100;
+const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'diary-auth.db');
 const BCRYPT_ROUNDS = Number(process.env.BCRYPT_ROUNDS || 12);
 const SESSION_TTL_HOURS = Number(process.env.SESSION_TTL_HOURS || 12);
 // 세션 토큰을 DB에 그대로 두지 않기 위한 서버 전용 비밀키. .env 에만 두고 git에는 올리지 않는다.
@@ -16,54 +18,55 @@ if (!SESSION_SECRET) {
   console.warn('[warn] SESSION_SECRET 이 비어 있습니다. .env 에 긴 랜덤 값을 넣어주세요. (없으면 인증 요청이 500으로 거절됩니다)');
 }
 
-/* ---------------- DB 스키마 ---------------- */
-async function initDb() {
-  await db.run(`
-    CREATE TABLE IF NOT EXISTS users (
-      id            SERIAL PRIMARY KEY,
-      email         TEXT NOT NULL,
-      email_lower   TEXT NOT NULL UNIQUE,
-      password_hash TEXT NOT NULL,
-      created_at    TEXT NOT NULL
-    );
-    CREATE TABLE IF NOT EXISTS sessions (
-      id          SERIAL PRIMARY KEY,
-      user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-      token_hash  TEXT NOT NULL UNIQUE,
-      created_at  TEXT NOT NULL,
-      expires_at  TEXT NOT NULL,
-      revoked_at  TEXT
-    );
-    CREATE TABLE IF NOT EXISTS entries (
-      id         SERIAL PRIMARY KEY,
-      user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-      date       TEXT NOT NULL,
-      mood       TEXT,
-      text       TEXT NOT NULL DEFAULT '',
-      habits     TEXT NOT NULL DEFAULT '[]',
-      updated_at TEXT NOT NULL,
-      UNIQUE(user_id, date)
-    );
-    CREATE TABLE IF NOT EXISTS settings (
-      user_id    INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-      question   TEXT NOT NULL DEFAULT '',
-      metric     TEXT NOT NULL DEFAULT '',
-      unit       TEXT NOT NULL DEFAULT '',
-      calc_rule  TEXT NOT NULL DEFAULT '',
-      plan_rule  TEXT NOT NULL DEFAULT '',
-      updated_at TEXT NOT NULL
-    );
-    CREATE TABLE IF NOT EXISTS rule_changes (
-      id          SERIAL PRIMARY KEY,
-      user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-      changed_at  TEXT NOT NULL,
-      before_rule TEXT NOT NULL,
-      after_rule  TEXT NOT NULL,
-      reason      TEXT NOT NULL,
-      based_on    TEXT NOT NULL DEFAULT ''
-    );
-  `);
-}
+/* ---------------- DB ---------------- */
+const db = new DatabaseSync(DB_PATH);
+db.exec('PRAGMA journal_mode = WAL;');
+db.exec('PRAGMA foreign_keys = ON;');
+db.exec(`
+  CREATE TABLE IF NOT EXISTS users (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    email         TEXT NOT NULL,
+    email_lower   TEXT NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL,
+    created_at    TEXT NOT NULL
+  );
+  CREATE TABLE IF NOT EXISTS sessions (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    token_hash  TEXT NOT NULL UNIQUE,
+    created_at  TEXT NOT NULL,
+    expires_at  TEXT NOT NULL,
+    revoked_at  TEXT
+  );
+  CREATE TABLE IF NOT EXISTS entries (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    date       TEXT NOT NULL,
+    mood       TEXT,
+    text       TEXT NOT NULL DEFAULT '',
+    habits     TEXT NOT NULL DEFAULT '[]',
+    updated_at TEXT NOT NULL,
+    UNIQUE(user_id, date)
+  );
+  CREATE TABLE IF NOT EXISTS settings (
+    user_id    INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    question   TEXT NOT NULL DEFAULT '',
+    metric     TEXT NOT NULL DEFAULT '',
+    unit       TEXT NOT NULL DEFAULT '',
+    calc_rule  TEXT NOT NULL DEFAULT '',
+    plan_rule  TEXT NOT NULL DEFAULT '',
+    updated_at TEXT NOT NULL
+  );
+  CREATE TABLE IF NOT EXISTS rule_changes (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    changed_at  TEXT NOT NULL,
+    before_rule TEXT NOT NULL,
+    after_rule  TEXT NOT NULL,
+    reason      TEXT NOT NULL,
+    based_on    TEXT NOT NULL DEFAULT ''
+  );
+`);
 
 /* ---------------- 공용 유틸 ---------------- */
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -104,11 +107,6 @@ function rowToEntry(row) {
 }
 const nowIso = () => new Date().toISOString();
 
-// 비동기 라우트 핸들러의 예외를 express 에러 핸들러로 넘긴다.
-// (예전 better-sqlite3는 동기라 try/catch만으로 됐지만, pg는 전부 Promise라 이게 없으면
-//  DB 오류가 나도 요청이 응답 없이 멈춰버린다.)
-const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
-
 /* ---------------- 비밀번호 (bcryptjs) ---------------- */
 // 평문 비밀번호는 어디에도 저장하지 않고, 로그로도 남기지 않는다.
 function hashPassword(plain) {
@@ -125,51 +123,50 @@ function verifyPassword(plain, hash) {
 function hashToken(token) {
   return crypto.createHmac('sha256', SESSION_SECRET).update(token).digest('hex');
 }
-async function issueSession(userId) {
+function issueSession(userId) {
   const token = crypto.randomBytes(32).toString('base64url'); // 256비트 난수
   const createdAt = new Date();
   const expiresAt = new Date(createdAt.getTime() + SESSION_TTL_HOURS * 3600 * 1000);
-  await db.run(
-    'INSERT INTO sessions (user_id, token_hash, created_at, expires_at) VALUES (?, ?, ?, ?)',
-    [userId, hashToken(token), createdAt.toISOString(), expiresAt.toISOString()]
-  );
+  db.prepare(
+    'INSERT INTO sessions (user_id, token_hash, created_at, expires_at) VALUES (?, ?, ?, ?)'
+  ).run(userId, hashToken(token), createdAt.toISOString(), expiresAt.toISOString());
   return { token, expiresAt: expiresAt.toISOString() };
 }
-async function revokeSession(token) {
-  await db.run('UPDATE sessions SET revoked_at = ? WHERE token_hash = ? AND revoked_at IS NULL', [nowIso(), hashToken(token)]);
+function revokeSession(token) {
+  db.prepare('UPDATE sessions SET revoked_at = ? WHERE token_hash = ? AND revoked_at IS NULL')
+    .run(nowIso(), hashToken(token));
 }
-async function revokeAllSessions(userId) {
-  await db.run('UPDATE sessions SET revoked_at = ? WHERE user_id = ? AND revoked_at IS NULL', [nowIso(), userId]);
+function revokeAllSessions(userId) {
+  db.prepare('UPDATE sessions SET revoked_at = ? WHERE user_id = ? AND revoked_at IS NULL')
+    .run(nowIso(), userId);
 }
 
 /* ---------------- 로그인 확인 미들웨어 ---------------- */
 // 여기가 "로그인 안 했으면 아무것도 못 본다"를 만드는 단 하나의 지점이다.
-async function requireAuth(req, res, next) {
-  try {
-    if (!SESSION_SECRET) {
-      return res.status(500).json({ error: 'server_misconfigured', message: '서버에 SESSION_SECRET 이 설정돼 있지 않아요.' });
-    }
-    const header = req.header('Authorization') || '';
-    const token = header.startsWith('Bearer ') ? header.slice(7).trim() : '';
-    if (!token) {
-      return res.status(401).json({ error: 'unauthorized', message: '로그인이 필요해요.' });
-    }
-    const row = await db.get('SELECT * FROM sessions WHERE token_hash = ?', [hashToken(token)]);
-    if (!row || row.revoked_at) {
-      return res.status(401).json({ error: 'unauthorized', message: '로그인이 필요해요.' });
-    }
-    if (new Date(row.expires_at).getTime() <= Date.now()) {
-      return res.status(401).json({ error: 'session_expired', message: '로그인이 만료됐어요. 다시 로그인해주세요.' });
-    }
-    const user = await db.get('SELECT id, email FROM users WHERE id = ?', [row.user_id]);
-    if (!user) {
-      return res.status(401).json({ error: 'unauthorized', message: '로그인이 필요해요.' });
-    }
-    // 주소(?userId=)·헤더(X-User-Id)·본문(userId)에 뭐라고 적어 보내든 여기서 정한 값만 쓴다.
-    req.user = user;
-    req.sessionToken = token;
-    next();
-  } catch (err) { next(err); }
+function requireAuth(req, res, next) {
+  if (!SESSION_SECRET) {
+    return res.status(500).json({ error: 'server_misconfigured', message: '서버에 SESSION_SECRET 이 설정돼 있지 않아요.' });
+  }
+  const header = req.header('Authorization') || '';
+  const token = header.startsWith('Bearer ') ? header.slice(7).trim() : '';
+  if (!token) {
+    return res.status(401).json({ error: 'unauthorized', message: '로그인이 필요해요.' });
+  }
+  const row = db.prepare('SELECT * FROM sessions WHERE token_hash = ?').get(hashToken(token));
+  if (!row || row.revoked_at) {
+    return res.status(401).json({ error: 'unauthorized', message: '로그인이 필요해요.' });
+  }
+  if (new Date(row.expires_at).getTime() <= Date.now()) {
+    return res.status(401).json({ error: 'session_expired', message: '로그인이 만료됐어요. 다시 로그인해주세요.' });
+  }
+  const user = db.prepare('SELECT id, email FROM users WHERE id = ?').get(row.user_id);
+  if (!user) {
+    return res.status(401).json({ error: 'unauthorized', message: '로그인이 필요해요.' });
+  }
+  // 주소(?userId=)·헤더(X-User-Id)·본문(userId)에 뭐라고 적어 보내든 여기서 정한 값만 쓴다.
+  req.user = user;
+  req.sessionToken = token;
+  next();
 }
 
 /* ---------------- 앱 ---------------- */
@@ -193,7 +190,7 @@ app.use((req, res, next) => {
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 
 /* ---------- 가입 / 로그인 / 로그아웃 ---------- */
-app.post('/api/auth/signup', ah(async (req, res) => {
+app.post('/api/auth/signup', (req, res) => {
   const body = req.body || {};
   const email = typeof body.email === 'string' ? body.email.trim() : '';
   const password = typeof body.password === 'string' ? body.password : '';
@@ -206,173 +203,171 @@ app.post('/api/auth/signup', ah(async (req, res) => {
   }
 
   const emailLower = email.toLowerCase();
-  const exists = await db.get('SELECT id FROM users WHERE email_lower = ?', [emailLower]);
+  const exists = db.prepare('SELECT id FROM users WHERE email_lower = ?').get(emailLower);
   if (exists) {
     return res.status(409).json({ error: 'email_taken', message: '이미 가입된 이메일이에요.' });
   }
 
-  const inserted = await db.get(
-    'INSERT INTO users (email, email_lower, password_hash, created_at) VALUES (?, ?, ?, ?) RETURNING id',
-    [email, emailLower, hashPassword(password), nowIso()]
-  );
-  const userId = inserted.id;
-  await db.run('INSERT INTO settings (user_id, updated_at) VALUES (?, ?)', [userId, nowIso()]);
+  const info = db.prepare(
+    'INSERT INTO users (email, email_lower, password_hash, created_at) VALUES (?, ?, ?, ?)'
+  ).run(email, emailLower, hashPassword(password), nowIso());
+  const userId = Number(info.lastInsertRowid);
+  db.prepare('INSERT INTO settings (user_id, updated_at) VALUES (?, ?)').run(userId, nowIso());
 
-  const { token, expiresAt } = await issueSession(userId);
+  const { token, expiresAt } = issueSession(userId);
   res.status(201).json({ user: { id: userId, email }, token, expiresAt });
-}));
+});
 
-app.post('/api/auth/login', ah(async (req, res) => {
+app.post('/api/auth/login', (req, res) => {
   const body = req.body || {};
   const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
   const password = typeof body.password === 'string' ? body.password : '';
 
-  const user = await db.get('SELECT * FROM users WHERE email_lower = ?', [email]);
+  const user = db.prepare('SELECT * FROM users WHERE email_lower = ?').get(email);
   // 계정이 없을 때와 비밀번호만 틀렸을 때의 응답을 똑같이 둔다 (계정 존재 여부를 알려주지 않기 위해).
   const ok = user ? verifyPassword(password, user.password_hash) : false;
   if (!ok) {
     return res.status(401).json({ error: 'invalid_credentials', message: '이메일 또는 비밀번호가 올바르지 않아요.' });
   }
 
-  const { token, expiresAt } = await issueSession(user.id);
+  const { token, expiresAt } = issueSession(user.id);
   res.json({ user: { id: user.id, email: user.email }, token, expiresAt });
-}));
+});
 
-app.post('/api/auth/logout', requireAuth, ah(async (req, res) => {
-  await revokeSession(req.sessionToken); // 브라우저에서만 지우는 게 아니라 서버에서 끊는다.
+app.post('/api/auth/logout', requireAuth, (req, res) => {
+  revokeSession(req.sessionToken); // 브라우저에서만 지우는 게 아니라 서버에서 끊는다.
   res.json({ loggedOut: true });
-}));
+});
 
 app.get('/api/auth/me', requireAuth, (req, res) => {
   res.json({ user: req.user });
 });
 
-app.post('/api/auth/change-password', requireAuth, ah(async (req, res) => {
+app.post('/api/auth/change-password', requireAuth, (req, res) => {
   const body = req.body || {};
   const current = typeof body.currentPassword === 'string' ? body.currentPassword : '';
   const next = typeof body.newPassword === 'string' ? body.newPassword : '';
   if (next.length < 8) {
     return res.status(400).json({ error: 'weak_password', message: '새 비밀번호는 8자 이상이어야 해요.' });
   }
-  const user = await db.get('SELECT * FROM users WHERE id = ?', [req.user.id]);
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id);
   if (!verifyPassword(current, user.password_hash)) {
     return res.status(401).json({ error: 'invalid_credentials', message: '현재 비밀번호가 올바르지 않아요.' });
   }
-  await db.run('UPDATE users SET password_hash = ? WHERE id = ?', [hashPassword(next), req.user.id]);
-  await revokeAllSessions(req.user.id); // 비밀번호를 바꾸면 이전에 발급한 토큰은 전부 끊긴다.
+  db.prepare('UPDATE users SET password_hash = ? WHERE id = ?').run(hashPassword(next), req.user.id);
+  revokeAllSessions(req.user.id); // 비밀번호를 바꾸면 이전에 발급한 토큰은 전부 끊긴다.
   res.json({ changed: true, message: '비밀번호를 바꿨어요. 모든 기기에서 다시 로그인해주세요.' });
-}));
+});
 
 /* ---------- 일기 (전부 내 것만) ---------- */
-app.get('/api/entries', requireAuth, ah(async (req, res) => {
+app.get('/api/entries', requireAuth, (req, res) => {
   // 목록 조회에도 반드시 user_id 조건이 붙는다. 남의 기록이 섞일 자리가 없다.
-  const rows = await db.all('SELECT * FROM entries WHERE user_id = ? ORDER BY date', [req.user.id]);
+  const rows = db.prepare('SELECT * FROM entries WHERE user_id = ? ORDER BY date').all(req.user.id);
   const entries = {};
   for (const row of rows) entries[row.date] = rowToEntry(row);
   res.json({ entries });
-}));
+});
 
-async function upsertEntry(userId, date, body) {
+function upsertEntry(userId, date, body) {
   const mood = typeof body.mood === 'string' ? body.mood : null;
   const text = typeof body.text === 'string' ? body.text : '';
   const habits = sanitizeHabits(body.habits);
   const updatedAt = nowIso();
 
   if (!text.trim() && !mood && habits.length === 0) {
-    await db.run('DELETE FROM entries WHERE user_id = ? AND date = ?', [userId, date]);
+    db.prepare('DELETE FROM entries WHERE user_id = ? AND date = ?').run(userId, date);
     return { date, deleted: true };
   }
-  await db.run(
+  db.prepare(
     `INSERT INTO entries (user_id, date, mood, text, habits, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?)
-     ON CONFLICT (user_id, date) DO UPDATE SET mood=EXCLUDED.mood, text=EXCLUDED.text,
-       habits=EXCLUDED.habits, updated_at=EXCLUDED.updated_at`,
-    [userId, date, mood, text, JSON.stringify(habits), updatedAt]
-  );
+     VALUES (@userId, @date, @mood, @text, @habits, @updatedAt)
+     ON CONFLICT(user_id, date) DO UPDATE SET mood=@mood, text=@text, habits=@habits, updated_at=@updatedAt`
+  ).run({ userId, date, mood, text, habits: JSON.stringify(habits), updatedAt });
 
-  const row = await db.get('SELECT * FROM entries WHERE user_id = ? AND date = ?', [userId, date]);
+  const row = db.prepare('SELECT * FROM entries WHERE user_id = ? AND date = ?').get(userId, date);
   return rowToEntry(row);
 }
 
-app.put('/api/entries/date/:date', requireAuth, ah(async (req, res) => {
+app.put('/api/entries/date/:date', requireAuth, (req, res) => {
   const { date } = req.params;
   if (!isValidDateKey(date)) return res.status(400).json({ error: 'invalid_date', message: '날짜 형식이 올바르지 않아요 (YYYY-MM-DD).' });
-  res.json(await upsertEntry(req.user.id, date, req.body || {}));
-}));
+  res.json(upsertEntry(req.user.id, date, req.body || {}));
+});
 
-app.delete('/api/entries/date/:date', requireAuth, ah(async (req, res) => {
-  await db.run('DELETE FROM entries WHERE user_id = ? AND date = ?', [req.user.id, req.params.date]);
+app.delete('/api/entries/date/:date', requireAuth, (req, res) => {
+  db.prepare('DELETE FROM entries WHERE user_id = ? AND date = ?').run(req.user.id, req.params.date);
   res.json({ date: req.params.date, deleted: true });
-}));
+});
 
 // id로 한 건을 다루는 경로. 남의 id를 넣으면 "없는 것"으로 답한다(404).
 // 403(있지만 안 됨)이 아니라 404를 쓰는 이유: 남의 기록 id가 존재한다는 사실조차 알려주지 않기 위해서.
-async function findOwnEntry(userId, id) {
+function findOwnEntry(userId, id) {
   if (!/^\d+$/.test(String(id))) return null;
-  return (await db.get('SELECT * FROM entries WHERE id = ? AND user_id = ?', [Number(id), userId])) || null;
+  return db.prepare('SELECT * FROM entries WHERE id = ? AND user_id = ?').get(Number(id), userId) || null;
 }
 const notFound = (res) => res.status(404).json({ error: 'not_found', message: '그런 기록이 없어요.' });
 
-app.get('/api/entries/:id', requireAuth, ah(async (req, res) => {
-  const row = await findOwnEntry(req.user.id, req.params.id);
+app.get('/api/entries/:id', requireAuth, (req, res) => {
+  const row = findOwnEntry(req.user.id, req.params.id);
   if (!row) return notFound(res);
   res.json(rowToEntry(row));
-}));
+});
 
-app.put('/api/entries/:id', requireAuth, ah(async (req, res) => {
+app.put('/api/entries/:id', requireAuth, (req, res) => {
   // 주인 확인을 먼저 하고, 통과한 뒤에만 저장한다. (거절된 요청은 DB를 전혀 건드리지 않는다)
-  const row = await findOwnEntry(req.user.id, req.params.id);
+  const row = findOwnEntry(req.user.id, req.params.id);
   if (!row) return notFound(res);
-  res.json(await upsertEntry(req.user.id, row.date, req.body || {}));
-}));
+  res.json(upsertEntry(req.user.id, row.date, req.body || {}));
+});
 
-app.delete('/api/entries/:id', requireAuth, ah(async (req, res) => {
-  const row = await findOwnEntry(req.user.id, req.params.id);
+app.delete('/api/entries/:id', requireAuth, (req, res) => {
+  const row = findOwnEntry(req.user.id, req.params.id);
   if (!row) return notFound(res);
-  await db.run('DELETE FROM entries WHERE id = ? AND user_id = ?', [row.id, req.user.id]);
+  db.prepare('DELETE FROM entries WHERE id = ? AND user_id = ?').run(row.id, req.user.id);
   res.json({ id: row.id, deleted: true });
-}));
+});
 
-app.delete('/api/entries', requireAuth, ah(async (req, res) => {
-  const r = await db.run('DELETE FROM entries WHERE user_id = ?', [req.user.id]);
-  res.json({ deleted: Number(r.rowCount) });
-}));
+app.delete('/api/entries', requireAuth, (req, res) => {
+  const info = db.prepare('DELETE FROM entries WHERE user_id = ?').run(req.user.id);
+  res.json({ deleted: Number(info.changes) });
+});
 
 /* ---------- 실험 설정 / 규칙 변경 ---------- */
-app.get('/api/settings', requireAuth, ah(async (req, res) => {
-  const row = (await db.get('SELECT * FROM settings WHERE user_id = ?', [req.user.id]))
+app.get('/api/settings', requireAuth, (req, res) => {
+  const row = db.prepare('SELECT * FROM settings WHERE user_id = ?').get(req.user.id)
     || { question: '', metric: '', unit: '', calc_rule: '', plan_rule: '' };
   res.json({
     question: row.question, metric: row.metric, unit: row.unit,
     calcRule: row.calc_rule, planRule: row.plan_rule
   });
-}));
+});
 
-app.put('/api/settings', requireAuth, ah(async (req, res) => {
+app.put('/api/settings', requireAuth, (req, res) => {
   const b = req.body || {};
   const str = (v) => (typeof v === 'string' ? v.trim().slice(0, 300) : '');
-  await db.run(
+  db.prepare(
     `INSERT INTO settings (user_id, question, metric, unit, calc_rule, plan_rule, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?)
-     ON CONFLICT (user_id) DO UPDATE SET question=EXCLUDED.question, metric=EXCLUDED.metric,
-       unit=EXCLUDED.unit, calc_rule=EXCLUDED.calc_rule, plan_rule=EXCLUDED.plan_rule,
-       updated_at=EXCLUDED.updated_at`,
-    [req.user.id, str(b.question), str(b.metric), str(b.unit), str(b.calcRule), str(b.planRule), nowIso()]
-  );
+     VALUES (@userId, @question, @metric, @unit, @calcRule, @planRule, @updatedAt)
+     ON CONFLICT(user_id) DO UPDATE SET question=@question, metric=@metric, unit=@unit,
+       calc_rule=@calcRule, plan_rule=@planRule, updated_at=@updatedAt`
+  ).run({
+    userId: req.user.id, question: str(b.question), metric: str(b.metric), unit: str(b.unit),
+    calcRule: str(b.calcRule), planRule: str(b.planRule), updatedAt: nowIso()
+  });
   res.json({ saved: true });
-}));
+});
 
-app.get('/api/rule-changes', requireAuth, ah(async (req, res) => {
-  const rows = await db.all('SELECT * FROM rule_changes WHERE user_id = ? ORDER BY changed_at', [req.user.id]);
+app.get('/api/rule-changes', requireAuth, (req, res) => {
+  const rows = db.prepare('SELECT * FROM rule_changes WHERE user_id = ? ORDER BY changed_at').all(req.user.id);
   res.json({
     ruleChanges: rows.map(r => ({
       id: r.id, changedAt: r.changed_at, beforeRule: r.before_rule,
       afterRule: r.after_rule, reason: r.reason, basedOn: r.based_on
     }))
   });
-}));
+});
 
-app.post('/api/rule-changes', requireAuth, ah(async (req, res) => {
+app.post('/api/rule-changes', requireAuth, (req, res) => {
   const b = req.body || {};
   const str = (v) => (typeof v === 'string' ? v.trim().slice(0, 300) : '');
   const after = str(b.afterRule);
@@ -381,22 +376,21 @@ app.post('/api/rule-changes', requireAuth, ah(async (req, res) => {
     return res.status(400).json({ error: 'invalid_rule_change', message: '바꾼 규칙과 바꾼 이유를 모두 적어주세요.' });
   }
   const changedAt = typeof b.changedAt === 'string' && b.changedAt ? b.changedAt : nowIso();
-  const inserted = await db.get(
-    'INSERT INTO rule_changes (user_id, changed_at, before_rule, after_rule, reason, based_on) VALUES (?, ?, ?, ?, ?, ?) RETURNING id',
-    [req.user.id, changedAt, str(b.beforeRule), after, reason, str(b.basedOn)]
-  );
+  const info = db.prepare(
+    'INSERT INTO rule_changes (user_id, changed_at, before_rule, after_rule, reason, based_on) VALUES (?, ?, ?, ?, ?, ?)'
+  ).run(req.user.id, changedAt, str(b.beforeRule), after, reason, str(b.basedOn));
   // 규칙을 바꾸면 지금 규칙도 같이 갱신해 둔다.
-  await db.run('UPDATE settings SET plan_rule = ?, updated_at = ? WHERE user_id = ?', [after, nowIso(), req.user.id]);
-  res.status(201).json({ id: inserted.id, changedAt });
-}));
+  db.prepare('UPDATE settings SET plan_rule = ?, updated_at = ? WHERE user_id = ?').run(after, nowIso(), req.user.id);
+  res.status(201).json({ id: Number(info.lastInsertRowid), changedAt });
+});
 
 /* ---------- 내보내기 / 계정 삭제 ---------- */
-app.get('/api/export', requireAuth, ah(async (req, res) => {
-  const rows = await db.all('SELECT * FROM entries WHERE user_id = ? ORDER BY date', [req.user.id]);
+app.get('/api/export', requireAuth, (req, res) => {
+  const rows = db.prepare('SELECT * FROM entries WHERE user_id = ? ORDER BY date').all(req.user.id);
   const entries = {};
   for (const row of rows) entries[row.date] = rowToEntry(row);
-  const settings = (await db.get('SELECT * FROM settings WHERE user_id = ?', [req.user.id])) || {};
-  const ruleRows = await db.all('SELECT * FROM rule_changes WHERE user_id = ? ORDER BY changed_at', [req.user.id]);
+  const settings = db.prepare('SELECT * FROM settings WHERE user_id = ?').get(req.user.id) || {};
+  const ruleRows = db.prepare('SELECT * FROM rule_changes WHERE user_id = ? ORDER BY changed_at').all(req.user.id);
   res.json({
     exportedAt: nowIso(),
     account: { email: req.user.email }, // 비밀번호 해시·토큰은 내보내기에 넣지 않는다.
@@ -409,32 +403,17 @@ app.get('/api/export', requireAuth, ah(async (req, res) => {
     })),
     entries
   });
-}));
+});
 
-app.delete('/api/account', requireAuth, ah(async (req, res) => {
+app.delete('/api/account', requireAuth, (req, res) => {
   // 계정을 지우면 그 계정의 일기·설정·규칙 변경·세션이 함께 지워진다 (ON DELETE CASCADE).
-  const countRow = await db.get('SELECT COUNT(*) AS c FROM entries WHERE user_id = ?', [req.user.id]);
-  await db.run('DELETE FROM users WHERE id = ?', [req.user.id]);
-  res.json({ deleted: true, deletedEntries: Number(countRow.c) });
-}));
+  const count = db.prepare('SELECT COUNT(*) AS c FROM entries WHERE user_id = ?').get(req.user.id).c;
+  db.prepare('DELETE FROM users WHERE id = ?').run(req.user.id);
+  res.json({ deleted: true, deletedEntries: Number(count) });
+});
 
 app.use((req, res) => res.status(404).json({ error: 'not_found', message: '그런 주소가 없어요.' }));
 
-// 마지막 안전망: 위에서 놓친 예외(주로 DB 연결 오류)는 500으로 답하고 로그만 남긴다.
-// (비밀번호·토큰이 든 요청 본문은 여기서도 찍지 않는다.)
-app.use((err, req, res, next) => {
-  console.error(`${new Date().toISOString()} ${req.method} ${req.path} 처리 중 오류`, err.message);
-  if (res.headersSent) return next(err);
-  res.status(500).json({ error: 'internal_error', message: '서버에 문제가 생겼어요. 잠시 뒤 다시 시도해주세요.' });
+app.listen(PORT, () => {
+  console.log(`모찌 일기장 2 (로그인) 백엔드 실행 중: http://localhost:${PORT}`);
 });
-
-initDb()
-  .then(() => {
-    app.listen(PORT, () => {
-      console.log(`모찌 일기장 2 (로그인) 백엔드 실행 중: http://localhost:${PORT}`);
-    });
-  })
-  .catch((err) => {
-    console.error('DB 초기화 실패 — DATABASE_URL 을 확인해주세요.', err);
-    process.exit(1);
-  });
