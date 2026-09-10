@@ -32,3 +32,38 @@ services:
       # 죽어서 배포가 실패한다(실제로 한 번 겪었다).
       - key: NODE_VERSION
         value: "22.20.0"
+
+  # ---------------------------------------------------------------
+  # 8번째 과제(패스키 등록)의 백엔드.
+  # 7번 서비스(mochi-diary-auth-backend)는 손대지 않고, 별도 서비스로 새로 띄웁니다.
+  # 7번 제출물이 지금도 그대로 열려야 하기 때문입니다.
+  #
+  # RP_ID 는 "이 패스키가 어느 도메인의 열쇠인가"를 못박는 값입니다.
+  # 화면이 올라가 있는 도메인과 정확히 같아야 하고, 다르면 브라우저가 등록·로그인을 거절합니다.
+  # (백엔드가 onrender.com 에 있어도 RP_ID 는 화면 도메인인 github.io 입니다)
+  # ---------------------------------------------------------------
+  - type: web
+    name: daehoon-passkey-backend
+    runtime: node
+    plan: free
+    region: singapore
+    rootDir: passkey-backend
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: SESSION_SECRET
+        generateValue: true      # Render가 만들어 넣어 줌 (git에는 안 들어감)
+      - key: SESSION_TTL_HOURS
+        value: "12"
+      - key: CHALLENGE_TTL_SECONDS
+        value: "120"
+      - key: RP_ID
+        value: "chacha1650a.github.io"
+      - key: RP_NAME
+        value: "김대훈 포트폴리오 — 비공개 서랍"
+      - key: EXPECTED_ORIGINS
+        value: "https://chacha1650a.github.io"
+      # node:sqlite 는 Node 22.13.0 부터 플래그 없이 쓸 수 있다.
+      - key: NODE_VERSION
+        value: "22.20.0"

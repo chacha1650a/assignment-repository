@@ -1,0 +1,9 @@
+node_modules/
+.env
+server.log
+
+# SQLite 파일 — 계정·공개키·세션이 들어 있어서 저장소에 올리지 않습니다.
+*.db
+*.db-journal
+*.db-wal
+*.db-shm

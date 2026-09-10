@@ -1,0 +1,21 @@
+{
+  "name": "passkey-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "8번째 과제(패스키 등록) — 비밀번호 없이 패스키(WebAuthn)로만 잠그는 백엔드 (Express + node:sqlite + @simplewebauthn/server)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "evidence": "node test-virtual-authenticator.js"
+  },
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "dependencies": {
+    "@simplewebauthn/server": "^14.0.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2"
+  }
+}

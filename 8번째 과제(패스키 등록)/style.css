@@ -1,0 +1,894 @@
+:root {
+  --color-bg: #ffffff;
+  --color-bg-alt: #f7f8fa;
+  --color-text: #1f2328;
+  --color-text-secondary: #4b5563;
+  --color-border: #e2e4e9;
+  --color-accent: #4338ca;
+  --color-accent-hover: #362f9e;
+  --focus-ring: 3px solid #4338ca;
+
+  --hero-bg: #0b1120;
+  --hero-bg-elevated: #131c31;
+  --hero-border: #253150;
+  --hero-text: #f1f5f9;
+  --hero-text-secondary: #94a3b8;
+  --hero-accent: #a5b4fc;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* 등장 애니메이션 (히어로 순차 등장 / 스크롤 등장 공용) */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reveal-item {
+  opacity: 0;
+  animation: fade-up 0.6s ease forwards;
+}
+.reveal-item:nth-child(1) { animation-delay: 0.05s; }
+.reveal-item:nth-child(2) { animation-delay: 0.15s; }
+.reveal-item:nth-child(3) { animation-delay: 0.25s; }
+.reveal-item:nth-child(4) { animation-delay: 0.35s; }
+.reveal-item:nth-child(5) { animation-delay: 0.45s; }
+.reveal-item:nth-child(6) { animation-delay: 0.55s; }
+
+.hero-code {
+  opacity: 0;
+  animation: fade-up 0.7s ease forwards;
+  animation-delay: 0.3s;
+}
+
+/* 스크롤하면서 나타나는 요소 (JS가 .is-visible을 붙임)
+   transition 대신 animation을 써서 카드의 hover transition(transform 등)과
+   충돌하지 않게 함 — 아래에서 떠오르며 살짝 확대되고, 카드 순서대로 딜레이를 줘서
+   왼쪽부터 리듬감 있게 나타나도록 함 */
+@keyframes fade-up-scale {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.scroll-reveal {
+  opacity: 0;
+}
+.scroll-reveal.is-visible {
+  animation: fade-up-scale 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.scroll-reveal:nth-child(2).is-visible { animation-delay: 0.08s; }
+.scroll-reveal:nth-child(3).is-visible { animation-delay: 0.16s; }
+.scroll-reveal:nth-child(4).is-visible { animation-delay: 0.24s; }
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, -apple-system, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* 접근성: 스킵 링크 */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--color-accent);
+  color: #fff;
+  padding: 12px 16px;
+  z-index: 100;
+  border-radius: 0 0 6px 0;
+}
+.skip-link:focus {
+  left: 0;
+}
+
+/* 포커스 표시 */
+a:focus-visible,
+button:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* 다크 히어로 영역은 배경과 대비되는 밝은 포커스 링 사용 (WCAG 비텍스트 대비 3:1 확보) */
+.hero a:focus-visible,
+.hero button:focus-visible {
+  outline: 3px solid var(--hero-accent);
+  outline-offset: 2px;
+}
+
+/* Hero */
+.hero {
+  position: relative;
+  overflow: hidden;
+  background: var(--hero-bg);
+  color: var(--hero-text);
+}
+
+/* 히어로 하단을 본문 배경색으로 서서히 녹여서 어두운 배경 → 흰 배경 전환을 부드럽게 함 */
+.hero::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 120px;
+  background: linear-gradient(to bottom, transparent, var(--color-bg));
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* 오로라 배경 — 흐릿한 색 덩어리가 천천히 움직이는 은은한 효과 */
+.aurora {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.aurora-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.32;
+  will-change: transform;
+}
+
+.aurora-blob-1 {
+  width: 440px;
+  height: 440px;
+  top: -160px;
+  left: -100px;
+  background: #6366f1;
+  animation: aurora-drift-1 24s ease-in-out infinite;
+}
+
+.aurora-blob-2 {
+  width: 380px;
+  height: 380px;
+  top: 30%;
+  right: -140px;
+  background: #22d3ee;
+  animation: aurora-drift-2 28s ease-in-out infinite;
+}
+
+.aurora-blob-3 {
+  width: 360px;
+  height: 360px;
+  bottom: -180px;
+  left: 28%;
+  background: #a855f7;
+  animation: aurora-drift-3 32s ease-in-out infinite;
+}
+
+@keyframes aurora-drift-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(70px, 50px) scale(1.15); }
+}
+@keyframes aurora-drift-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-60px, 40px) scale(0.9); }
+}
+@keyframes aurora-drift-3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(50px, -60px) scale(1.1); }
+}
+
+.hero-grid {
+  position: relative;
+  /* 하단 페이드 그라데이션(::after, z-index:1)보다 항상 위에 그려지도록 더 높은 값을 줌 —
+     안 그러면 버튼·코드 카드가 그라데이션에 씻겨 흐릿해 보임 */
+  z-index: 2;
+  padding: clamp(40px, 7vh, 76px) 24px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: clamp(24px, 4vw, 56px);
+  align-items: center;
+}
+
+.eyebrow {
+  margin: 0 0 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--hero-accent);
+  letter-spacing: 0.02em;
+}
+
+.hero h1 {
+  margin: 0 0 8px;
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  font-weight: 800;
+  color: var(--hero-text);
+}
+
+.tagline {
+  margin: 0 0 16px;
+  font-size: clamp(1.15rem, 2.4vw, 1.4rem);
+  color: #cbd5e1;
+  font-weight: 600;
+}
+
+.intro {
+  margin: 0 0 24px;
+  max-width: 560px;
+  color: var(--hero-text-secondary);
+  font-size: 1rem;
+}
+
+.badge-list {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 28px;
+  padding: 0;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--hero-bg-elevated);
+  border: 1px solid var(--hero-border);
+  color: #e2e8f0;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.badge span {
+  color: var(--hero-accent);
+}
+
+.cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 22px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-decoration: none;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.btn-icon {
+  flex-shrink: 0;
+}
+
+.btn-icon-arrow {
+  transition: transform 0.15s ease;
+}
+.btn:hover .btn-icon-arrow {
+  transform: translateX(3px);
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn-primary {
+  background: #4f46e5;
+  color: #ffffff;
+  box-shadow: 0 10px 24px -10px rgba(79, 70, 229, 0.6);
+  transition: transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+}
+.btn-primary:hover {
+  background: #4338ca;
+  box-shadow: 0 14px 28px -10px rgba(67, 56, 202, 0.65);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--hero-text);
+  border-color: var(--hero-border);
+}
+.btn-secondary:hover {
+  background: var(--hero-bg-elevated);
+  border-color: var(--hero-accent);
+}
+
+/* Hero code card */
+.hero-code {
+  display: flex;
+  justify-content: center;
+  perspective: 1400px;
+}
+
+/* 살짝 회전된 채로 떠 있다가, 마우스를 올리면 정면으로 펴지는 입체 카드 —
+   갤러리 사진의 기울임과 같은 모션 언어(평소엔 기울고, 호버하면 펴짐) */
+.code-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--hero-bg-elevated);
+  border: 1px solid var(--hero-border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 30px 45px 60px -25px rgba(0, 0, 0, 0.7), 0 20px 50px -20px rgba(0, 0, 0, 0.5);
+  transform: rotateY(-10deg) rotateX(5deg) rotateZ(-1deg);
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.code-card:hover {
+  transform: rotateY(0deg) rotateX(0deg) rotateZ(0deg);
+  box-shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.6);
+}
+
+/* 위쪽은 살짝 밝게, 아래쪽은 그림자로 눌러서 바가 실제로 두께를 가진 것처럼 보이게 함 */
+.code-card-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 14px;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0) 60%);
+  border-bottom: 1px solid var(--hero-border);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.09), 0 2px 5px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.dot-red { background: #f87171; }
+.dot-yellow { background: #fbbf24; }
+.dot-green { background: #34d399; }
+
+.code-card-filename {
+  margin-left: 8px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 0.8rem;
+  color: var(--hero-text-secondary);
+}
+
+/* 실행 버튼 — 바 맨 오른쪽 */
+.code-run-btn {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--hero-border);
+  color: var(--hero-text-secondary);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 4px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+.code-run-btn:hover {
+  background: rgba(165, 180, 252, 0.14);
+  color: var(--hero-accent);
+  border-color: var(--hero-accent);
+}
+.code-run-btn:active {
+  transform: scale(0.95);
+}
+.code-run-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.run-icon {
+  color: #34d399;
+}
+
+.code-card-body {
+  margin: 0;
+  padding: 18px 20px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 0.85rem;
+  line-height: 1.7;
+  overflow-x: auto;
+  color: #e2e8f0;
+}
+
+.tok-comment { color: #64748b; font-style: italic; }
+.tok-keyword { color: #818cf8; }
+.tok-var { color: #5eead4; }
+.tok-key { color: #93c5fd; }
+.tok-string { color: #fbbf7d; }
+
+/* 타이핑 애니메이션 중 깜빡이는 커서 */
+@keyframes caret-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.code-card-body.is-typing #typed-code::after {
+  content: "▍";
+  color: var(--hero-accent);
+  animation: caret-blink 0.9s step-start infinite;
+}
+
+/* 실행 버튼을 누르면 나타나는 가짜 콘솔 출력 */
+.code-console {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  margin: 0 20px;
+  border-top: 1px dashed transparent;
+  transition: max-height 0.35s ease, opacity 0.3s ease, margin 0.35s ease, padding 0.35s ease;
+}
+.code-console.is-shown {
+  max-height: 90px;
+  opacity: 1;
+  margin: 0 20px 18px;
+  padding-top: 12px;
+  border-top-color: var(--hero-border);
+}
+.code-console p {
+  margin: 0 0 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: var(--hero-text-secondary);
+}
+.console-prompt {
+  color: var(--hero-accent);
+  font-weight: 700;
+  margin-right: 4px;
+}
+.console-result {
+  color: #34d399;
+}
+
+/* Project intro (Clov.) */
+.project-intro {
+  background: var(--color-bg-alt);
+  border-bottom: 1px solid var(--color-border);
+  padding: 64px 0;
+}
+
+.eyebrow-light {
+  margin: 0 0 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--color-accent);
+}
+
+.project-intro h2 {
+  margin: 0 0 14px;
+  font-size: clamp(1.4rem, 3vw, 1.9rem);
+}
+
+.project-desc {
+  margin: 0 0 22px;
+  max-width: 520px;
+  color: var(--color-text-secondary);
+}
+
+.project-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.btn-outline {
+  background: #ffffff;
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+  transition: transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+}
+.btn-outline:hover {
+  background: var(--color-accent);
+  color: #ffffff;
+  box-shadow: 0 10px 22px -10px rgba(67, 56, 202, 0.5);
+}
+
+/* 기술 스택 뱃지 — GitHub README와 동일한 shields.io 실시간 벡터 뱃지 이미지 사용 */
+.tech-badges {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+}
+
+.tech-badges img {
+  display: block;
+  height: 26px;
+  width: auto;
+}
+
+/* 실제 화면 갤러리 — 사진이 잘리지 않고 크게 보이도록 강조 */
+.project-gallery {
+  margin-top: 44px;
+}
+
+.gallery-label {
+  margin: 0 0 16px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--color-accent);
+}
+
+.gallery-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 72px;
+}
+
+/* 사진 · 설명을 좌우로 배치 — 카드 박스도, 폴라로이드 흰 여백도 없이 사진 자체를 크게 보여주고
+   그림자와 기울기만으로 띄운 느낌을 줌. 항목마다 기울기를 번갈아서 지그재그 리듬을 줌.
+   텍스트는 제목+본문 느낌으로 크게 */
+.shot-row {
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 48px;
+}
+
+.shot-row .shot-frame {
+  order: 1;
+  justify-self: end;
+}
+.shot-row figcaption {
+  order: 2;
+  justify-self: start;
+}
+.shot-row-reverse .shot-frame {
+  order: 2;
+  justify-self: start;
+}
+.shot-row-reverse figcaption {
+  order: 1;
+  justify-self: end;
+}
+
+.shot-frame {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 280px;
+}
+
+.shot-frame img {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  max-height: 420px;
+  border-radius: 8px;
+  box-shadow: 0 26px 48px -18px rgba(15, 23, 42, 0.4), 0 6px 16px rgba(15, 23, 42, 0.12);
+  transform: rotate(-4deg);
+  transition: transform 0.35s ease;
+}
+.shot-row-reverse .shot-frame img {
+  transform: rotate(4deg);
+}
+.shot-row:hover .shot-frame img {
+  transform: rotate(-1deg) scale(1.03);
+}
+.shot-row-reverse:hover .shot-frame img {
+  transform: rotate(1deg) scale(1.03);
+}
+
+.shot-row figcaption {
+  max-width: 420px;
+  text-align: left;
+}
+
+.shot-row h3 {
+  margin: 0 0 12px;
+  font-size: clamp(1.3rem, 2.4vw, 1.6rem);
+}
+
+.shot-row p {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.75;
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 760px) {
+  .shot-row,
+  .shot-row-reverse {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .shot-row .shot-frame,
+  .shot-row-reverse .shot-frame {
+    order: 1;
+    justify-self: center;
+    min-height: 0;
+  }
+  .shot-row .shot-frame img,
+  .shot-row-reverse .shot-frame img {
+    max-width: 90%;
+    max-height: 340px;
+    transform: rotate(-2deg);
+  }
+  .shot-row:hover .shot-frame img,
+  .shot-row-reverse:hover .shot-frame img {
+    transform: rotate(-2deg);
+  }
+  .shot-row figcaption,
+  .shot-row-reverse figcaption {
+    order: 2;
+    justify-self: center;
+    max-width: 100%;
+  }
+}
+
+/* Evidence section */
+.evidence {
+  padding: 56px 0 72px;
+}
+
+.evidence h2 {
+  margin: 0 0 12px;
+  font-size: clamp(1.5rem, 3vw, 1.9rem);
+}
+
+.section-desc {
+  margin: 0 0 32px;
+  max-width: 720px;
+  color: var(--color-text-secondary);
+}
+
+.section-desc a {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.strength-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  align-items: start;
+  gap: 20px;
+}
+
+.strength-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 22px;
+  background: var(--color-bg);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  transition: box-shadow 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
+}
+
+.strength-card:hover {
+  box-shadow: 0 12px 28px -12px rgba(67, 56, 202, 0.25);
+  border-color: #c7d2fe;
+  transform: translateY(-2px);
+}
+
+/* 자세히 보기가 펼쳐진 카드는 네온 테두리로 강조 */
+.strength-card.is-active {
+  border-color: #6366f1;
+  box-shadow:
+    0 0 0 1px rgba(99, 102, 241, 0.55),
+    0 0 16px rgba(99, 102, 241, 0.45),
+    0 0 40px rgba(99, 102, 241, 0.2);
+}
+
+.strength-card.is-active:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 0 0 1px rgba(99, 102, 241, 0.6),
+    0 0 20px rgba(99, 102, 241, 0.5),
+    0 0 48px rgba(99, 102, 241, 0.25);
+}
+
+.strength-card h3 {
+  margin: 0 0 8px;
+  font-size: 1.1rem;
+}
+
+.strength-summary {
+  margin: 0 0 16px;
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+}
+
+.strength-toggle {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 6px;
+  margin-top: auto;
+  background: var(--color-bg-alt);
+  border: 1px solid var(--color-border);
+  color: var(--color-accent);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.strength-toggle:hover {
+  background: #eef2ff;
+}
+
+.toggle-icon {
+  font-weight: 900;
+}
+
+.strength-panel {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.32s ease, opacity 0.24s ease;
+}
+
+.strength-panel.is-open {
+  opacity: 1;
+}
+
+.strength-panel-inner {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+}
+
+.strength-panel dl {
+  margin: 0;
+}
+
+.strength-panel dt {
+  font-weight: 700;
+  color: var(--color-text);
+  margin-top: 12px;
+}
+
+.strength-panel dt:first-child {
+  margin-top: 0;
+}
+
+.strength-panel dd {
+  margin: 4px 0 0;
+  color: var(--color-text-secondary);
+}
+
+/* Footer */
+.site-footer {
+  position: relative;
+  border-top: none;
+  padding: 32px 0 40px;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+/* 히어로 오로라 색상을 이어받은 얇은 그라데이션 바로 톤을 맞춤 */
+.site-footer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #6366f1, #22d3ee, #a855f7);
+}
+
+.site-footer p {
+  margin: 4px 0;
+}
+
+.footer-github {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.footer-github:hover {
+  text-decoration: underline;
+}
+
+.footer-github svg {
+  flex-shrink: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .strength-panel {
+    transition: none;
+  }
+
+  .reveal-item,
+  .hero-code {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .scroll-reveal,
+  .scroll-reveal.is-visible {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .code-card-body.is-typing #typed-code::after {
+    animation: none;
+  }
+
+  .aurora-blob {
+    animation: none;
+  }
+
+  .shot-frame img {
+    transition: none;
+  }
+
+  .code-card {
+    transition: none;
+  }
+
+  .code-console {
+    transition: none;
+  }
+}
+
+/* 좁은 화면: 히어로를 한 열로 쌓음 */
+@media (max-width: 860px) {
+  .hero-grid {
+    grid-template-columns: 1fr;
+  }
+  .hero-code {
+    order: -1;
+  }
+  .code-card {
+    max-width: 100%;
+  }
+}
+
+/* 강점 카드가 2열로 걸치는 중간 너비에서는 3번째 카드가 혼자 남지 않도록 전체 폭으로 확장 */
+@media (min-width: 620px) and (max-width: 930px) {
+  .strength-card:last-child {
+    grid-column: 1 / -1;
+  }
+}

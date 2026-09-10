@@ -1,0 +1,210 @@
+// 강점 카드는 아코디언 방식: 하나를 펼치면 다른 카드는 자동으로 닫힘
+(function () {
+  var toggles = Array.prototype.map.call(document.querySelectorAll(".strength-toggle"), function (button) {
+    return {
+      button: button,
+      panel: document.getElementById(button.getAttribute("aria-controls")),
+      card: button.closest(".strength-card"),
+    };
+  });
+
+  function closeToggle(t) {
+    if (t.button.getAttribute("aria-expanded") !== "true") return;
+
+    // 접기: 먼저 현재 실제 높이로 고정한 뒤, 다음 프레임에 0으로 줄여 애니메이션 발생
+    t.panel.style.maxHeight = t.panel.scrollHeight + "px";
+    t.panel.getBoundingClientRect(); // 강제 리플로우
+    requestAnimationFrame(function () {
+      t.panel.classList.remove("is-open");
+      t.panel.style.maxHeight = "0px";
+    });
+
+    t.button.setAttribute("aria-expanded", "false");
+    t.panel.setAttribute("aria-hidden", "true");
+    t.card.classList.remove("is-active");
+    t.button.querySelector(".toggle-label").textContent = "자세히 보기";
+    t.button.querySelector(".toggle-icon").textContent = "+";
+  }
+
+  function openToggle(t) {
+    // 펼치기: 0에서 실제 콘텐츠 높이까지 애니메이션
+    t.panel.classList.add("is-open");
+    t.panel.style.maxHeight = t.panel.scrollHeight + "px";
+
+    t.button.setAttribute("aria-expanded", "true");
+    t.panel.setAttribute("aria-hidden", "false");
+    t.card.classList.add("is-active");
+    t.button.querySelector(".toggle-label").textContent = "접기";
+    t.button.querySelector(".toggle-icon").textContent = "−";
+  }
+
+  toggles.forEach(function (t) {
+    t.panel.addEventListener("transitionend", function (event) {
+      if (event.propertyName !== "max-height") return;
+      if (t.panel.classList.contains("is-open")) {
+        // 펼쳐진 뒤에는 높이 제한을 풀어서, 내용이 바뀌거나 창 크기가 변해도 잘리지 않게 함
+        t.panel.style.maxHeight = "none";
+      }
+    });
+
+    t.button.addEventListener("click", function () {
+      var expanded = t.button.getAttribute("aria-expanded") === "true";
+
+      if (expanded) {
+        closeToggle(t);
+      } else {
+        toggles.forEach(function (other) {
+          if (other !== t) closeToggle(other);
+        });
+        openToggle(t);
+      }
+    });
+  });
+})();
+
+var prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+// 코드 카드 타이핑 애니메이션 — 원래의 문법 강조 구조(span)는 그대로 두고
+// 그 안의 글자만 하나씩 채워 넣어서, 타이핑되는 순간부터 색이 바로 보이게 함.
+// "실행" 버튼을 누르면 같은 애니메이션을 처음부터 다시 재생하고, 끝나면 콘솔 출력을 보여줌
+(function () {
+  var codeEl = document.getElementById("typed-code");
+  if (!codeEl) return;
+
+  var preEl = codeEl.closest(".code-card-body");
+  var runBtn = document.querySelector(".code-run-btn");
+  var consoleEl = document.getElementById("code-console");
+  var isRunning = false;
+
+  function runTyping(onDone) {
+    if (isRunning) return;
+    isRunning = true;
+    if (runBtn) runBtn.disabled = true;
+
+    // 현재 코드 내용(항상 완성된 상태)을 원본 삼아, 같은 구조(빈 텍스트)를 다시 만듦
+    var sourceRoot = document.createElement("div");
+    sourceRoot.innerHTML = codeEl.innerHTML;
+
+    var queue = [];
+    function buildSkeleton(node, parent) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        var text = node.textContent;
+        var liveText = document.createTextNode("");
+        parent.appendChild(liveText);
+        for (var idx = 0; idx < text.length; idx++) {
+          (function (ch) {
+            queue.push(function () {
+              liveText.textContent += ch;
+              return ch;
+            });
+          })(text[idx]);
+        }
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        var liveEl = document.createElement(node.tagName);
+        for (var a = 0; a < node.attributes.length; a++) {
+          liveEl.setAttribute(node.attributes[a].name, node.attributes[a].value);
+        }
+        parent.appendChild(liveEl);
+        Array.prototype.forEach.call(node.childNodes, function (child) {
+          buildSkeleton(child, liveEl);
+        });
+      }
+    }
+
+    codeEl.innerHTML = "";
+    Array.prototype.forEach.call(sourceRoot.childNodes, function (child) {
+      buildSkeleton(child, codeEl);
+    });
+
+    if (preEl) preEl.classList.add("is-typing");
+
+    function finish() {
+      if (preEl) preEl.classList.remove("is-typing");
+      isRunning = false;
+      if (runBtn) runBtn.disabled = false;
+      if (onDone) onDone();
+    }
+
+    var i = 0;
+    function typeNext() {
+      if (i >= queue.length) {
+        finish();
+        return;
+      }
+      // "타다닥" 느낌을 위해 한 번에 2~4글자씩 묶어서 빠르게 찍음
+      var chunkSize = 2 + Math.floor(Math.random() * 3);
+      var lastCh = "";
+      for (var n = 0; n < chunkSize && i < queue.length; n++) {
+        lastCh = queue[i]();
+        i++;
+        if (lastCh === "\n") break; // 줄이 바뀌는 지점에서 묶음을 끊어서 다음 줄은 다시 처음부터 타다닥
+      }
+      if (i >= queue.length) {
+        finish();
+        return;
+      }
+      var delay = lastCh === "\n" ? 55 : 12 + Math.random() * 10;
+      setTimeout(typeNext, delay);
+    }
+
+    typeNext();
+  }
+
+  if (!prefersReducedMotion) {
+    setTimeout(function () {
+      runTyping();
+    }, 500); // 히어로 등장 애니메이션과 타이밍 맞춤
+  }
+
+  if (runBtn) {
+    runBtn.addEventListener("click", function () {
+      if (consoleEl) consoleEl.classList.remove("is-shown");
+
+      if (prefersReducedMotion) {
+        // 모션 감소 환경: 타이핑은 재생하지 않고 콘솔 결과만 즉시 보여줌
+        if (consoleEl) {
+          void consoleEl.offsetWidth; // 강제 리플로우로 재실행 느낌을 줌
+          consoleEl.classList.add("is-shown");
+        }
+        return;
+      }
+
+      runTyping(function () {
+        if (consoleEl) {
+          setTimeout(function () {
+            consoleEl.classList.add("is-shown");
+          }, 150);
+        }
+      });
+    });
+  }
+})();
+
+// 강점 카드 스크롤 등장
+(function () {
+  var items = document.querySelectorAll(".scroll-reveal");
+  if (!items.length) return;
+
+  if (prefersReducedMotion || !("IntersectionObserver" in window)) {
+    items.forEach(function (el) {
+      el.classList.add("is-visible");
+    });
+    return;
+  }
+
+  var observer = new IntersectionObserver(
+    function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.15, rootMargin: "0px 0px -40px 0px" }
+  );
+
+  items.forEach(function (el) {
+    observer.observe(el);
+  });
+})();

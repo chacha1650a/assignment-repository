@@ -1,0 +1,454 @@
+/* ============================================================
+   8번째 과제 — 비공개 서랍(패스키로 잠긴 자리)의 모양만 담은 파일.
+   1번째 과제의 style.css 는 한 줄도 고치지 않았습니다.
+   공개 영역은 밝은 배경, 비공개 영역은 짙은 배경으로 두어
+   어디까지가 공개이고 어디부터가 비공개인지 한눈에 보이게 했습니다.
+   ============================================================ */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── 공개 / 비공개 경계선 ── */
+.boundary {
+  background: var(--color-bg-alt);
+  border-top: 1px solid var(--color-border);
+  padding: 28px 0 32px;
+}
+
+.boundary-inner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.boundary-side {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.boundary-public {
+  color: #15803d;
+  background: #dcfce7;
+  border: 1px solid #86efac;
+}
+
+.boundary-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #16a34a;
+}
+
+.boundary-private {
+  color: #b91c1c;
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+}
+
+.boundary-line {
+  flex: 1 1 60px;
+  height: 0;
+  border-top: 2px dashed var(--color-border);
+  min-width: 40px;
+}
+
+/* ── 비공개 영역 ── */
+.vault {
+  background: var(--hero-bg);
+  color: var(--hero-text);
+  padding: 64px 0 72px;
+  border-top: 3px solid #4338ca;
+}
+
+.vault-head h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 12px;
+  font-size: clamp(1.5rem, 3vw, 1.9rem);
+  color: var(--hero-text);
+}
+
+.vault-lock {
+  color: var(--hero-accent);
+  flex-shrink: 0;
+}
+
+.vault-desc,
+.vault-note {
+  margin: 0 0 10px;
+  max-width: 62ch;
+  color: var(--hero-text-secondary);
+  line-height: 1.75;
+}
+
+.vault-desc strong {
+  color: var(--hero-text);
+}
+
+.vault-note {
+  font-size: 0.87rem;
+  padding: 12px 16px;
+  border-left: 3px solid var(--hero-border);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 0 8px 8px 0;
+}
+
+/* ── 잠긴 상태 ── */
+.gate-card {
+  margin-top: 28px;
+  max-width: 560px;
+  padding: 28px;
+  border-radius: 14px;
+  background: var(--hero-bg-elevated);
+  border: 1px solid var(--hero-border);
+}
+
+.gate-status {
+  margin: 0 0 20px;
+  font-weight: 700;
+  color: var(--hero-accent);
+}
+
+.gate-field label {
+  display: block;
+  margin-bottom: 7px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--hero-text);
+}
+
+.gate-field input,
+.item-form input,
+.item-form textarea {
+  width: 100%;
+  padding: 11px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--hero-border);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--hero-text);
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+
+.gate-field input::placeholder,
+.item-form input::placeholder,
+.item-form textarea::placeholder {
+  color: #64748b;
+}
+
+.gate-field input:focus-visible,
+.item-form input:focus-visible,
+.item-form textarea:focus-visible,
+.vault .btn:focus-visible {
+  outline: 3px solid var(--hero-accent);
+  outline-offset: 2px;
+}
+
+.gate-hint {
+  margin: 8px 0 0;
+  font-size: 0.8rem;
+  color: var(--hero-text-secondary);
+}
+
+.gate-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.vault .btn-outline {
+  background: transparent;
+  color: var(--hero-accent);
+  border-color: var(--hero-border);
+}
+.vault .btn-outline:hover {
+  background: rgba(165, 180, 252, 0.12);
+  color: var(--hero-accent);
+  border-color: var(--hero-accent);
+  box-shadow: none;
+}
+
+.btn-small {
+  padding: 8px 14px;
+  font-size: 0.85rem;
+}
+
+.btn[disabled] {
+  opacity: 0.55;
+  cursor: progress;
+  transform: none;
+}
+
+.gate-message,
+.vault-message {
+  margin: 16px 0 0;
+  min-height: 1.2em;
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+.gate-message:empty,
+.vault-message:empty {
+  margin: 0;
+  min-height: 0;
+}
+
+.msg-error {
+  color: #fca5a5;
+}
+.msg-ok {
+  color: #86efac;
+}
+.msg-info {
+  color: var(--hero-text-secondary);
+}
+
+.gate-explain {
+  margin-top: 22px;
+  border-top: 1px solid var(--hero-border);
+  padding-top: 16px;
+  font-size: 0.85rem;
+  color: var(--hero-text-secondary);
+}
+
+.gate-explain summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--hero-text);
+}
+
+.gate-steps {
+  margin: 14px 0 0;
+  padding-left: 20px;
+  line-height: 1.8;
+}
+.gate-steps strong {
+  color: var(--hero-accent);
+}
+
+.gate-challenge {
+  margin: 12px 0 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.78rem;
+  word-break: break-all;
+  color: #94a3b8;
+}
+.gate-challenge:empty {
+  margin: 0;
+}
+
+/* ── 열린 상태 ── */
+.vault-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 28px 0 24px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  background: var(--hero-bg-elevated);
+  border: 1px solid var(--hero-border);
+}
+
+.vault-who {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--hero-text-secondary);
+}
+.vault-who strong {
+  color: var(--hero-text);
+}
+
+.vault-badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #052e16;
+  background: #86efac;
+}
+
+.vault-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  align-items: start;
+}
+
+.vault-col h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  font-size: 1.05rem;
+  color: var(--hero-text);
+}
+
+.count-chip {
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--hero-accent);
+  background: rgba(165, 180, 252, 0.15);
+  border: 1px solid var(--hero-border);
+}
+
+.col-desc,
+.col-warn {
+  margin: 0 0 14px;
+  font-size: 0.82rem;
+  line-height: 1.7;
+  color: var(--hero-text-secondary);
+}
+.col-warn {
+  margin: 12px 0 0;
+  color: #fca5a5;
+}
+
+.item-list,
+.passkey-list {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.item-card,
+.passkey-card {
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: var(--hero-bg-elevated);
+  border: 1px solid var(--hero-border);
+}
+
+.item-card-top,
+.passkey-card-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.item-category {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  color: var(--hero-accent);
+  background: rgba(165, 180, 252, 0.12);
+  white-space: nowrap;
+}
+
+.item-card h4,
+.passkey-card h4 {
+  margin: 0;
+  font-size: 0.98rem;
+  color: var(--hero-text);
+}
+
+.item-card p,
+.passkey-meta {
+  margin: 8px 0 0;
+  font-size: 0.85rem;
+  line-height: 1.7;
+  color: var(--hero-text-secondary);
+}
+
+.passkey-meta {
+  display: grid;
+  gap: 3px;
+  font-size: 0.79rem;
+}
+
+.passkey-meta code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.75rem;
+  word-break: break-all;
+}
+
+.link-danger {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  font-size: 0.79rem;
+  color: #fca5a5;
+  cursor: pointer;
+  text-decoration: underline;
+  white-space: nowrap;
+}
+.link-danger:hover {
+  color: #fecaca;
+}
+
+.list-empty {
+  padding: 16px;
+  border-radius: 10px;
+  border: 1px dashed var(--hero-border);
+  font-size: 0.85rem;
+  color: var(--hero-text-secondary);
+}
+
+.item-form {
+  padding: 16px;
+  border-radius: 10px;
+  border: 1px dashed var(--hero-border);
+  display: grid;
+  gap: 10px;
+}
+
+.item-form h4 {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--hero-text);
+}
+
+.item-form-row {
+  display: grid;
+  grid-template-columns: minmax(90px, 1fr) 2fr;
+  gap: 10px;
+}
+
+.item-form button {
+  justify-self: start;
+}
+
+@media (max-width: 560px) {
+  .item-form-row {
+    grid-template-columns: 1fr;
+  }
+  .boundary-line {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vault .btn,
+  .vault .btn:hover {
+    transition: none;
+    transform: none;
+  }
+}
