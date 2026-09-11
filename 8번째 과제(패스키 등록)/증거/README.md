@@ -2,7 +2,8 @@
 
 | 파일 | 무엇 | 어떻게 만들었나 |
 | --- | --- | --- |
-| [`자동 검증 기록.md`](자동%20검증%20기록.md) | 확인 28가지의 **요청과 응답 전문** — 로그인 없이 열기, 남의 패스키로 열기, 이미 쓴 질문 재사용, 패스키 삭제 뒤 로그인, 타계정 접근, 로그아웃 뒤 재요청 | `cd passkey-backend && npm run evidence` 로 **실제로 서버에 요청을 보내** 받은 응답을 그대로 옮겨 적었습니다. 손으로 지어낸 문장이 아닙니다 |
+| [`자동 검증 기록.md`](자동%20검증%20기록.md) | **로컬** 임시 서버 대상, 확인 28가지의 요청·응답 전문 | `cd passkey-backend && npm run evidence` — 매번 새 임시 DB로 뜨는 서버라 반복 실행이 자유롭습니다 |
+| [`배포 서버 검증 기록.md`](배포%20서버%20검증%20기록.md) | **실제 Render 배포본**(`daehoon-passkey-backend.onrender.com`) 대상, 같은 시나리오 27가지의 요청·응답 전문 | `node test-virtual-authenticator.js --base https://daehoon-passkey-backend.onrender.com --rp-id chacha1650a.github.io --origin https://chacha1650a.github.io` — 배포한 진짜 서버가 응답한 것입니다. (DB 파일에 직접 접근해야 하는 "패스키 0개 계정 재등록" 한 항목만 원격에서는 재현 불가 — 왼쪽 로컬 기록의 같은 항목으로 대신합니다) |
 | [`실기기 검증 기록.md`](실기기%20검증%20기록.md) | 실제 브라우저·실제 기기에서 지문·PIN 으로 확인한 기록과 화면 사진 | 배포 뒤 직접 눌러 가며 채웁니다 |
 
 ## 왜 두 개인가

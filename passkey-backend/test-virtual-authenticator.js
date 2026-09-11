@@ -27,6 +27,10 @@ const ORIGIN = argOf('--origin', 'http://localhost:5500');
 const OUT = argOf('--out', path.join(__dirname, '..', '8번째 과제(패스키 등록)', '증거', '자동 검증 기록.md'));
 const USE_OWN_SERVER = !argv.includes('--base');
 
+// 배포한 서버는 DB가 실행 사이에도 남아 있어서, 같은 이름으로 두 번 돌리면
+// "이미 있는 계정" 취급을 받아 충돌한다. 로컬 임시 서버는 매번 새 DB라 겹칠 일이 없어 접미사가 필요 없다.
+const RUN_SUFFIX = USE_OWN_SERVER ? '' : '-' + Date.now().toString(36);
+
 /* ---------------- 기록 ---------------- */
 const lines = [];
 const secrets = new Map(); // 원문 → 가린 표기
@@ -226,7 +230,7 @@ async function run() {
   const regChallenges = [];
   for (let i = 0; i < 3; i += 1) {
     const r = await call('POST', '/api/passkey/register/options', {
-      body: { handle: `challenge-check-${i}` },
+      body: { handle: `challenge-check-${i}${RUN_SUFFIX}` },
       note: `${i + 1}번째 — 질문만 받고 등록은 하지 않음`
     });
     regChallenges.push(r.data.options.challenge);
@@ -238,9 +242,9 @@ async function run() {
   say('위 세 계정은 질문만 받고 확인 단계로 가지 않았습니다. 아래에서 저장된 것이 없다는 것을 다시 확인합니다.');
 
   h3('등록을 중간에 그만두면 서버에 아무것도 남지 않는다 (T08-C25)');
-  say('바로 위에서 `challenge-check-0` 은 질문만 받고 끝냈습니다. 그 이름으로 로그인해 보면 —');
+  say(`바로 위에서 \`challenge-check-0${RUN_SUFFIX}\` 은 질문만 받고 끝냈습니다. 그 이름으로 로그인해 보면 —`);
   const abandoned = await call('POST', '/api/passkey/login/options', {
-    body: { handle: 'challenge-check-0' },
+    body: { handle: `challenge-check-0${RUN_SUFFIX}` },
     note: '등록을 그만둔 이름으로 로그인 시도'
   });
   const abandonedEmpty = Array.isArray(abandoned.data.options.allowCredentials)
@@ -249,7 +253,7 @@ async function run() {
   mark('T08-C25', '등록을 그만둔 이름에는 저장된 패스키가 0개', abandonedEmpty);
 
   h3('계정 A — 첫 번째 패스키 등록 (T08-C19 / C21 / C22 / C23 / C24)');
-  const handleA = 'daehoon-a';
+  const handleA = 'daehoon-a' + RUN_SUFFIX;
   const authA1 = new VirtualAuthenticator('A의 노트북');
   const regA1 = await register(handleA, authA1, '노트북(윈도우 Hello)');
   mark('T08-C21', `계정 A 패스키 1 등록 → ${regA1.ver.status}`, regA1.ver.status === 201);
@@ -344,7 +348,7 @@ async function run() {
   h2('카드 5 — 남의 패스키로는 열리지 않는다');
 
   h3('계정 B를 따로 만든다 (T08-C36)');
-  const handleB = 'tester-b';
+  const handleB = 'tester-b' + RUN_SUFFIX;
   const authB1 = new VirtualAuthenticator('B의 기기');
   const regB1 = await register(handleB, authB1, 'B의 보안 키');
   mark('T08-C36', `계정 B 생성 → ${regB1.ver.status}`, regB1.ver.status === 201);
@@ -468,19 +472,29 @@ async function run() {
   ].join(' '));
 
   h3('패스키가 0개가 된 계정 (참고)');
-  const handleC = 'locked-c';
-  const authC = new VirtualAuthenticator('C의 기기');
-  await register(handleC, authC, 'C의 유일한 패스키');
-  say('DB에서 직접 그 계정의 패스키 줄을 지워 "0개가 된 계정" 상태를 만든 뒤, 새 패스키를 붙여 보겠습니다.');
-  const { DatabaseSync } = require('node:sqlite');
-  const rawDb = new DatabaseSync(DB_PATH);
-  rawDb.prepare('DELETE FROM credentials WHERE credential_id = ?').run(authC.credentialIdB64);
-  rawDb.close();
-  const lockedRegister = await call('POST', '/api/passkey/register/options', {
-    body: { handle: handleC },
-    note: '패스키가 0개인 계정에 새 패스키를 붙이려는 시도'
-  });
-  mark('T08-C46', `패스키 0개 계정에 재등록 → ${lockedRegister.status} ${lockedRegister.data.error}`, lockedRegister.status === 403);
+  if (USE_OWN_SERVER) {
+    // 이 스크립트가 직접 띄운 서버일 때만 DB 파일에 바로 접근할 수 있다.
+    // (배포한 서버는 파일이 원격 디스크에 있어서 이 방법으로는 흉내 낼 수 없다 — 아래 else 참고)
+    const handleC = 'locked-c' + RUN_SUFFIX;
+    const authC = new VirtualAuthenticator('C의 기기');
+    await register(handleC, authC, 'C의 유일한 패스키');
+    say('DB에서 직접 그 계정의 패스키 줄을 지워 "0개가 된 계정" 상태를 만든 뒤, 새 패스키를 붙여 보겠습니다.');
+    const { DatabaseSync } = require('node:sqlite');
+    const rawDb = new DatabaseSync(DB_PATH);
+    rawDb.prepare('DELETE FROM credentials WHERE credential_id = ?').run(authC.credentialIdB64);
+    rawDb.close();
+    const lockedRegister = await call('POST', '/api/passkey/register/options', {
+      body: { handle: handleC },
+      note: '패스키가 0개인 계정에 새 패스키를 붙이려는 시도'
+    });
+    mark('T08-C46', `패스키 0개 계정에 재등록 → ${lockedRegister.status} ${lockedRegister.data.error}`, lockedRegister.status === 403);
+  } else {
+    say([
+      '이 확인은 서버가 들고 있는 DB 파일에 직접 접근해야 해서, 이 스크립트가 직접 띄운 로컬 서버에서만 재현할 수 있습니다',
+      '(배포한 서버는 파일이 원격 디스크에 있어 이 방법으로는 흉내 낼 수 없습니다). 그래서 이 항목은 여기서는 건너뜁니다',
+      '— 로컬 실행 결과는 [`증거/자동 검증 기록.md`](../8번째%20과제(패스키%20등록)/증거/자동%20검증%20기록.md) 의 같은 항목을 참고해 주세요.'
+    ].join(' '));
+  }
 
   /* ===== 요약 ===== */
   const passed = summary.filter((s) => s.ok).length;
