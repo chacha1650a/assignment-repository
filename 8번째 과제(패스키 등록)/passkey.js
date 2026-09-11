@@ -392,7 +392,19 @@
   $('btn-register').addEventListener('click', function () { registerPasskey(); });
   $('btn-login').addEventListener('click', loginWithPasskey);
   $('btn-logout').addEventListener('click', logout);
-  $('btn-add-passkey').addEventListener('click', function () { registerPasskey({ adding: true }); });
+  $('btn-add-passkey').addEventListener('click', function () {
+    // 같은 비밀번호 관리자에 두 번째를 만들면 첫 번째가 조용히 대체될 수 있어서, 누르기 전에 한 번 짚어 준다.
+    // (실제로 그렇게 해서 계정 하나가 잠긴 적이 있다 — 증거/실기기 검증 기록.md 참고)
+    var ok = window.confirm(
+      '두 번째 패스키는 지금 쓰고 있는 것과 다른 기기나 다른 비밀번호 관리자에 만들어 주세요.\n\n' +
+      '같은 관리자에 또 만들면 먼저 만든 패스키를 대체해 버릴 수 있습니다. ' +
+      '그러면 목록에는 두 개로 보여도 실제로 쓸 수 있는 것은 하나뿐이라, ' +
+      '하나를 지우는 순간 이 계정에 들어올 수 없게 됩니다.\n\n' +
+      '계속할까요?'
+    );
+    if (!ok) return;
+    registerPasskey({ adding: true });
+  });
 
   handleInput.addEventListener('keydown', function (event) {
     if (event.key === 'Enter') {

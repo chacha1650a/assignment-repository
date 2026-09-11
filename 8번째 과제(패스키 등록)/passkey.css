@@ -327,6 +327,19 @@
   color: #fca5a5;
 }
 
+/* 두 번째 패스키를 같은 관리자에 만들면 첫 번째가 대체될 수 있다는 경고.
+   "지우면 못 들어온다"(붉은색)와 구분하려고 호박색으로 둔다. */
+.col-warn-replace {
+  color: #fcd34d;
+  padding: 12px 14px;
+  border-left: 3px solid #f59e0b;
+  background: rgba(245, 158, 11, 0.08);
+  border-radius: 0 8px 8px 0;
+}
+.col-warn-replace strong {
+  color: #fde68a;
+}
+
 .item-list,
 .passkey-list {
   list-style: none;
