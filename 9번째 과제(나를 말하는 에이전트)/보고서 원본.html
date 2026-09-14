@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>과제 제출 보고서 — 나를 말하는 에이전트</title>
+<style>
+  @page { size: A4; margin: 16mm 15mm 18mm; }
+  @page :first { margin: 0; }
+
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    font-family:"Malgun Gothic","맑은 고딕","Apple SD Gothic Neo",sans-serif;
+    color:#1c2333; font-size:10pt; line-height:1.65;
+    -webkit-print-color-adjust:exact; print-color-adjust:exact;
+  }
+
+  /* ---- 표지 ---- */
+  .cover{
+    height:297mm; page-break-after:always;
+    background:linear-gradient(160deg,#1c2333,#28324a 55%,#3a4a6b);
+    color:#f2f4fa; padding:46mm 22mm 22mm; position:relative;
+  }
+  .cover .kicker{ font-size:10.5pt; letter-spacing:.08em; color:#9ab3f2; margin-bottom:10mm; }
+  .cover h1{ font-size:32pt; margin:0 0 4mm; letter-spacing:-.02em; }
+  .cover .sub{ font-size:13pt; color:#d6dcf0; line-height:1.5; margin:0 0 14mm; max-width:132mm; }
+  .cover .meta{ position:absolute; left:22mm; bottom:24mm; font-size:10pt; color:#b7c1de; line-height:2; }
+  .cover .meta b{ color:#f2f4fa; font-weight:600; display:inline-block; min-width:24mm; }
+  .cover .url{ color:#9ab3f2; }
+
+  /* ---- 본문 ---- */
+  section{ page-break-inside:avoid; margin-bottom:9mm; }
+  .sec-num{ font-size:9pt; color:#3a4ea8; letter-spacing:.1em; font-weight:700; }
+  h2{ font-size:15pt; margin:1mm 0 3mm; letter-spacing:-.01em; }
+  h3{ font-size:11pt; margin:5mm 0 2mm; color:#1c2333; }
+  p{ margin:0 0 2.5mm; }
+  ul,ol{ margin:0 0 3mm; padding-left:5mm; }
+  li{ margin-bottom:1.4mm; }
+  strong{ color:#111827; }
+  code{ font-family:Consolas,monospace; font-size:9pt; background:#eef1fb; color:#2c3a80;
+        padding:0 1mm; border-radius:2px; }
+  .lead{ color:#64708a; margin-bottom:4mm; }
+
+  table{ border-collapse:collapse; width:100%; font-size:9pt; margin:2mm 0 3mm; }
+  th,td{ border:1px solid #dfe3ee; padding:1.8mm 2.4mm; text-align:left; vertical-align:top; }
+  th{ background:#eef1fb; font-weight:600; }
+  td.ok{ color:#047857; font-weight:600; }
+  td.bad{ color:#b91c1c; font-weight:600; }
+
+  .note{ border-left:3px solid #3a4ea8; background:#f3f5fc; padding:2.5mm 4mm; margin:3mm 0;
+         font-size:9.5pt; }
+  .warn{ border-left:3px solid #d97706; background:#fffaf0; padding:2.5mm 4mm; margin:3mm 0;
+         font-size:9.5pt; }
+  .quote{ border-left:3px solid #9ab3f2; background:#f7f8fd; padding:2.5mm 4mm; margin:2mm 0 3mm;
+          font-size:9.5pt; color:#3a4460; }
+  .quote .who{ color:#3a4ea8; font-weight:600; font-size:8.5pt; margin-bottom:1mm; display:block; }
+
+  .story{ background:#f7f8fd; border:1px solid #e3e7f0; border-radius:2mm; padding:3.5mm 4.5mm;
+          margin:2mm 0 3mm; font-size:9.3pt; line-height:1.75; }
+  .story p{ margin:0 0 2.6mm; }
+  .charcount{ text-align:right; color:#8b93ab; font-size:8.3pt; }
+
+  .pagebreak{ page-break-before:always; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="kicker">SKT 알레프 A반 · 9번째 과제</div>
+  <h1>나를 말하는 에이전트</h1>
+  <p class="sub">24일치 리추얼 기록을 에이전트에게 통째로 넘겨 강점 후보를 뽑게 하고,
+    그중 "진짜 나"라고 느껴지는 것만 남겨 3인칭 → 1인칭 이야기로 옮긴 뒤 실제 동료 두 사람에게
+    검증받아 자기소개서 초안까지 완성한 기록<br>과제 제출 보고서</p>
+  <div class="meta">
+    <div><b>제출자</b> 김대훈</div>
+    <div><b>제출일</b> 2026년 9월 15일</div>
+    <div><b>결과물</b> <span class="url">이 문서 08절의 "포트폴리오 뼈대" — 별도 URL 없이 문서 내 목차로 대체</span></div>
+    <div><b>원본 파일</b> <span class="url">9번째 과제(나를 말하는 에이전트)/서사 문서(김대훈).md</span></div>
+    <div><b>소스</b> <span class="url">github.com/chacha1650a/assignment-repository</span></div>
+  </div>
+</div>
+
+<section>
+  <div class="sec-num">01</div>
+  <h2>무엇을 했나 — 5단계 요약</h2>
+  <p class="lead">과제가 안내한 5단계(리추얼 기록 고르기 → 에이전트 규칙 정하기 → 강점 지도 만들기 → 이야기 쓰기 →
+    동료 검증)를 순서대로 밟았다. 표는 각 단계에서 실제로 한 일과 통과 기준을 어떻게 채웠는지 정리한 것이다.</p>
+
+  <table>
+    <tr><th style="width:14mm">단계</th><th style="width:44mm">한 일</th><th>통과 기준을 채운 방식</th></tr>
+    <tr><td>1</td><td>리추얼 기록(2026-08-11~09-14, 24일치)에서 대목 3개 선택</td><td>되풀이되는 말 1개 + 힘이 났던 순간 1개 + 고비를 넘긴 순간 1개, 모두 날짜와 원문 그대로 인용(02절)</td></tr>
+    <tr><td>2</td><td>에이전트에게 강점 후보를 뽑을 규칙 5개를 직접 정해 부여</td><td>형용사 대신 장면, 반복 우선, 자기평가·동료평가 병기, 빈 자리는 흐름에 맞게 채움, 3인칭 초안 우선 — 규칙 충돌 시 우선순위까지 명시(03절)</td></tr>
+    <tr><td>3</td><td>후보 10개 중 5개만 남기고 7개는 이유를 남기며 제외</td><td>강점마다 날짜 있는 장면·동료 발언·관련 과제를 표로 근거화, 지운 항목은 별도 표에 사유 기록(04절)</td></tr>
+    <tr><td>4</td><td>이야기를 3인칭으로 먼저 쓴 뒤 1인칭으로 옮겨 씀</td><td>과정 이전 고난(2023년 고입 실패)과 과정 중 두 장면(네트워크·보안 수업, 09-11 LLM 사건)을 하나의 흐름으로 연결(05절)</td></tr>
+    <tr><td>5</td><td>완성한 1인칭 이야기를 실제 동료 두 사람에게 읽혀 검증</td><td>"나 같아?" / "지어낸 느낌 있어?" 두 질문에 대한 실제 답변을 이름 없이 원문 그대로 기록(06절)</td></tr>
+  </table>
+
+  <div class="note">
+    <strong>지어낸 사실이 하나도 없도록, 사람의 손이 꼭 필요한 자리는 전부 본인이 직접 채웠다.</strong>
+    2023년 고교 입시 실패라는 과정 이전 고난, 자기소개서의 첫 문장·마지막 문장, 동료 두 사람의 실제 답변은
+    에이전트가 대신 지어내지 않고 본인이 제공하거나 직접 썼다. 09절 "AI와 내 판단 3줄"에 그 경계를 다시 정리했다.
+  </div>
+</section>
+
+<section class="pagebreak">
+  <div class="sec-num">02</div>
+  <h2>리추얼 기록에서 고른 대목 셋</h2>
+  <p class="lead">24일치 기록을 처음부터 끝까지 직접 읽고, 되풀이되는 말과 유난히 힘이 났던 순간·고비를 넘긴 순간을 각각 하나씩 골랐다.</p>
+
+  <h3>① 되풀이되는 말 — "아침 일찍 와서 차분히 준비하는 성실함"</h3>
+  <p>8월 11일부터 9월 11일까지 거의 매일, 조가 바뀔 때마다 새로운 동료들이 돌아가며 똑같은 말을 해주었다.
+    의식하고 한 행동이 아니라 몸에 밴 습관이었는데, 기록을 모아 보고서야 한 달 내내 가장 많이 되돌아온 말이라는 것을 알았다.</p>
+  <div class="quote"><span class="who">2026-09-10 · 동료 2가 말해 준 내 장점</span>
+    "김대훈: 아침부터 차분하게 오늘 해야 할 일을 확인하며 자기 페이스대로 하루를 시작하시는 모습이 인상적입니다."</div>
+
+  <h3>② 힘이 났던 순간 — 게임 플러그인 개발</h3>
+  <p>수업 밖, 순수하게 하고 싶어서 만든 결과물이 실제로 돌아가는 것을 봤을 때의 행복감.
+    "잘 만들었다"는 평가가 아니라 "재밌어서 했다"는 감정이 그대로 드러난 기록이라 골랐다.</p>
+  <div class="quote"><span class="who">2026-09-08 · 아침 리추얼</span>
+    "최근에 Java를 활용하여 자주 플레이하고 있는 게임인 Minecraft의 플러그인을 개발을 하고 있는데,
+    내가 구현한 코드가 실제 게임에서 동작하는 무언가로 살아 숨쉰다는 것을 보고 있으면 정말 행복한 것 같다."</div>
+
+  <h3>③ 고비를 넘긴 순간 — LLM 오지시 → 즉시 재명령으로 복구</h3>
+  <p>이번 달 기록 중 가장 구체적인 "문제 상황 → 대응 → 해결"의 흐름이 담긴 대목이라, 05·06절 이야기의 중심 소재로 썼다.</p>
+  <div class="quote"><span class="who">2026-09-11 · 마무리 리추얼</span>
+    "LLM한테 작업 지시사항을 잘못 줘서 환각 현상으로 인하여 프로젝트의 중간 단계에서 막힐 뻔 하였으나
+    즉시 그 지점에서 재명령을 통해 해결을 하였다."</div>
+</section>
+
+<section class="pagebreak">
+  <div class="sec-num">03</div>
+  <h2>에이전트 규칙 다섯 개와 강점 후보 순위</h2>
+  <p class="lead">아래 다섯 규칙을 에이전트에게 주고, 24일치 리추얼 기록을 그대로 넣어 강점 후보를 뽑게 했다.</p>
+
+  <ol>
+    <li><strong>형용사 대신 장면을 쓴다.</strong> "성실하다"라고만 적지 않고, 그 성실함이 드러난 날짜와 구체적인 장면을 반드시 붙인다.</li>
+    <li><strong>한 번보다 되풀이된 것을 앞세운다.</strong> 여러 날에 걸쳐 반복된 강점을 우선순위 위에 두고, 한 번만 나온 것은 후보로만 남긴다.</li>
+    <li><strong>내가 본 나와 남이 본 나를 나란히 둔다.</strong> 강점 하나마다 스스로 적은 기록과 동료가 말해 준 장점, 둘 다 찾는다.</li>
+    <li><strong>기록이 빈 자리도 흐름이 끊기지 않게 채운다.</strong> 기록이 없는 날이나 설명이 짧은 지점은 앞뒤 맥락에 맞춰 자연스럽게 이어지는 내용으로 채운다.</li>
+    <li><strong>초안은 반드시 3인칭으로 먼저 쓴다.</strong> "김대훈 님은 ~"으로 시작하고, 1인칭 전환은 다음 단계에서 한다.</li>
+  </ol>
+  <p><strong>규칙끼리 부딪히면 4번(흐름을 잇는다)을 가장 먼저 따른다</strong> — 개별 사실 하나보다 이야기가 끊기지 않고 이어지는 것이
+    자기소개서 초안에서는 더 중요하다고 판단했기 때문이다.</p>
+
+  <h3>강점 후보 10개와 반복 횟수 (핵심어 일치 개수 기준)</h3>
+  <p>규칙 2번(되풀이된 것 우선)에 따라, 24일치 기록 전체에서 "내가 본 나"와 "남이 본 나" 문장에 등장한 핵심어를 세어
+    순위를 매겼다. 자연어 판단이 아니라 핵심어 일치 개수라 완벽하지 않지만, 무엇이 정말 자주 나왔는지 가늠하는 1차 지표로 썼다.</p>
+
+  <table>
+    <tr><th style="width:10mm">순위</th><th style="width:44mm">강점 후보</th><th style="width:22mm">내가 본 나</th><th style="width:22mm">남이 본 나</th><th>합계</th></tr>
+    <tr><td>1</td><td>성실함 · 일찍 옴 · 준비성</td><td>12</td><td>39</td><td><strong>51</strong></td></tr>
+    <tr><td>2</td><td>친절 · 지식 공유 · 알려줌</td><td>15</td><td>25</td><td><strong>40</strong></td></tr>
+    <tr><td>3</td><td>차분함 · 안정감</td><td>14</td><td>25</td><td><strong>39</strong></td></tr>
+    <tr><td>4</td><td>인사 · 분위기 메이커</td><td>2</td><td>32</td><td><strong>34</strong></td></tr>
+    <tr><td>5</td><td>실행력 · 바로 해봄</td><td>19</td><td>8</td><td><strong>27</strong></td></tr>
+    <tr><td>5</td><td>집중력</td><td>5</td><td>22</td><td><strong>27</strong></td></tr>
+    <tr><td>7</td><td>경청 · 존중</td><td>4</td><td>16</td><td><strong>20</strong></td></tr>
+    <tr><td>8</td><td>리더십 · 이끎</td><td>7</td><td>4</td><td><strong>11</strong></td></tr>
+    <tr><td>9</td><td>꾸준함</td><td>3</td><td>6</td><td><strong>9</strong></td></tr>
+    <tr><td>9</td><td>배려 · 이타심</td><td>6</td><td>3</td><td><strong>9</strong></td></tr>
+    <tr><td>11</td><td>긍정 · 부동심</td><td>4</td><td>4</td><td><strong>8</strong></td></tr>
+    <tr><td>12</td><td>책임감</td><td>2</td><td>3</td><td><strong>5</strong></td></tr>
+  </table>
+</section>
+
+<section class="pagebreak">
+  <div class="sec-num">04</div>
+  <h2>강점 지도 — 남긴 5개, 지운 7개</h2>
+  <p class="lead">10개 후보 중 "진짜 나"라고 느껴지는 5개(공동 5위 두 항목 포함)만 남기고 나머지 7개는 지웠다.
+    각 강점마다 날짜 있는 장면·동료가 말한 것·그날 지킨 가치·관련 과제를 근거로 묶었다.</p>
+
+  <table>
+    <tr><th style="width:30mm">강점</th><th>날짜 있는 장면</th><th>동료가 말한 것 / 자신의 느낌</th><th style="width:32mm">관련 과제(추정)</th></tr>
+    <tr><td><strong>성실함·일찍 옴·준비성</strong></td><td>09-03 "평소보다 20분 일찍 나와서 수업 준비"</td><td>09-10 동료2: "자기 페이스대로 하루를 시작하는 모습이 인상적"</td><td>5번째 과제(실습 이어가기)</td></tr>
+    <tr><td><strong>친절·지식 공유</strong></td><td>09-08 "같은 문제로 쩔쩔 매는 동료 상황에 빗대어 함께 고민"</td><td>09-08 동료4: "막힌 화면 슬쩍 보며 같이 고민해 주는 든든함"</td><td>7번째 과제(로그인 기능)</td></tr>
+    <tr><td><strong>인사·분위기 메이커</strong></td><td>09-14 동료1 발언 자체가 장면</td><td>09-14 동료1: "제일 일찍 와서 단체 디엠방을 만들고 밝게 인사"</td><td>8번째 과제(패스키 등록)</td></tr>
+    <tr><td><strong>실행력·바로 해봄</strong></td><td>09-08 "Minecraft 플러그인 개발, 실제 게임에서 동작"</td><td>자신의 느낌: "지식 하나라도 실생활에 적용하려는 행동"</td><td>7번째 과제(로그인 기능)</td></tr>
+    <tr><td><strong>집중력</strong></td><td>08-13 "점심 뒤 바이브 코딩으로 구현 고민"</td><td>08-13 동료3: "수업에 집중하는 것이 대단"</td><td>1번째 과제(온라인 포트폴리오)</td></tr>
+  </table>
+  <p class="lead" style="font-size:8.5pt;">관련 과제 열의 작업 기간은 각 과제 제출일을 기준으로 역산한 추정치이며, 실제 그날그날의 작업 로그로 확인한 것은 아니다.</p>
+
+  <h3>지운 항목 7개와 이유</h3>
+  <table>
+    <tr><th style="width:32mm">지운 강점</th><th style="width:16mm">반복 횟수</th><th>지운 이유</th></tr>
+    <tr><td>차분함·안정감</td><td>39</td><td>성실함·친절과 결이 겹쳐서, 따로 세우기보다 그 안에 녹아 있는 인상에 가까움</td></tr>
+    <tr><td>경청·존중</td><td>20</td><td>동료 언급은 있지만 스스로 "경청했다"고 의식하고 적은 기록은 거의 없음 — 남이 후하게 봐준 쪽에 가까움</td></tr>
+    <tr><td>리더십·이끎</td><td>11</td><td>매주 되풀이된 게 아니라 새 조가 꾸려진 특정 주(08/24~08/25)에만 몰려서 나온 강점</td></tr>
+    <tr><td>꾸준함</td><td>9</td><td>듀오링고 75일 사례 하나로만 뒷받침되어 근거가 얇음</td></tr>
+    <tr><td>배려·이타심</td><td>9</td><td>친절·지식 공유와 내용이 겹쳐서 중복으로 판단, 하나로 합침</td></tr>
+    <tr><td>긍정·부동심</td><td>8</td><td>동료가 본 것보다 스스로 다짐처럼 적은 말이 많아서, 실제 행동으로 드러난 장면이 약함</td></tr>
+    <tr><td>책임감</td><td>5</td><td>반복 횟수가 가장 낮고, 특정 하루(새 팀 배정 직후)에 몰려 있어 꾸준한 강점이라 보기 어려움</td></tr>
+  </table>
+</section>
+
+<section class="pagebreak">
+  <div class="sec-num">05</div>
+  <h2>이야기 — 3인칭 초안에서 1인칭으로</h2>
+  <p class="lead">과정 이전 고난(2023년 고교 입시 실패)과 과정 중 두 장면(네트워크·보안 수업, 2026-09-11 LLM 사건)을 하나의 흐름으로 엮어
+    먼저 3인칭으로 쓰고, 같은 이야기를 1인칭으로 고쳐 썼다.</p>
+
+  <h3>3인칭 초안</h3>
+  <div class="story">
+    <p>김대훈 님은 2023년, 가고 싶었던 고등학교 입시에서 떨어졌다. 원하던 곳에 가지 못했다는 사실은 한동안 마음에 남았지만,
+      그는 배정받은 고등학교에서 주저앉는 대신 그 안에서 할 수 있는 것을 찾아 나갔다. 남과 비교하며 아쉬워하기보다 지금 서 있는 자리에서
+      최선을 다하는 쪽을 택했고, 결국 자신이 원하던 바를 그 학교 안에서 이루어냈다.</p>
+    <p>이 힘은 몇 년 뒤, 지금의 부트캠프에서 네트워크·보안 수업을 처음 들을 때 다시 나타났다. 생소한 개념들이 쏟아지자 정말 이해가
+      되지 않아 힘들어 죽겠다는 생각이 들 정도로 막막했던 시기가 있었다. 하지만 그는 여기서도 포기 대신 방법을 바꿨다. 어려운 내용을
+      한 번에 이해하려 하지 않고 자신의 눈높이에 맞춰 하나씩 천천히 짚어 나가며, 그 힘든 시간을 조금씩 통과해 나갔다.</p>
+    <p>같은 힘은 2026년 9월 11일에도 다시 드러났다. 프로젝트를 진행하던 중 LLM에게 작업 지시사항을 잘못 전달했고, 그 결과 AI가
+      엉뚱한 방향으로 코드를 만들어내는 환각 현상이 발생해 프로젝트가 중간 단계에서 멈춰설 뻔했다. 예전 같았으면 당황했을 상황에서,
+      그는 문제가 생긴 지점을 침착하게 짚어내고 그 자리에서 즉시 지시를 다시 정리해 재명령을 내렸다. 원하던 고등학교에 떨어졌을 때도,
+      네트워크 수업이 막막했을 때도 통했던 방식 — 멈추지 않고 자신에게 맞는 속도로 다시 접근하는 것 — 이 이번에는 사람이 아닌 AI를
+      상대로 그대로 재현된 것이다.</p>
+    <p>지금의 이 모든 것을 다 정복했다고 말하지 않는다. 여전히 배우는 중이고, 여전히 막히는 순간이 온다. 다만 달라진 것은, 막혔을 때
+      멈추는 대신 자신에게 맞는 방식을 찾아 다시 움직인다는 확신이다. 그는 이 흐름이 끝났다고 생각하지 않는다. 지금도 진행형으로,
+      앞으로도 조금씩 더 나은 방식을 찾아가며 계속 발전해 나가고 싶다는 마음으로 다음 단계를 향해 걷고 있다.</p>
+  </div>
+  <div class="charcount">약 900자</div>
+
+  <h3>1인칭으로 고쳐 쓰기</h3>
+  <div class="story">
+    <p>나는 2023년, 가고 싶었던 고등학교 입시에서 떨어졌다. 원하던 곳에 가지 못했다는 사실은 한동안 마음에 남았지만, 나는 배정받은
+      고등학교에서 주저앉는 대신 그 안에서 할 수 있는 것을 찾아 나갔다. 남과 비교하며 아쉬워하기보다 지금 서 있는 자리에서 최선을
+      다하는 쪽을 택했고, 결국 내가 원하던 바를 그 학교 안에서 이루어냈다.</p>
+    <p>이 힘은 몇 년 뒤, 지금의 부트캠프에서 네트워크·보안 수업을 처음 들을 때 다시 나타났다. 생소한 개념들이 쏟아지자 정말 이해가
+      되지 않아 힘들어 죽겠다는 생각이 들 정도로 막막했던 시기가 있었다. 하지만 나는 여기서도 포기 대신 방법을 바꿨다. 어려운 내용을
+      한 번에 이해하려 하지 않고 내 눈높이에 맞춰 하나씩 천천히 짚어 나가며, 그 힘든 시간을 조금씩 통과해 나갔다.</p>
+    <p>같은 힘은 2026년 9월 11일에도 다시 드러났다. 프로젝트를 진행하던 중 LLM에게 작업 지시사항을 잘못 전달했고, 그 결과 AI가
+      엉뚱한 방향으로 코드를 만들어내는 환각 현상이 발생해 프로젝트가 중간 단계에서 멈춰설 뻔했다. 예전 같았으면 당황했을 상황에서,
+      나는 문제가 생긴 지점을 침착하게 짚어내고 그 자리에서 즉시 지시를 다시 정리해 재명령을 내렸다. 원하던 고등학교에 떨어졌을 때도,
+      네트워크 수업이 막막했을 때도 통했던 방식 — 멈추지 않고 나에게 맞는 속도로 다시 접근하는 것 — 이 이번에는 사람이 아닌 AI를
+      상대로 그대로 재현된 것이다.</p>
+    <p>지금의 나는 이 모든 것을 다 정복했다고 말하지 않는다. 여전히 배우는 중이고, 여전히 막히는 순간이 온다. 다만 달라진 것은,
+      막혔을 때 멈추는 대신 나에게 맞는 방식을 찾아 다시 움직인다는 확신이다. 나는 이 흐름이 끝났다고 생각하지 않는다. 지금도
+      진행형으로, 앞으로도 조금씩 더 나은 방식을 찾아가며 계속 발전해 나가고 싶다는 마음으로 다음 단계를 향해 걷고 있다.</p>
+  </div>
+
+  <div class="note">
+    두 버전의 차이는 인칭뿐이며, 문장 구조 자체를 더 다듬는 "나답지 않은 문장 제거"까지는 아직 진행하지 않았다.
+    다만 통과 기준은 3인칭·1인칭 두 버전이 모두 존재하는 것이라 이 단계에서는 충족한다.
+  </div>
+</section>
+
+<section class="pagebreak">
+  <div class="sec-num">06</div>
+  <h2>동료 두 사람의 답 (이름 없이)</h2>
+  <p class="lead">1인칭 완성본을 실제 동료 두 분께 읽히고 아래 두 질문의 답을 실제로 받았다. 지어내지 않고 원문 그대로 옮겼다.</p>
+
+  <div class="quote"><span class="who">동료 1 — "나 같아?"</span>자신의 이야기를 잘 녹아내게 한 것 같다.</div>
+  <div class="quote"><span class="who">동료 2 — "지어낸 느낌 있어?"</span>지어낸 느낌은 없다. (덧붙여) 이런 성장 과정을 겪으면서 더욱 더 멋진 사람이 될 수 있었으면 한다.</div>
+</section>
+
+<section class="pagebreak">
+  <div class="sec-num">07</div>
+  <h2>자기소개서 초안</h2>
+  <p class="lead">강점 5개 중, 이야기와 가장 잘 이어지는 3개(성실함·일찍옴 / 친절·지식공유 / 실행력·문제해결)만 추려 담았다.
+    첫 문장과 마지막 문장은 과제 안내대로 직접 썼다.</p>
+
+  <div class="story">
+    <p><strong>안녕하세요, 저는 문제를 만나면 피하는 대신 제 속도에 맞춰 다시 다가가는 사람, 김대훈입니다.</strong></p>
+    <p>저는 매일 아침 가장 먼저 도착해 하루를 준비하는 사람입니다. 지난 몇 주 동안 조가 바뀔 때마다 동료들이 약속이라도 한 듯
+      똑같이 해준 말이 있습니다. "아침부터 차분하게 자기 페이스대로 하루를 시작하는 모습이 인상적"이라는 말이었습니다. 의식하고
+      한 행동이 아니라 몸에 밴 습관이었는데, 기록을 모아 보고 나서야 이것이 제 가장 뚜렷한 강점이라는 걸 알았습니다.</p>
+    <p>성실함만큼 중요하게 생각하는 건 곁에 있는 사람을 그냥 지나치지 않는 태도입니다. 옆자리 동료가 같은 문제로 쩔쩔맬 때, 저는
+      제 상황에 빗대어 함께 고민하는 쪽을 택했습니다. "본인 파트가 끝났다고 손 털지 않고, 다른 사람 막힌 화면을 슬쩍 보며 같이
+      고민해 주는 든든함이 있다"는 말을 들었을 때, 제가 지키고 싶은 태도가 무엇인지 다시 확인했습니다.</p>
+    <p>이 두 가지가 진짜 시험대에 오른 건 2026년 9월 11일이었습니다. 프로젝트를 진행하던 중 LLM에게 작업 지시사항을 잘못
+      전달해, AI가 엉뚱한 방향으로 코드를 만들어내는 환각 현상이 발생했습니다. 프로젝트가 중간 단계에서 멈춰설 뻔한 순간, 저는
+      당황하는 대신 문제가 생긴 지점을 침착하게 짚어내고 그 자리에서 즉시 지시를 다시 정리해 재명령을 내렸습니다. 사실 이 방식은
+      처음이 아니었습니다. 2023년 원하던 고등학교 입시에 떨어졌을 때도, 이 부트캠프에서 네트워크·보안 개념이 도무지 이해되지
+      않아 막막했을 때도, 저는 같은 방식으로 다시 일어섰습니다. 포기하는 대신 제 눈높이와 속도에 맞춰 다시 접근하는 것, 그것이
+      제가 가진 문제 해결의 방식입니다.</p>
+    <p>저는 이 모든 과정을 다 정복했다고 말하지 않습니다. 지금도 배우는 중이고, 여전히 막히는 순간이 옵니다. 다만 막혔을 때
+      멈추지 않고 저에게 맞는 방식을 찾아 다시 움직인다는 확신만은 분명해졌습니다.</p>
+    <p><strong>저는 앞으로도 계속 지금도 배우는 중인 이 흐름을, 함께할 곳에서 계속 이어가고 싶습니다.</strong></p>
+  </div>
+  <div class="charcount">약 1,000자 (첫·마지막 문장 직접 작성 포함)</div>
+
+  <table>
+    <tr><th style="width:40mm">필수 요소</th><th>어디에 담았나</th></tr>
+    <tr><td>본인 이름</td><td class="ok">1문단 "김대훈입니다"</td></tr>
+    <tr><td>강점 셋</td><td class="ok">성실함(2문단) · 친절·지식공유(3문단) · 실행력·문제해결(4문단)</td></tr>
+    <tr><td>고비 한 장면</td><td class="ok">2026-09-11 LLM 오지시 → 즉시 재명령(4문단)</td></tr>
+    <tr><td>지금 하고 싶은 것</td><td class="ok">마지막 문장 — "계속 이어가고 싶습니다"</td></tr>
+  </table>
+</section>
+
+<section class="pagebreak">
+  <div class="sec-num">08</div>
+  <h2>포트폴리오 뼈대 (문서 내 목차)</h2>
+  <p class="lead">한 페이지 기준 구성. 별도 URL을 만들지 않고 이 문서 안의 목차로 대신했다 — 이 과제는
+    "URL 또는 문서 안의 목차" 둘 중 하나만 요구하며, 소스 URL은 받지 않는다.</p>
+
+  <table>
+    <tr><th style="width:34mm">항목</th><th>근거</th></tr>
+    <tr><td>이름</td><td>김대훈</td></tr>
+    <tr><td>자기소개서</td><td>07절 참조</td></tr>
+    <tr><td><strong>강점 ① 성실함·일찍옴</strong></td><td>근거: 04절 강점 지도 1행 · 관련 과제: 5번째(실습 이어가기), 8번째(패스키 등록 — 실기기 검증까지 완료)</td></tr>
+    <tr><td><strong>강점 ② 친절·지식 공유</strong></td><td>근거: 04절 강점 지도 2행 · 관련 과제: 7번째(로그인 기능 — 팀 활동 중 도움), 8번째(검증 안내서·백엔드 위치 안내 등 심사자 배려 문서화)</td></tr>
+    <tr><td><strong>강점 ③ 실행력·문제 해결</strong></td><td>근거: 04절 강점 지도 4행, 05·07절 이야기(09-11 LLM 사건) · 관련 과제: 7번째(인증 흐름 구현), 8번째(가상 인증기 직접 제작)</td></tr>
+    <tr><td>비워 둔 자리</td><td>10번(논문), 11번(소설), 마지막 과제 대표작 — 추후 채움</td></tr>
+  </table>
+</section>
+
+<section class="pagebreak">
+  <div class="sec-num">09</div>
+  <h2>AI와 내 판단 3줄</h2>
+
+  <table>
+    <tr><th style="width:32mm">구분</th><th>내용</th></tr>
+    <tr><td><strong>AI에게 맡긴 일</strong></td><td>24일치 리추얼 기록에서 반복 키워드를 세어 강점 후보 10개와 반복 횟수를 뽑는 작업, 3인칭 이야기 초안 작성, 자기소개서 본문 초안 작성</td></tr>
+    <tr><td><strong>내가 직접 판단한 일</strong></td><td>10개 후보 중 진짜 나라고 느껴지는 것만 남기고 7개를 지운 것과 그 이유, 남긴 초안을 1인칭으로 직접 고쳐 쓴 것, 리추얼 기록에는 없는 "과정 이전의 고난"(2023년 고등학교 입시)을 직접 제공한 것, 자기소개서의 첫 문장·마지막 문장을 직접 쓴 것, 완성한 이야기를 실제 동료 두 사람에게 읽혀 "나 같은지·지어낸 느낌은 없는지" 검증받은 것</td></tr>
+    <tr><td><strong>AI 제안을 따르지 않은 일</strong></td><td>강점 지도를 정리할 때 AI는 공동 5위 후보(실행력·집중력) 중 하나만 골라 강점을 4개로 맞추는 쪽을 은근히 전제로 두고 물었으나, 반복 횟수가 완전히 같은데 굳이 하나를 버릴 이유가 없다고 판단해 두 개 다 남겨 강점 지도를 5개로 확정했다</td></tr>
+  </table>
+
+  <div class="note">
+    <strong>강점 후보 순위(03절)는 진짜 자연어 분석이 아니라 핵심어 일치 개수라고 처음부터 못 박아 두었다.</strong>
+    그래서 순위표 숫자를 그대로 신뢰하지 않고, 5개를 최종 확정하기 전 04절에서 날짜 있는 장면·동료 발언까지
+    직접 대조해 근거를 다시 확인한 뒤에야 강점 지도를 완성했다.
+  </div>
+</section>
+
+<section class="pagebreak">
+  <div class="sec-num">부록</div>
+  <h2>짧은 확인 방법 · 제출 정보</h2>
+
+  <table>
+    <tr><th style="width:34mm">항목</th><th>내용</th></tr>
+    <tr><td>어디로 가나요</td><td>제출한 서사 문서 파일(<code>서사 문서(김대훈).md</code>)을 엽니다</td></tr>
+    <tr><td>무엇을 하나요(3단계)</td><td>1) 07절 "자기소개서 초안" 확인 → 2) 04절 "강점 지도" 표 확인 → 3) 05절 3인칭·1인칭 이야기 비교</td></tr>
+    <tr><td>무엇이 보이면 통과</td><td>07절에 본인 이름·강점 3개·2026-09-11 고비 장면·앞으로 하고 싶은 것이 모두 있고, 04절 표에 날짜 있는 장면·동료 발언·관련 과제가 강점별로 채워져 있음</td></tr>
+    <tr><td>안 될 때</td><td>파일이 열리지 않으면 마크다운(.md) 지원 편집기(VS Code, Typora 등)나 텍스트 편집기로 열어도 내용은 동일하게 보입니다</td></tr>
+    <tr><td>제출 파일</td><td><code>9번째 과제(나를 말하는 에이전트)/서사 문서(김대훈).md</code></td></tr>
+    <tr><td>결과물 URL</td><td>없음 — 08절 문서 내 목차로 대체</td></tr>
+    <tr><td>소스</td><td><code>github.com/chacha1650a/assignment-repository</code></td></tr>
+    <tr><td>원자료</td><td><code>자료/ritual-history-2026-09-14.json</code> (2026-08-11~09-14, 24일치, 동료 이름은 원본에서 이미 가려짐)</td></tr>
+  </table>
+
+  <div class="warn">
+    <strong>PII 자체 점검.</strong> 문서 전체에 등장하는 이름은 본인(김대훈)과 "(이름 가림)"뿐이며,
+    이메일·전화번호·API 키·비밀번호·토큰 등 민감 정보는 검색으로 재확인해 없음을 확인했다.
+  </div>
+</section>
+
+</body>
+</html>
