@@ -1,0 +1,13 @@
+[
+  { "code": "T01", "title": "나를 소개하는 한 페이지", "status": "최종 확인 완료", "submittedAt": "2026-08-18" },
+  { "code": "T02", "title": "내가 설계한 미니게임", "status": "최종 확인 완료", "submittedAt": "2026-08-20" },
+  { "code": "T03", "title": "짤·카드 스튜디오", "status": "최종 확인 완료", "submittedAt": "2026-08-28" },
+  { "code": "T04", "title": "오늘의 진짜 정보판", "status": "최종 확인 완료", "submittedAt": "2026-08-31" },
+  { "code": "T05", "title": "실습 이어가기", "status": "최종 확인 완료", "submittedAt": "2026-09-03" },
+  { "code": "T06", "title": "플랜두씨 다이어리 1", "status": "최종 확인 완료", "submittedAt": "2026-09-04" },
+  { "code": "T07", "title": "플랜두씨 다이어리 2", "status": "최종 확인 완료", "submittedAt": "2026-09-10" },
+  { "code": "T08", "title": "패스키 등록", "status": "최종 확인 완료", "submittedAt": "2026-09-14" },
+  { "code": "T09", "title": "나를 말하는 에이전트", "status": "최종 확인 완료", "submittedAt": "2026-09-15" },
+  { "code": "T10", "title": "AI와 함께 쓰는 첫 논문", "status": "최종 확인 완료", "submittedAt": "2026-09-21" },
+  { "code": "T11", "title": "나에 대한 3만 자 장편소설", "status": "최종 확인 완료", "submittedAt": "2026-09-22" }
+]

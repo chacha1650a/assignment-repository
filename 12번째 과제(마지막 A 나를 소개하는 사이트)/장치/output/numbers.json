@@ -1,0 +1,20 @@
+{
+  "attendance": {
+    "trainingDays": 30,
+    "presentDays": 29,
+    "absentDays": 0,
+    "ratePercent": 96.7,
+    "source": "내 출석 기록"
+  },
+  "ritual": {
+    "morningCount": 28,
+    "closingCount": 27,
+    "totalCount": 35,
+    "source": "리추얼 기록"
+  },
+  "submissions": {
+    "completed": 11,
+    "total": 13,
+    "source": "내 제출 현황"
+  }
+}
