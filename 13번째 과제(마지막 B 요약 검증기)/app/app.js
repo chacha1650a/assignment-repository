@@ -571,6 +571,8 @@
       if (p < 1) requestAnimationFrame(tick);
     }
     requestAnimationFrame(tick);
+    // 탭이 뒤에 있으면 애니메이션이 멈추므로, 마지막 값은 따로 한 번 더 넣어 둡니다
+    setTimeout(function () { el.textContent = String(to); }, dur + 100);
   }
 
   function tipsFor(c) {
