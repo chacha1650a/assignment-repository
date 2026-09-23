@@ -228,14 +228,22 @@ button.t-row.is-current { background: var(--accent-weak); }
 /* Diff 연결 띠 */
 .diff-gap { background: var(--frame); border-left: 1px solid var(--line); border-right: 1px solid var(--line); }
 .bands { position: absolute; left: 0; top: 0; pointer-events: none; overflow: visible; z-index: 2; }
-.band { stroke-width: 1; opacity: 0; transition: opacity 0.45s var(--ease); }
-.band.drawn { opacity: 1; }
-.band.ok { fill: var(--ok-soft); stroke: color-mix(in srgb, var(--ok) 55%, transparent); }
-.band.warn { fill: var(--warn-soft); stroke: color-mix(in srgb, var(--warn-dot) 60%, transparent); }
-.band.bad { fill: none; stroke: var(--bad); stroke-dasharray: 4 4; }
-.band.muted { fill: none; stroke: var(--gray); stroke-dasharray: 2 4; }
-.focusing .band.drawn { opacity: 0.18; }
-.focusing .band.active { opacity: 1; stroke-width: 2; }
+.link { opacity: 0; transition: opacity 0.4s var(--ease); }
+.link.drawn { opacity: 1; }
+.link.far.drawn { opacity: 0.18; }
+.link .wire { fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-dasharray: var(--len); stroke-dashoffset: var(--len); transition: stroke-dashoffset 0.6s var(--ease), stroke-width 0.2s; }
+.link.drawn .wire { stroke-dashoffset: 0; }
+.link.bad.drawn .wire { stroke-dasharray: 4 4; }
+.link .end { transition: r 0.2s; }
+.link .ribbon { opacity: 0; transition: opacity 0.2s; stroke: none; }
+.link.ok .wire { stroke: var(--ok); } .link.ok .end { fill: var(--ok); } .link.ok .ribbon { fill: var(--ok-soft); }
+.link.warn .wire { stroke: var(--warn-dot); } .link.warn .end { fill: var(--warn-dot); } .link.warn .ribbon { fill: var(--warn-soft); }
+.link.bad .wire { stroke: var(--bad); } .link.bad .end { fill: var(--bad); } .link.bad .ribbon { fill: var(--bad-soft); }
+.link.muted .wire { stroke: var(--gray); } .link.muted .end { fill: var(--gray); } .link.muted .ribbon { fill: var(--hover); }
+.focusing .link.drawn { opacity: 0.1; }
+.focusing .link.active { opacity: 1; }
+.link.active .wire { stroke-width: 2.5; }
+.link.active .ribbon { opacity: 1; }
 
 /* 아래 도구 창 */
 .tw-bottom { height: 210px; flex: none; border-top: 1px solid var(--line); }
@@ -375,7 +383,7 @@ button.t-row.is-current { background: var(--accent-weak); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .row { opacity: 1; transform: none; }
-  .band { opacity: 1; }
+  .link { opacity: 1; } .link .wire { stroke-dashoffset: 0; }
 }
 
 /* 값 표시 (대조 로직이 붙이는 이름) */

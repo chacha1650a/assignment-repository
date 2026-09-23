@@ -13,5 +13,5 @@
   <rect x="17" y="32" width="15" height="3.5" rx="1.75" fill="#f2c55c"/>
   <rect x="17" y="44" width="16" height="3.5" rx="1.75" fill="#fff"/>
   <circle cx="41" cy="33" r="6.5" fill="none" stroke="#fff" stroke-width="3"/>
-  <path d="M45.6 37.6 L49.5 41.5" stroke="#fff" stroke-width="3.4" stroke-linecap="round"/>
+  <path d="M46.9 38.9 L50.5 42.5" stroke="#fff" stroke-width="3.4" stroke-linecap="round"/>
 </svg>
