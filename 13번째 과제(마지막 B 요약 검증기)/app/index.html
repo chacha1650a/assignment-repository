@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>요약 검증기</title>
+<meta name="description" content="AI가 쓴 요약을 원문과 문장별로 대조해, 지어낸 값과 '과잉 방어'를 표시해 주는 앱. 김대훈의 10번 논문 결과를 바탕으로 만들었습니다.">
+<meta property="og:title" content="요약 검증기 — AI 요약, 원문과 맞는지 문장별로 대조합니다">
+<meta property="og:description" content="지어낸 값과 '문서에 없음'이라고 잘못 쓴 곳(과잉 방어)을 표시합니다. 10번 논문 결과를 반영한 앱.">
+<meta property="og:image" content="https://chacha1650a.github.io/assignment-repository/13%EB%B2%88%EC%A7%B8%20%EA%B3%BC%EC%A0%9C(%EB%A7%88%EC%A7%80%EB%A7%89%20B%20%EC%9A%94%EC%95%BD%20%EA%B2%80%EC%A6%9D%EA%B8%B0)/app/og.png">
+<meta property="og:type" content="website">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="style.css">
+<script>try { var t = localStorage.getItem("sv-theme"); if (t) document.documentElement.setAttribute("data-theme", t); } catch (e) {}</script>
+</head>
+<body>
+<div class="ide" id="ide" data-mode="edit">
+
+  <!-- ───── 메인 툴바 ───── -->
+  <header class="mainbar">
+    <div class="mb-left">
+      <img class="app-icon" src="icon.svg" alt="" width="22" height="22">
+      <h1 class="proj">요약 검증기</h1>
+      <span class="vcs" title="이 앱이 반영한 논문">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3v10M5 6a3 3 0 0 0 3 3h1a3 3 0 0 1 3 3M5 3.5a1.5 1.5 0 1 0 0-.01M12 12.5a1.5 1.5 0 1 0 0-.01" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        10번 논문 반영
+      </span>
+    </div>
+    <div class="mb-center">
+      <label class="runconf" title="실행 구성: 검사할 예시를 고릅니다">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="2.5" width="11" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M5.5 8h5M5.5 5.5h5M5.5 10.5h3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        <select id="sample-select" aria-label="예시 고르기">
+          <option value="">직접 입력</option>
+        </select>
+      </label>
+      <button id="run" class="run-btn" type="button" title="검사하기 (Ctrl+Enter)">
+        <svg class="i-run" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 3v10l8.5-5z" fill="currentColor"/></svg>
+        <svg class="i-stop" viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="4" width="8" height="8" rx="1" fill="currentColor"/></svg>
+        <span class="run-label">검사하기</span>
+      </button>
+      <button id="edit" class="tool-btn" type="button" title="다시 편집하기">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 13l1-3.5L10.5 3 13 5.5 6.5 12zM9.5 4l2.5 2.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+        <span>편집</span>
+      </button>
+    </div>
+    <div class="mb-right">
+      <a class="tool-link" href="https://github.com/chacha1650a/assignment-repository/blob/main/10%EB%B2%88%EC%A7%B8%20%EA%B3%BC%EC%A0%9C%28AI%EC%99%80%20%ED%95%A8%EA%BB%98%20%EC%93%B0%EB%8A%94%20%EC%B2%AB%20%EB%85%BC%EB%AC%B8%29/%EB%85%BC%EB%AC%B8%28%EA%B9%80%EB%8C%80%ED%9B%88%29.md" target="_blank" rel="noopener noreferrer">논문 원문</a>
+      <a class="tool-link" href="../../12%EB%B2%88%EC%A7%B8%20%EA%B3%BC%EC%A0%9C(%EB%A7%88%EC%A7%80%EB%A7%89%20A%20%EB%82%98%EB%A5%BC%20%EC%86%8C%EA%B0%9C%ED%95%98%EB%8A%94%20%EC%82%AC%EC%9D%B4%ED%8A%B8)/index.html#portfolio">만든 사람: 김대훈</a>
+      <button id="theme" class="icon-btn" type="button" title="밝은/어두운 화면 바꾸기" aria-label="밝은/어두운 화면 바꾸기">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M8 2.5a5.5 5.5 0 0 1 0 11z" fill="currentColor"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="workbench">
+
+    <!-- ───── 왼쪽 도구 창 막대 ───── -->
+    <nav class="stripe" aria-label="도구 창">
+      <button class="stripe-btn is-on" type="button" data-toggle="tw-project" title="프로젝트" aria-pressed="true">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4.5A1.5 1.5 0 0 1 3.5 3h3l1.5 1.5h4.5A1.5 1.5 0 0 1 14 6v5.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 11.5z" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
+      </button>
+      <button class="stripe-btn" type="button" data-open-paper title="논문 근거">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3h4a2 2 0 0 1 1 .3A2 2 0 0 1 9 3h4v9.5H9a1 1 0 0 0-1 1 1 1 0 0 0-1-1H3z M8 3.3v10" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+      </button>
+      <span class="stripe-sep"></span>
+      <button class="stripe-btn is-on" type="button" data-toggle="tw-bottom" title="실행 · 문제" aria-pressed="true">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="3" width="12" height="10" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M4.5 6.5l2 1.5-2 1.5M8 10h3" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      </button>
+    </nav>
+
+    <!-- ───── 프로젝트 창 ───── -->
+    <aside class="toolwin tw-project" id="tw-project" aria-label="프로젝트">
+      <div class="tw-head"><span>프로젝트</span></div>
+      <ul class="tree" id="tree">
+        <li class="t-dir open"><span class="t-row" data-depth="0"><i class="chev"></i><i class="ico dir"></i>요약-검증기</span>
+          <ul>
+            <li><button type="button" class="t-row" data-depth="1" data-go="source"><i class="ico md"></i>원문.md</button></li>
+            <li><button type="button" class="t-row" data-depth="1" data-go="summary"><i class="ico md"></i>요약.md</button></li>
+            <li class="t-dir open"><span class="t-row" data-depth="1"><i class="chev"></i><i class="ico dir"></i>예시</span>
+              <ul id="tree-samples"></ul>
+            </li>
+            <li><button type="button" class="t-row" data-depth="1" data-open-paper><i class="ico book"></i>논문_근거.md</button></li>
+            <li><span class="t-row dim" data-depth="1"><i class="ico txt"></i>README.md</span></li>
+          </ul>
+        </li>
+      </ul>
+      <p class="tw-foot">예시 파일을 누르면 바로 검사합니다.</p>
+    </aside>
+
+    <!-- ───── 에디터 영역 ───── -->
+    <main class="center">
+      <div class="notice" role="note">
+        <svg class="notice-ico" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="currentColor"/><path d="M8 7v4.2M8 4.8v.1" stroke="var(--notice-bg)" stroke-width="1.6" stroke-linecap="round"/></svg>
+        <div class="notice-text">
+          <p class="notice-paper">10번 논문 「지시문의 모호성은 요약 과제의 할루시네이션을 늘리는가」를 반영한 앱</p>
+          <p class="notice-lead">AI에게 문서 요약을 맡기는 사람이 결과를 받았을 때, 요약 문장을 원문과 하나씩 대조해 <b class="t-bad">지어낸 값</b>과 <b class="t-warn">과잉 방어</b>(원문에 있는 정보를 "문서에 없음"이라고 쓴 것)를 표시해 줍니다.</p>
+        </div>
+        <button id="quick" class="link-btn" type="button">예시로 바로 실행</button>
+      </div>
+
+      <div class="split" id="split">
+        <section class="editor" id="ed-src" aria-label="원문 편집기">
+          <div class="tabs"><span class="tab is-active"><i class="ico md"></i>원문.md</span><span class="tab-hint">AI에게 준 문서</span></div>
+          <div class="ed-body">
+            <div class="gutter" id="g-source" aria-hidden="true"></div>
+            <textarea id="source" class="code" spellcheck="false" maxlength="20000" aria-label="원문"></textarea>
+            <ol class="view srclist" id="srclist" aria-label="원문 문장"></ol>
+          </div>
+        </section>
+
+        <div class="diff-gap" aria-hidden="true"><svg id="bands" class="bands"></svg></div>
+
+        <section class="editor" id="ed-sum" aria-label="요약 편집기">
+          <div class="tabs">
+            <span class="tab is-active"><i class="ico md"></i>요약.md</span><span class="tab-hint">AI가 돌려준 글</span>
+            <button class="insp" id="insp" type="button" title="문제 창 열기">
+              <span class="i-bad"><i class="dot bad"></i><b id="n-bad">0</b></span>
+              <span class="i-warn"><i class="dot warn"></i><b id="n-warn">0</b></span>
+              <span class="i-ok"><i class="dot ok"></i><b id="n-ok">0</b></span>
+            </button>
+          </div>
+          <div class="ed-body">
+            <div class="gutter" id="g-summary" aria-hidden="true"></div>
+            <textarea id="summary" class="code" spellcheck="false" maxlength="20000" aria-label="AI 요약" placeholder="AI가 쓴 요약을 여기에 붙여 넣으세요.&#10;처음이라면 위쪽의 [예시로 바로 실행]을 눌러 보세요."></textarea>
+            <ol class="view sumlist" id="list" aria-label="요약 문장 판정"></ol>
+          </div>
+        </section>
+
+        <div class="scanbeam" aria-hidden="true"></div>
+      </div>
+
+      <!-- ───── 아래 도구 창: 실행 · 문제 ───── -->
+      <section class="toolwin tw-bottom" id="tw-bottom" aria-label="실행과 문제">
+        <div class="tw-tabs" role="tablist">
+          <button type="button" role="tab" class="tw-tab is-active" data-bt="run" aria-selected="true">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 3v10l8.5-5z" fill="currentColor"/></svg>실행
+          </button>
+          <button type="button" role="tab" class="tw-tab" data-bt="problems" aria-selected="false">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M8 4.8v3.6M8 10.8v.1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>문제 <span class="badge-n" id="prob-count"></span>
+          </button>
+        </div>
+        <div class="tw-body">
+          <div class="console" id="console" role="log" aria-live="polite"><p class="c-dim">검사하기(▶)를 누르면 여기에 검증 과정이 한 줄씩 나옵니다.</p></div>
+          <ul class="problems" id="problems" hidden></ul>
+        </div>
+      </section>
+    </main>
+
+    <!-- ───── 오른쪽 도구 창: 검증 결과 · 논문 근거 ───── -->
+    <aside class="toolwin tw-right" id="tw-right" aria-label="검증 결과">
+      <div class="tw-tabs" role="tablist">
+        <button type="button" role="tab" class="tw-tab is-active" data-rt="result" aria-selected="true">검증 결과</button>
+        <button type="button" role="tab" class="tw-tab" data-rt="paper" aria-selected="false">논문 근거</button>
+      </div>
+
+      <div class="rt-panel" id="rt-result">
+        <div class="empty" id="empty">
+          <svg class="illo" viewBox="0 0 240 160" aria-hidden="true">
+            <defs>
+              <linearGradient id="lens" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff9a4d"/><stop offset="1" stop-color="#e0487a"/></linearGradient>
+            </defs>
+            <text class="lbl" x="14" y="15">원문.md</text>
+            <text class="lbl" x="138" y="31">요약.md</text>
+            <!-- 원문: 근거로 쓰인 줄만 표시가 붙습니다 -->
+            <rect x="12" y="20" width="92" height="130" rx="9" class="paper-b"/>
+            <rect x="24" y="33" width="64" height="6" rx="3" class="ln"/>
+            <rect x="24" y="49" width="58" height="6" rx="3" class="ln lit"/><rect x="17" y="47" width="3" height="10" rx="1.5" class="mk ok"/>
+            <rect x="24" y="65" width="70" height="6" rx="3" class="ln"/>
+            <rect x="24" y="81" width="52" height="6" rx="3" class="ln lit"/><rect x="17" y="79" width="3" height="10" rx="1.5" class="mk warn"/>
+            <rect x="24" y="97" width="66" height="6" rx="3" class="ln"/>
+            <rect x="24" y="113" width="58" height="6" rx="3" class="ln"/>
+            <rect x="24" y="129" width="40" height="6" rx="3" class="ln"/>
+            <!-- 요약: 줄마다 판정 색 -->
+            <rect x="136" y="36" width="92" height="98" rx="9" class="paper-b"/>
+            <circle cx="146" cy="52" r="3" class="mk ok"/><rect x="153" y="49" width="56" height="6" rx="3" class="ln lit"/>
+            <circle cx="146" cy="72" r="3" class="mk warn"/><rect x="153" y="69" width="62" height="6" rx="3" class="ln hl-warn"/>
+            <circle cx="146" cy="92" r="3" class="mk bad"/><rect x="153" y="89" width="48" height="6" rx="3" class="ln hl-bad"/>
+            <circle cx="146" cy="112" r="3" class="mk muted"/><rect x="153" y="109" width="40" height="6" rx="3" class="ln"/>
+            <!-- 연결 띠: 원문 줄 ↔ 요약 줄 -->
+            <path class="iband ok" d="M104 46 C120 46 120 46 136 46 L136 58 C120 58 120 58 104 58 Z"/>
+            <path class="iband warn" d="M104 78 C120 78 120 66 136 66 L136 78 C120 78 120 90 104 90 Z"/>
+            <path class="istub" d="M136 92 C126 92 122 100 114 104"/>
+            <circle class="istub-end" cx="111" cy="106" r="3"/>
+            <!-- 돋보기: 요약 줄을 위에서 아래로 훑습니다 -->
+            <g class="ilens">
+              <circle cx="0" cy="0" r="12" class="glass"/>
+              <circle cx="0" cy="0" r="12" fill="none" stroke="url(#lens)" stroke-width="4"/>
+              <path d="M8.5 8.5 L16 16" stroke="url(#lens)" stroke-width="5" stroke-linecap="round"/>
+            </g>
+          </svg>
+          <h2 class="empty-title">시작하기</h2>
+          <ol class="howto">
+            <li><b>1</b><span>원문과 AI 요약을 붙여 넣습니다</span></li>
+            <li><b>2</b><span>문장마다 나온 판정과 원문 근거를 확인합니다</span></li>
+            <li><b>3</b><span>논문 결과로 만든 지시문 팁을 봅니다</span></li>
+          </ol>
+          <button id="quick2" class="primary" type="button">예시 B로 바로 실행</button>
+          <p class="privacy">입력한 글은 이 브라우저 밖으로 나가지 않습니다.</p>
+        </div>
+
+        <div class="report" id="report" hidden>
+          <div class="skeleton" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+          <div class="cov">
+            <div class="ring-wrap">
+              <svg class="ring" viewBox="0 0 120 120" aria-hidden="true">
+                <circle class="ring-bg" cx="60" cy="60" r="52"></circle>
+                <circle id="ring-fg" class="ring-fg" cx="60" cy="60" r="52"></circle>
+              </svg>
+              <div class="ring-label"><div><b id="ring-num">0</b><span>%</span></div><small>근거 확인율</small></div>
+            </div>
+            <p class="verdict" id="verdict"></p>
+          </div>
+          <div class="bar" aria-hidden="true"><span id="seg-ok" class="seg ok"></span><span id="seg-bad" class="seg bad"></span><span id="seg-warn" class="seg warn"></span><span id="seg-muted" class="seg muted"></span></div>
+          <dl class="stats">
+            <div><dt><i class="dot ok"></i>근거 있음</dt><dd id="stat-ok">0</dd></div>
+            <div><dt><i class="dot bad"></i>원문에 없는 값</dt><dd id="stat-bad">0</dd></div>
+            <div><dt><i class="dot warn"></i>과잉 방어 의심</dt><dd id="stat-warn">0</dd></div>
+            <div><dt><i class="dot muted"></i>직접 확인</dt><dd id="stat-muted">0</dd></div>
+          </dl>
+          <p class="coverage" id="coverage"></p>
+          <h3 class="sub">지시문 팁</h3>
+          <ul class="tips" id="tips"></ul>
+        </div>
+      </div>
+
+      <div class="rt-panel paper" id="rt-paper" hidden>
+        <h2>이 앱이 논문에서 가져온 것</h2>
+        <table>
+          <thead><tr><th>지시문</th><th>오류</th></tr></thead>
+          <tbody>
+            <tr><td>"이 문서 요약해줘."</td><td><b>0</b> / 10</td></tr>
+            <tr><td>"문서에 있는 내용만… 확실하지 않으면 '문서에 없음'이라고 써."</td><td><b class="t-warn">1</b> / 10<br><small>과잉 방어</small></td></tr>
+          </tbody>
+        </table>
+        <p>논문의 가설("지시가 모호할수록 AI가 더 지어낸다")은 기각됐습니다. 대신 금지 지시가 <b>원문에 있는 정보를 없다고 지우는</b> 오류를 만들 수 있다는 것을 봤습니다. 그래서 이 앱은 지어낸 값뿐 아니라 "문서에 없음"이라는 표시도 원문과 다시 대조합니다.</p>
+        <p class="limits">한계: 숫자·날짜·파일명·영문 낱말·직함이 붙은 이름만 자동으로 대조하고, 나머지는 낱말 겹침으로 근거 문장을 찾습니다. 뜻이 바뀐 문장은 못 잡을 수 있습니다. 논문도 조건당 10회, 문서 한 개로 한 작은 실험입니다.</p>
+      </div>
+    </aside>
+  </div>
+
+  <!-- ───── 상태 표시줄 ───── -->
+  <footer class="statusbar">
+    <span class="sb-crumb" id="sb-crumb">요약-검증기 › 요약.md</span>
+    <span class="sb-progress" id="sb-progress"><span id="sb-task">검증 중…</span><i><b id="sb-fill"></b></i></span>
+    <span class="sb-right"><span id="sb-info">준비됨</span><span class="sb-sep">UTF-8</span><span class="sb-sep">서버 전송 없음</span></span>
+  </footer>
+</div>
+<script src="samples.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
