@@ -7,191 +7,198 @@
 <meta name="description" content="김대훈의 자기소개 사이트 — 이야기, 13주 기록, 대표작, 이력서를 한 곳에서 확인할 수 있습니다.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js" } }
+</script>
 </head>
 <body>
 
 <a class="skip-link" href="#story">본문으로 건너뛰기</a>
 
-<div class="bg-scene" aria-hidden="true">
-  <span class="orb orb-1"></span>
-  <span class="orb orb-2"></span>
-  <span class="orb orb-3"></span>
-  <span class="grain"></span>
-</div>
+<div class="scene-fallback" aria-hidden="true"></div>
+<canvas id="scene" aria-hidden="true"></canvas>
+<div class="scrim" aria-hidden="true"></div>
 
-<div class="layout">
+<header class="topbar" id="topbar">
+  <a class="logo" href="#top" aria-label="맨 위로">김대훈<span class="logo-dot">.</span><span class="logo-cursor">_</span></a>
 
-  <aside class="sidebar" id="top">
-    <div class="sidebar-inner">
-      <div class="sidebar-top">
-        <p class="eyebrow">🙋 자기소개 · 2026</p>
-        <h1>김대훈</h1>
-        <p class="oneliner">문제를 만나면 피하지 않고,<br>내 속도로 다시 다가가는 사람</p>
+  <button class="menu-toggle" id="menuToggle" type="button" aria-expanded="false" aria-controls="siteNav" aria-label="메뉴 열기">
+    <span></span><span></span><span></span>
+  </button>
+
+  <nav class="site-nav" id="siteNav" aria-label="섹션 이동">
+    <a href="#story" data-nav="story"><span class="nav-num">01</span>이야기</a>
+    <a href="#numbers" data-nav="numbers"><span class="nav-num">02</span>기록</a>
+    <a href="#portfolio" data-nav="portfolio"><span class="nav-num">03</span>대표작</a>
+    <a href="#docs" data-nav="docs"><span class="nav-num">04</span>문서</a>
+    <a class="nav-github" href="https://github.com/chacha1650a" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+      <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+      <span class="nav-github-label">GitHub</span>
+    </a>
+  </nav>
+</header>
+
+<section class="hero" id="top">
+  <div class="hero-inner">
+    <p class="eyebrow">자기소개 · 2026</p>
+    <h1>김대훈</h1>
+    <p class="oneliner">문제를 만나면 피하지 않고, 내 속도로 다시 다가가는 사람</p>
+    <div class="hero-links">
+      <a class="pill" href="#story">이야기</a>
+      <a class="pill" href="#numbers">13주 기록</a>
+      <a class="pill" href="#portfolio">대표작</a>
+      <a class="pill pill-primary" href="#docs">이력서</a>
+    </div>
+  </div>
+  <a class="scroll-cue" href="#story" aria-label="아래로 스크롤"><span></span></a>
+</section>
+
+<main class="content">
+
+  <section id="story" class="reveal">
+    <p class="eyebrow-mono">01 — Story</p>
+    <h2>이야기</h2>
+    <p class="section-desc">고난에서 시작해 다시 일어나고, 더 나아진 지금까지 — 날짜가 있는 장면으로만 적었습니다.</p>
+    <div class="ability-tags">
+      <span class="tag">자기조절력 · 나와 나의 소통</span>
+      <span class="tag">대인관계력 · 나와 타인의 소통</span>
+      <span class="tag">자기동기력 · 나와 세상의 소통</span>
+    </div>
+
+    <ol class="timeline">
+      <li class="timeline-item reveal">
+        <div class="timeline-rail"><span class="timeline-dot"></span></div>
+        <div class="timeline-body">
+          <span class="timeline-date">2023</span>
+          <p>가고 싶었던 고등학교 입시에서 떨어졌습니다. 원하던 곳에 가지 못했다는 사실은 한동안 마음에 남았지만, 저는 배정받은 학교에서 주저앉는 대신 그 안에서 할 수 있는 것을 찾아 나갔습니다. 남과 비교하며 아쉬워하기보다 지금 서 있는 자리에서 최선을 다하는 쪽을 택했고, 결국 제가 원하던 바를 그 학교 안에서 이루어냈습니다.</p>
+          <span class="ability-note">자기동기력</span>
+        </div>
+      </li>
+
+      <li class="timeline-item reveal">
+        <div class="timeline-rail"><span class="timeline-dot"></span></div>
+        <div class="timeline-body">
+          <span class="timeline-date">2026 · 08 · 11</span>
+          <p>이 힘은 ALEPH 부산 A반 개강과 함께 다시 시작됐습니다. 네트워크·보안 수업에서 생소한 개념들이 쏟아지자 정말 이해가 되지 않아 막막했던 시기가 있었습니다. 그때도 저는 포기 대신 방법을 바꿨습니다. 어려운 내용을 한 번에 이해하려 하지 않고 제 눈높이에 맞춰 하나씩 천천히 짚어 나갔고, 그 힘든 시기에도 리추얼 기록과 출석은 하루도 빠뜨리지 않았습니다(30개 훈련일 중 결석 0일, 출석률 96.7% — <a href="#numbers">아래 「기록」 참고</a>).</p>
+          <span class="ability-note">자기동기력</span>
+          <span class="ability-note">자기조절력</span>
+        </div>
+      </li>
+
+      <li class="timeline-item reveal">
+        <div class="timeline-rail"><span class="timeline-dot"></span></div>
+        <div class="timeline-body">
+          <span class="timeline-date">2026 · 09 · 08</span>
+          <p>동료를 그냥 지나치지 않는 것도 제가 지키려는 태도입니다. 옆자리 동료가 저와 같은 문제로 쩔쩔매고 있을 때 저는 제 상황에 빗대어 함께 고민했습니다. "본인 파트가 끝났다고 손 털지 않고, 다른 사람 막힌 화면을 슬쩍 보며 같이 고민해 주는 든든함이 있다"는 말을 들었을 때, 제가 지키고 싶은 태도가 무엇인지 다시 확인했습니다. 같은 날, 수업 밖에서 순전히 하고 싶어서 만들던 Minecraft 플러그인이 실제 게임에서 동작하는 것을 봤습니다. 누가 시키지 않아도 궁금하면 일단 만들어 보는 것, 그것이 제가 스스로를 움직이는 방식입니다.</p>
+          <span class="ability-note">대인관계력</span>
+          <span class="ability-note">자기동기력</span>
+        </div>
+      </li>
+
+      <li class="timeline-item reveal">
+        <div class="timeline-rail"><span class="timeline-dot"></span></div>
+        <div class="timeline-body">
+          <span class="timeline-date">2026 · 09 · 11</span>
+          <p>이 두 가지가 진짜 시험대에 오른 건 이날이었습니다. 프로젝트를 진행하던 중 LLM에게 작업 지시사항을 잘못 전달했고, AI가 엉뚱한 방향으로 코드를 만들어내는 환각 현상이 발생해 프로젝트가 중간 단계에서 멈춰설 뻔했습니다. 예전 같았으면 당황했을 순간, 저는 문제가 생긴 지점을 침착하게 짚어내고 그 자리에서 즉시 지시를 다시 정리해 재명령을 내렸습니다. 고등학교 입시에 떨어졌을 때도, 네트워크 수업이 막막했을 때도 통했던 방식 — 멈추지 않고 제 속도로 다시 접근하는 것 — 이 이번에는 사람이 아닌 AI를 상대로 그대로 재현된 것입니다. 저는 이 사건을 <a href="#portfolio">논문 10번 과제</a>의 출발점으로 삼아, "지시문이 모호할수록 할루시네이션이 늘어나는가"를 직접 실험으로 검증하기도 했습니다.</p>
+          <span class="ability-note">자기조절력</span>
+        </div>
+      </li>
+
+      <li class="timeline-item reveal">
+        <div class="timeline-rail"><span class="timeline-dot timeline-dot-now"></span></div>
+        <div class="timeline-body">
+          <span class="timeline-date">지금</span>
+          <p>지금까지 무료 과제 13개 중 11개를 완료했고, 리추얼 기록은 35회 쌓였습니다. 저는 이 모든 과정을 다 정복했다고 말하지 않습니다. 지금도 배우는 중이고, 여전히 막히는 순간이 옵니다. 다만 막혔을 때 멈추지 않고 저에게 맞는 방식을 찾아 다시 움직인다는 확신만은 분명해졌습니다. 저는 이 흐름을, 함께 일할 곳에서 계속 이어가고 싶습니다.</p>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <section id="numbers" class="reveal">
+    <p class="eyebrow-mono">02 — Numbers</p>
+    <h2>13주 기록의 숫자</h2>
+    <p class="section-desc">말이 아니라 숫자로 남긴 회복탄력성과 과제지속력입니다.</p>
+    <div class="numbers-grid">
+      <div class="number-card">
+        <div class="num">96.7<span class="unit">%</span></div>
+        <div class="label">출석률 (29/30일, 결석 0일)</div>
+        <div class="source">출처: 내 출석 기록 · 2026-08-11 개강 ~ 현재</div>
       </div>
-
-      <nav class="side-nav" aria-label="섹션 이동">
-        <a href="#story" data-nav="story"><span class="nav-num">01</span><span>이야기</span></a>
-        <a href="#numbers" data-nav="numbers"><span class="nav-num">02</span><span>기록</span></a>
-        <a href="#portfolio" data-nav="portfolio"><span class="nav-num">03</span><span>대표작</span></a>
-        <a href="#docs" data-nav="docs"><span class="nav-num">04</span><span>문서</span></a>
-      </nav>
-
-      <div class="sidebar-bottom">
-        <a class="btn btn-primary" href="문서/이력서(김대훈).md" target="_blank" rel="noopener noreferrer">이력서 보기</a>
-        <a class="social-link" href="https://github.com/chacha1650a" target="_blank" rel="noopener noreferrer">
-          <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-          <span>github.com/chacha1650a</span>
-        </a>
+      <div class="number-card">
+        <div class="num">35<span class="unit">회</span></div>
+        <div class="label">아침·마무리 리추얼 누적</div>
+        <div class="source">출처: 리추얼 기록</div>
+      </div>
+      <div class="number-card">
+        <div class="num">11<span class="unit"> / 13</span></div>
+        <div class="label">무료 과제 완료 (핵심 11개 + 마지막 A·B)</div>
+        <div class="source">출처: 내 제출 현황</div>
       </div>
     </div>
-  </aside>
+    <div class="number-pair">
+      <strong>숫자와 장면을 짝짓기 — </strong>
+      네트워크·보안 수업이 가장 막막했던 8월 셋째~넷째 주에도 결석은 0일이었습니다. 결석 0일은 30개 훈련일 전체를 통틀어 나온 값이라, 가장 힘들었던 그 주에도 그대로 적용됩니다. 막막함이 결석으로 이어지지 않았다는 뜻입니다.
+    </div>
+  </section>
 
-  <main class="content">
-
-    <section id="story" class="reveal">
-      <p class="eyebrow-mono">01 — Story</p>
-      <h2>이야기</h2>
-      <p class="section-desc">고난에서 시작해 다시 일어나고, 더 나아진 지금까지 — 날짜가 있는 장면으로만 적었습니다.</p>
-      <div class="ability-tags">
-        <span class="tag">자기조절력 · 나와 나의 소통</span>
-        <span class="tag">대인관계력 · 나와 타인의 소통</span>
-        <span class="tag">자기동기력 · 나와 세상의 소통</span>
-      </div>
-
-      <ol class="timeline">
-        <li class="timeline-item reveal">
-          <div class="timeline-rail"><span class="timeline-dot"></span></div>
-          <div class="timeline-body">
-            <span class="timeline-date">2023</span>
-            <p>가고 싶었던 고등학교 입시에서 떨어졌습니다. 원하던 곳에 가지 못했다는 사실은 한동안 마음에 남았지만, 저는 배정받은 학교에서 주저앉는 대신 그 안에서 할 수 있는 것을 찾아 나갔습니다. 남과 비교하며 아쉬워하기보다 지금 서 있는 자리에서 최선을 다하는 쪽을 택했고, 결국 제가 원하던 바를 그 학교 안에서 이루어냈습니다.</p>
-            <span class="ability-note">자기동기력</span>
-          </div>
-        </li>
-
-        <li class="timeline-item reveal">
-          <div class="timeline-rail"><span class="timeline-dot"></span></div>
-          <div class="timeline-body">
-            <span class="timeline-date">2026 · 08 · 11</span>
-            <p>이 힘은 ALEPH 부산 A반 개강과 함께 다시 시작됐습니다. 네트워크·보안 수업에서 생소한 개념들이 쏟아지자 정말 이해가 되지 않아 막막했던 시기가 있었습니다. 그때도 저는 포기 대신 방법을 바꿨습니다. 어려운 내용을 한 번에 이해하려 하지 않고 제 눈높이에 맞춰 하나씩 천천히 짚어 나갔고, 그 힘든 시기에도 리추얼 기록과 출석은 하루도 빠뜨리지 않았습니다(30개 훈련일 중 결석 0일, 출석률 96.7% — <a href="#numbers">아래 「기록」 참고</a>).</p>
-            <span class="ability-note">자기동기력</span>
-            <span class="ability-note">자기조절력</span>
-          </div>
-        </li>
-
-        <li class="timeline-item reveal">
-          <div class="timeline-rail"><span class="timeline-dot"></span></div>
-          <div class="timeline-body">
-            <span class="timeline-date">2026 · 09 · 08</span>
-            <p>동료를 그냥 지나치지 않는 것도 제가 지키려는 태도입니다. 옆자리 동료가 저와 같은 문제로 쩔쩔매고 있을 때 저는 제 상황에 빗대어 함께 고민했습니다. "본인 파트가 끝났다고 손 털지 않고, 다른 사람 막힌 화면을 슬쩍 보며 같이 고민해 주는 든든함이 있다"는 말을 들었을 때, 제가 지키고 싶은 태도가 무엇인지 다시 확인했습니다. 같은 날, 수업 밖에서 순전히 하고 싶어서 만들던 Minecraft 플러그인이 실제 게임에서 동작하는 것을 봤습니다. 누가 시키지 않아도 궁금하면 일단 만들어 보는 것, 그것이 제가 스스로를 움직이는 방식입니다.</p>
-            <span class="ability-note">대인관계력</span>
-            <span class="ability-note">자기동기력</span>
-          </div>
-        </li>
-
-        <li class="timeline-item reveal">
-          <div class="timeline-rail"><span class="timeline-dot"></span></div>
-          <div class="timeline-body">
-            <span class="timeline-date">2026 · 09 · 11</span>
-            <p>이 두 가지가 진짜 시험대에 오른 건 이날이었습니다. 프로젝트를 진행하던 중 LLM에게 작업 지시사항을 잘못 전달했고, AI가 엉뚱한 방향으로 코드를 만들어내는 환각 현상이 발생해 프로젝트가 중간 단계에서 멈춰설 뻔했습니다. 예전 같았으면 당황했을 순간, 저는 문제가 생긴 지점을 침착하게 짚어내고 그 자리에서 즉시 지시를 다시 정리해 재명령을 내렸습니다. 고등학교 입시에 떨어졌을 때도, 네트워크 수업이 막막했을 때도 통했던 방식 — 멈추지 않고 제 속도로 다시 접근하는 것 — 이 이번에는 사람이 아닌 AI를 상대로 그대로 재현된 것입니다. 저는 이 사건을 <a href="#portfolio">논문 10번 과제</a>의 출발점으로 삼아, "지시문이 모호할수록 할루시네이션이 늘어나는가"를 직접 실험으로 검증하기도 했습니다.</p>
-            <span class="ability-note">자기조절력</span>
-          </div>
-        </li>
-
-        <li class="timeline-item reveal">
-          <div class="timeline-rail"><span class="timeline-dot timeline-dot-now"></span></div>
-          <div class="timeline-body">
-            <span class="timeline-date">지금</span>
-            <p>지금까지 무료 과제 13개 중 11개를 완료했고, 리추얼 기록은 35회 쌓였습니다. 저는 이 모든 과정을 다 정복했다고 말하지 않습니다. 지금도 배우는 중이고, 여전히 막히는 순간이 옵니다. 다만 막혔을 때 멈추지 않고 저에게 맞는 방식을 찾아 다시 움직인다는 확신만은 분명해졌습니다. 저는 이 흐름을, 함께 일할 곳에서 계속 이어가고 싶습니다.</p>
-          </div>
-        </li>
-      </ol>
-    </section>
-
-    <section id="numbers" class="reveal">
-      <p class="eyebrow-mono">02 — Numbers</p>
-      <h2>13주 기록의 숫자</h2>
-      <p class="section-desc">말이 아니라 숫자로 남긴 회복탄력성과 과제지속력입니다.</p>
-      <div class="numbers-grid">
-        <div class="number-card">
-          <div class="num">96.7<span class="unit">%</span></div>
-          <div class="label">출석률 (29/30일, 결석 0일)</div>
-          <div class="source">출처: 내 출석 기록 · 2026-08-11 개강 ~ 현재</div>
+  <section id="portfolio" class="reveal">
+    <p class="eyebrow-mono">03 — Work</p>
+    <h2>대표작</h2>
+    <p class="section-desc">지금까지의 과제 중 가장 나를 잘 보여주는 두 가지입니다.</p>
+    <div class="portfolio-grid">
+      <article class="portfolio-card">
+        <div class="portfolio-card-head">
+          <span class="kicker">10번 과제 · 논문</span>
+          <span class="status done">완료 · 2026-09-21 제출</span>
         </div>
-        <div class="number-card">
-          <div class="num">35<span class="unit">회</span></div>
-          <div class="label">아침·마무리 리추얼 누적</div>
-          <div class="source">출처: 리추얼 기록</div>
+        <h3>지시문의 모호성은 요약 과제의 할루시네이션을 늘리는가</h3>
+        <p>2026-09-11 LLM 오지시 사건을 계기로 세운 가설을, 20회 반복 실험으로 직접 검증한 논문입니다. 가설과 다른 결과도 숨기지 않고 그대로 적었습니다.</p>
+        <a class="link" href="https://github.com/chacha1650a/assignment-repository/blob/main/10%EB%B2%88%EC%A7%B8%20%EA%B3%BC%EC%A0%9C%28AI%EC%99%80%20%ED%95%A8%EA%BB%98%20%EC%93%B0%EB%8A%94%20%EC%B2%AB%20%EB%85%BC%EB%AC%B8%29/%EB%85%BC%EB%AC%B8%28%EA%B9%80%EB%8C%80%ED%9B%88%29.md" target="_blank" rel="noopener noreferrer">로그인 없이 논문 원문 보기 <span aria-hidden="true">→</span></a>
+      </article>
+      <article class="portfolio-card portfolio-card-pending">
+        <div class="portfolio-card-head">
+          <span class="kicker">마지막 B (13번 과제)</span>
+          <span class="status pending">진행 예정</span>
         </div>
-        <div class="number-card">
-          <div class="num">11<span class="unit"> / 13</span></div>
-          <div class="label">무료 과제 완료 (핵심 11개 + 마지막 A·B)</div>
-          <div class="source">출처: 내 제출 현황</div>
-        </div>
-      </div>
-      <div class="number-pair">
-        <strong>숫자와 장면을 짝짓기 — </strong>
-        네트워크·보안 수업이 가장 막막했던 8월 셋째~넷째 주에도 결석은 0일이었습니다. 결석 0일은 30개 훈련일 전체를 통틀어 나온 값이라, 가장 힘들었던 그 주에도 그대로 적용됩니다. 막막함이 결석으로 이어지지 않았다는 뜻입니다.
-      </div>
-    </section>
+        <h3>논문 결과를 실제로 쓰는 애플리케이션</h3>
+        <p>10번 논문에서 "이렇다"고 밝힌 것을 "그래서 이렇게 도울 수 있다"로 바꾸는 앱을 만들 자리입니다. 마지막 A가 마스터 최종 승인된 뒤 진행합니다.</p>
+      </article>
+    </div>
+  </section>
 
-    <section id="portfolio" class="reveal">
-      <p class="eyebrow-mono">03 — Work</p>
-      <h2>대표작</h2>
-      <p class="section-desc">지금까지의 과제 중 가장 나를 잘 보여주는 두 가지입니다.</p>
-      <div class="portfolio-grid">
-        <article class="portfolio-card">
-          <div class="portfolio-card-head">
-            <span class="kicker">10번 과제 · 논문</span>
-            <span class="status done">완료 · 2026-09-21 제출</span>
-          </div>
-          <h3>지시문의 모호성은 요약 과제의 할루시네이션을 늘리는가</h3>
-          <p>2026-09-11 LLM 오지시 사건을 계기로 세운 가설을, 20회 반복 실험으로 직접 검증한 논문입니다. 가설과 다른 결과도 숨기지 않고 그대로 적었습니다.</p>
-          <a class="link" href="https://github.com/chacha1650a/assignment-repository/blob/main/10%EB%B2%88%EC%A7%B8%20%EA%B3%BC%EC%A0%9C%28AI%EC%99%80%20%ED%95%A8%EA%BB%98%20%EC%93%B0%EB%8A%94%20%EC%B2%AB%20%EB%85%BC%EB%AC%B8%29/%EB%85%BC%EB%AC%B8%28%EA%B9%80%EB%8C%80%ED%9B%88%29.md" target="_blank" rel="noopener noreferrer">로그인 없이 논문 원문 보기 <span aria-hidden="true">→</span></a>
-        </article>
-        <article class="portfolio-card portfolio-card-pending">
-          <div class="portfolio-card-head">
-            <span class="kicker">마지막 B (13번 과제)</span>
-            <span class="status pending">진행 예정</span>
-          </div>
-          <h3>논문 결과를 실제로 쓰는 애플리케이션</h3>
-          <p>10번 논문에서 "이렇다"고 밝힌 것을 "그래서 이렇게 도울 수 있다"로 바꾸는 앱을 만들 자리입니다. 마지막 A가 마스터 최종 승인된 뒤 진행합니다.</p>
-        </article>
-      </div>
-    </section>
+  <section id="docs" class="reveal">
+    <p class="eyebrow-mono">04 — Documents</p>
+    <h2>이력서 · 자기소개서 · 경력기술서</h2>
+    <p class="section-desc">오늘 바로 지원서에 붙일 수 있도록 문서로 정리했습니다. 로그인 없이 열립니다.</p>
+    <div class="docs-grid">
+      <a class="doc-card" href="문서/이력서(김대훈).md" target="_blank" rel="noopener noreferrer">
+        <div class="doc-icon">📄</div>
+        <div class="doc-title">이력서</div>
+        <div class="doc-desc">이름·연락 수단·과제 이력을 정리한 한 장 이력서</div>
+      </a>
+      <a class="doc-card" href="문서/자기소개서(김대훈).md" target="_blank" rel="noopener noreferrer">
+        <div class="doc-icon">✍️</div>
+        <div class="doc-title">자기소개서</div>
+        <div class="doc-desc">위 「이야기」를 자기소개서 분량으로 다듬은 문서</div>
+      </a>
+      <a class="doc-card" href="문서/경력기술서(김대훈).md" target="_blank" rel="noopener noreferrer">
+        <div class="doc-icon">🧾</div>
+        <div class="doc-title">경력기술서</div>
+        <div class="doc-desc">과제마다 상황·행동·결과와 해당 능력을 정리한 문서</div>
+      </a>
+    </div>
+  </section>
 
-    <section id="docs" class="reveal">
-      <p class="eyebrow-mono">04 — Documents</p>
-      <h2>이력서 · 자기소개서 · 경력기술서</h2>
-      <p class="section-desc">오늘 바로 지원서에 붙일 수 있도록 문서로 정리했습니다. 로그인 없이 열립니다.</p>
-      <div class="docs-grid">
-        <a class="doc-card" href="문서/이력서(김대훈).md" target="_blank" rel="noopener noreferrer">
-          <div class="doc-icon">📄</div>
-          <div class="doc-title">이력서</div>
-          <div class="doc-desc">이름·연락 수단·과제 이력을 정리한 한 장 이력서</div>
-        </a>
-        <a class="doc-card" href="문서/자기소개서(김대훈).md" target="_blank" rel="noopener noreferrer">
-          <div class="doc-icon">✍️</div>
-          <div class="doc-title">자기소개서</div>
-          <div class="doc-desc">위 「이야기」를 자기소개서 분량으로 다듬은 문서</div>
-        </a>
-        <a class="doc-card" href="문서/경력기술서(김대훈).md" target="_blank" rel="noopener noreferrer">
-          <div class="doc-icon">🧾</div>
-          <div class="doc-title">경력기술서</div>
-          <div class="doc-desc">과제마다 상황·행동·결과와 해당 능력을 정리한 문서</div>
-        </a>
-      </div>
-    </section>
+  <footer>
+    <p>이 사이트는 실제 지원에 씁니다. 본인 이름과 공개하기로 정한 연락 수단만 남겼고, 다른 사람의 실명은 넣지 않았습니다.</p>
+    <p>GitHub: <a href="https://github.com/chacha1650a" target="_blank" rel="noopener noreferrer">github.com/chacha1650a</a> · 과제 모음: <a href="https://chacha1650a.github.io/assignment-repository/" target="_blank" rel="noopener noreferrer">chacha1650a.github.io/assignment-repository</a></p>
+  </footer>
 
-    <footer>
-      <p>이 사이트는 실제 지원에 씁니다. 본인 이름과 공개하기로 정한 연락 수단만 남겼고, 다른 사람의 실명은 넣지 않았습니다.</p>
-      <p>GitHub: <a href="https://github.com/chacha1650a" target="_blank" rel="noopener noreferrer">github.com/chacha1650a</a> · 과제 모음: <a href="https://chacha1650a.github.io/assignment-repository/" target="_blank" rel="noopener noreferrer">chacha1650a.github.io/assignment-repository</a></p>
-    </footer>
+</main>
 
-  </main>
-</div>
-
+<script type="module" src="scene.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
