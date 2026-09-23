@@ -595,7 +595,13 @@
     });
   }
 
-  // ---- Diff 연결 띠: 요약 줄 ↔ 근거 원문 줄 (근거가 여러 줄이면 요약 줄을 나눠서 잇습니다) ----
+  // ---- 연결선: 요약 줄 ↔ 근거 원문 줄 ----
+  // 평소엔 가는 곡선과 양 끝 점만, 마우스를 올린 줄은 띠로 강조합니다. 멀리 거슬러 가는 선은 흐리게 둡니다.
+  function svgEl(tag, attrs) {
+    var el = document.createElementNS(SVG_NS, tag);
+    Object.keys(attrs).forEach(function (k) { el.setAttribute(k, attrs[k]); });
+    return el;
+  }
   function drawBands() {
     var svg = $("bands");
     while (svg.firstChild) svg.removeChild(svg.firstChild);
@@ -604,8 +610,8 @@
     var sr = $("split").getBoundingClientRect();
     var srcBody = $("srclist").parentNode.getBoundingClientRect().top - sr.top;
     var sumBody = $("list").parentNode.getBoundingClientRect().top - sr.top;
-    var xL = $("ed-src").getBoundingClientRect().right - sr.left;
-    var xR = $("ed-sum").getBoundingClientRect().left - sr.left;
+    var xL = $("ed-src").getBoundingClientRect().right - sr.left + 5;
+    var xR = $("ed-sum").getBoundingClientRect().left - sr.left - 5;
     var xm = (xL + xR) / 2;
     svg.setAttribute("width", sr.width);
     svg.setAttribute("height", sr.height);
@@ -614,20 +620,27 @@
     state.list.forEach(function (r, i) {
       var row = rows[i];
       if (!row || !row.offsetHeight) return;
-      var n = r.evAll.length;
-      var rt = sumBody + row.offsetTop + 2, rh = row.offsetHeight - 4;
-      r.evAll.forEach(function (e, k) {
+      var y2 = sumBody + row.offsetTop + 17;
+      r.evAll.forEach(function (e) {
         var s = srcs[e];
         if (!s) return;
-        var at = rt + rh * k / n + (k ? 1 : 0), ab = rt + rh * (k + 1) / n - (k < n - 1 ? 1 : 0);
-        var bt = srcBody + s.offsetTop + 2, bb = srcBody + s.offsetTop + s.offsetHeight - 2;
-        var p = document.createElementNS(SVG_NS, "path");
-        p.setAttribute("d", "M" + xL + " " + bt + " C" + xm + " " + bt + " " + xm + " " + at + " " + xR + " " + at +
-          " L" + xR + " " + ab + " C" + xm + " " + ab + " " + xm + " " + bb + " " + xL + " " + bb + " Z");
-        p.setAttribute("class", "band " + KIND[r.kind].cls + (row.classList.contains("in") ? " drawn" : "") + (row.classList.contains("active") ? " active" : ""));
-        p.setAttribute("data-i", i);
-        p.setAttribute("data-src", e);
-        svg.appendChild(p);
+        var y1 = srcBody + s.offsetTop + 14;
+        var cls = KIND[r.kind].cls;
+        var g = svgEl("g", {
+          "class": "link " + cls + (Math.abs(y2 - y1) > 140 ? " far" : "") + (row.classList.contains("in") ? " drawn" : "") + (row.classList.contains("active") ? " active" : ""),
+          "data-i": i, "data-src": e
+        });
+        // 강조용 띠: 원문 줄 높이 ↔ 요약 줄 높이
+        var bt = srcBody + s.offsetTop + 1, bb = srcBody + s.offsetTop + s.offsetHeight - 1;
+        var at = sumBody + row.offsetTop + 1, ab = sumBody + row.offsetTop + row.offsetHeight - 1;
+        g.appendChild(svgEl("path", { "class": "ribbon", d: "M" + (xL - 5) + " " + bt + " C" + xm + " " + bt + " " + xm + " " + at + " " + (xR + 5) + " " + at +
+          " L" + (xR + 5) + " " + ab + " C" + xm + " " + ab + " " + xm + " " + bb + " " + (xL - 5) + " " + bb + " Z" }));
+        var wire = svgEl("path", { "class": "wire", d: "M" + xL + " " + y1 + " C" + xm + " " + y1 + " " + xm + " " + y2 + " " + xR + " " + y2 });
+        g.appendChild(wire);
+        g.appendChild(svgEl("circle", { "class": "end", cx: xL, cy: y1, r: 2.5 }));
+        g.appendChild(svgEl("circle", { "class": "end", cx: xR, cy: y2, r: 2.5 }));
+        svg.appendChild(g);
+        wire.style.setProperty("--len", Math.ceil(wire.getTotalLength ? wire.getTotalLength() : 200));
       });
     });
   }
